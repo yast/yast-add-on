@@ -14,10 +14,10 @@ Provides:	yast2-installation:/usr/share/YaST2/modules/AddOnProduct.ycp
 
 BuildArchitectures:	noarch
 
-Summary:	Configuration of add-on
+Summary:	Add-On Configuration
 
 %description
--
+Installs an add-on product.
 
 @PREP@
 
