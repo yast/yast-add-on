@@ -16,7 +16,7 @@
 {
 module "AddOnProduct";
 
-textdomain "installation";
+textdomain "add-on";
 
 import "Label";
 import "Mode";

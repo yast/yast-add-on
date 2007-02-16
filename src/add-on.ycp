@@ -7,7 +7,7 @@
  */
 
 {
-textdomain "installation";
+textdomain "add-on";
 
 import "AddOnProduct";
 import "Confirm";

@@ -8,7 +8,7 @@
  *		See also file proposal-API.txt for details.
  */
 {
-textdomain "installation";
+textdomain "add-on";
 
 import "Label";
 
