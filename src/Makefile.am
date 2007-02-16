@@ -5,8 +5,8 @@ yncludedir = @yncludedir@/add-on
 client_DATA =			\
 	add-on.ycp		\
 	add-on_auto.ycp		\
-	add-on_proposal		\
-	vendor.ycp		\
+	add-on_proposal.ycp	\
+	vendor.ycp
 
 ynclude_DATA =			\
 	add-on-workflow.ycp
