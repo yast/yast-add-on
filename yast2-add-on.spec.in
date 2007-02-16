@@ -12,6 +12,9 @@ BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-t
 Provides:       yast2-installation:/usr/share/YaST2/clients/vendor.ycp
 Provides:	yast2-installation:/usr/share/YaST2/modules/AddOnProduct.ycp
 
+# SCR::RegisterNewAgents, bugzilla #245508
+Conflicts:	yast2-core < 2.15.4
+
 BuildArchitectures:	noarch
 
 Summary:	Add-On Configuration

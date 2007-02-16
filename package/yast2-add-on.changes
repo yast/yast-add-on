@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Feb 16 17:55:54 CET 2007 - locilka@suse.cz
+
+- Registering new agents when y2update is part of the Add-On media,
+  some agents might have been added (#245508).
+
+-------------------------------------------------------------------
 Fri Feb 16 15:52:48 2007 - locilka@suse.cz
 
 - initial version split from yast2-installation-2.15.8 to
