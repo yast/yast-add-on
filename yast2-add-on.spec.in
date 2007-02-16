@@ -8,6 +8,10 @@ Requires:	yast2-packager
 Requires:	yast2-storage
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-installation yast2-packager yast2-storage
 
+# splitted from yast2-installation
+Provides:       yast2-installation:/usr/share/YaST2/clients/vendor.ycp
+Provides:	yast2-installation:/usr/share/YaST2/modules/AddOnProduct.ycp
+
 BuildArchitectures:	noarch
 
 Summary:	Configuration of add-on
