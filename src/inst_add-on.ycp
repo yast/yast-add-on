@@ -1,6 +1,6 @@
 /**
  * File:	clients/inst_add-on.ycp
- * Package:	yast2-installation
+ * Package:	yast2-add-on
  * Summary:	Select add-on products for installation
  * Authors:	Jiri Srain <jsrain@suse.de>
  *
