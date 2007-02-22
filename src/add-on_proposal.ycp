@@ -12,7 +12,7 @@ textdomain "add-on";
 
 import "Label";
 
-include "installation/add-on-workflow.ycp";
+include "add-on/add-on-workflow.ycp";
 
 string func  = (string) WFM::Args(0);
 map    param = (map) WFM::Args(1);

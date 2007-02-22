@@ -1,6 +1,6 @@
 /**
  * File:	clients/vendor.ycp
- * Package:	yast2
+ * Package:	yast2-add-on
  * Summary:	Load vendor driver CD
  * Authors:	Klaus Kaempf <kkaempf@suse.de>
  *

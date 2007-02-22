@@ -7,7 +7,7 @@
  */
 
 {
-textdomain "installation";
+textdomain "add-on";
 
 import "AddOnProduct";
 import "GetInstArgs";
@@ -19,7 +19,7 @@ import "Report";
 import "Wizard";
 import "Label";
 
-include "installation/add-on-workflow.ycp";
+include "add-on/add-on-workflow.ycp";
 
 map argmap = GetInstArgs::argmap();
 

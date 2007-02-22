@@ -1,6 +1,6 @@
 /**
  * File:
- *      include/installation/add-on-workflow.ycp
+ *      include/add-on/add-on-workflow.ycp
  *
  * Module:
  *      System installation
@@ -245,9 +245,8 @@ without having %1 package installed"),
 		    ret = nil;
 		    continue;
 		// New .slp agent has been added
-		// FIXME: lazy loading of agents will make this obsolete
 		} else {
-		    SCR::RegisterAgent(.slp, `ag_slp(`SlpAgent()));
+		    SCR::RegisterNewAgents();
 		}
 	    }
 

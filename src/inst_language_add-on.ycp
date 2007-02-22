@@ -16,7 +16,7 @@
     import "Label";
     import "Popup";
     
-    textdomain "installation";
+    textdomain "add-on";
 
     /**
      * Returns the list of available languages. It is based on the

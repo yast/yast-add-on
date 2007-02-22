@@ -26,7 +26,7 @@ import "AutoinstSoftware";
 import "PackageCallbacksInit";
 import "Label";
 
-include "installation/add-on-workflow.ycp";
+include "add-on/add-on-workflow.ycp";
 
 boolean progress_orig = Progress::set (false);
 
