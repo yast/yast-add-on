@@ -15,7 +15,6 @@ import "PackageLock";
 import "PackageCallbacksInit";
 import "Report";
 import "Wizard";
-import "Pkg";
 
 include "installation/add-on-workflow.ycp";
 
