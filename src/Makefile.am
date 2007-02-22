@@ -6,6 +6,7 @@ client_DATA =			\
 	add-on.ycp		\
 	add-on_auto.ycp		\
 	add-on_proposal.ycp	\
+	inst_add-on		\
 	vendor.ycp
 
 ynclude_DATA =			\
