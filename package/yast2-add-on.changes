@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
 Thu Feb 22 14:33:03 CET 2007 - locilka@suse.cz
 
-- Added forgotten inst_add-on client from yast2-installation.
+- Added forgotten inst_add-on and inst_language_add-on client from
+  yast2-installation.
 
 -------------------------------------------------------------------
 Fri Feb 16 17:55:54 CET 2007 - locilka@suse.cz
