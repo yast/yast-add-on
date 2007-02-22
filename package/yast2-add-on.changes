@@ -5,6 +5,7 @@ Thu Feb 22 14:33:03 CET 2007 - locilka@suse.cz
   yast2-installation.
 - Added autoyast2-installation into Requires because of the second
   stage installation.
+- Added forgotten testsuites from yast2-installation.
 
 -------------------------------------------------------------------
 Fri Feb 16 17:55:54 CET 2007 - locilka@suse.cz
