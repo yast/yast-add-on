@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb 23 10:10:04 CET 2007 - locilka@suse.cz
+
+- Fixed registering new agents when y2update is part of the Add-On
+  media (#245508) also for mode "update" and "autoinstallation"
+  by using Stage::initial only (#247892).
+
+-------------------------------------------------------------------
 Thu Feb 22 14:33:03 CET 2007 - locilka@suse.cz
 
 - Added forgotten inst_add-on and inst_language_add-on client from
