@@ -37,8 +37,8 @@ Installs an add-on product.
 @yncludedir@/add-on/*
 @clientdir@/add-on.ycp
 @clientdir@/add-on_*.ycp
-@clientdir@/add-on-*.ycp
-@clientdir@/inst_add-on_*.ycp
+@clientdir@/inst_add-on*.ycp
+@clientdir@/inst_*_add-on*.ycp
 @clientdir@/vendor.ycp
 @moduledir@/AddOnProduct.*
 @desktopdir@/*.desktop

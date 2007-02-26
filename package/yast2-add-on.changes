@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Feb 26 09:49:07 CET 2007 - locilka@suse.cz
+
+- Fixing RPM spec file to properly cover all files included in it.
+- 2.15.2
+
+-------------------------------------------------------------------
 Fri Feb 23 10:10:04 CET 2007 - locilka@suse.cz
 
 - Fixed registering new agents when y2update is part of the Add-On
