@@ -17,8 +17,7 @@ desktop_DATA =			\
 	add-on.desktop		\
 	vendor.desktop
 
-module_DATA =			\
-	AddOnProduct.ycp
+module_DATA =
 
 # create a symlink for local build, #145327
 add-on:

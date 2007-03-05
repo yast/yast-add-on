@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar  5 17:14:07 CET 2007 - locilka@suse.cz
+
+- Moving AddOnProduct module back to yast2-installation because
+  this module is needed in the second-stage installation.
+- 2.15.3
+
+-------------------------------------------------------------------
 Mon Feb 26 09:49:07 CET 2007 - locilka@suse.cz
 
 - Fixing RPM spec file to properly cover all files included in it.
