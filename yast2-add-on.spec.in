@@ -40,7 +40,8 @@ Installs an add-on product.
 @clientdir@/inst_add-on*.ycp
 @clientdir@/inst_*_add-on*.ycp
 @clientdir@/vendor.ycp
-@moduledir@/AddOnProduct.*
+@moduledir@/*.ycp
+@moduledir@/*.ybc
 @desktopdir@/*.desktop
 @schemadir@/autoyast/rnc/add-on.rnc
 %doc @docdir@
