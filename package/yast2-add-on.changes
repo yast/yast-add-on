@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Mar 13 15:24:27 CET 2007 - locilka@suse.cz
+
+- Redraw Wizard steps when Add-Ons are changed in the installation
+  proposal. This change allows to reflect the current workflow look
+  just after the workflow change is made (#254035).
+- 2.15.4
+
+-------------------------------------------------------------------
 Mon Mar  5 17:14:07 CET 2007 - locilka@suse.cz
 
 - Moving AddOnProduct module back to yast2-installation because
