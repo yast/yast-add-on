@@ -4,6 +4,7 @@ Tue Mar 13 15:24:27 CET 2007 - locilka@suse.cz
 - Redraw Wizard steps when Add-Ons are changed in the installation
   proposal. This change allows to reflect the current workflow look
   just after the workflow change is made (#254035).
+- Adjusted RPM dependencies (yast2-packager).
 - 2.15.4
 
 -------------------------------------------------------------------
