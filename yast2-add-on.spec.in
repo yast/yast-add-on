@@ -3,7 +3,7 @@
 @HEADER@
 Requires:	autoyast2-installation
 # WorkflowManager module
-Requires:	yast2 >= 2.15.21
+Requires:	yast2 >= 2.15.22
 Requires:	yast2-installation
 Requires:	yast2-country
 # AddOnProduct::RedrawWizardSteps (global)
@@ -11,7 +11,7 @@ Requires:	yast2-packager >= 2.15.23
 Requires:	yast2-storage
 
 BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2-installation yast2-packager yast2-storage
-BuildRequires:	yast2 >= 2.15.21
+BuildRequires:	yast2 >= 2.15.22
 
 # splitted from yast2-installation
 Provides:       yast2-installation:/usr/share/YaST2/clients/vendor.ycp
