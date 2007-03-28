@@ -13,6 +13,7 @@ textdomain "add-on";
 import "Label";
 import "Wizard";
 import "AddOnProduct";
+import "WorkflowManager";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -40,7 +41,7 @@ if ( func == "MakeProposal" )
 	items = [ _("No add-on product selected for installation") ];
     }
 
-    AddOnProduct::RedrawWizardSteps();
+    WorkflowManager::RedrawWizardSteps();
 
     ret = $[
 	"raw_proposal" : items,

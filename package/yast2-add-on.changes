@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Mar 28 16:11:59 CEST 2007 - locilka@suse.cz
+
+- Adjusted to use WorkflowManager instead of AddOnProduct module
+  in some cases (for FATE #129).
+- Adjusted RPM requirements and BuildRequires.
+- 2.15.5
+
+-------------------------------------------------------------------
 Tue Mar 13 15:24:27 CET 2007 - locilka@suse.cz
 
 - Redraw Wizard steps when Add-Ons are changed in the installation

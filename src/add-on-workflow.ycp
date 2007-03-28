@@ -18,6 +18,7 @@
 textdomain "add-on";
 
 import "AddOnProduct";
+import "WorkflowManager";
 import "Linuxrc";
 import "Mode";
 import "Popup";
@@ -305,7 +306,7 @@ without having %1 package installed"),
     }
 
     AddOnProduct::last_ret = ret;
-    y2milestone ("Media Select Dialog ret: %1", ret);
+    y2milestone ("MediaSelect Dialog ret: %1", ret);
     return ret;
 }
 
@@ -321,6 +322,7 @@ symbol CatalogSelect () {
     {
 	// error report
 	Report::Error (_("No catalog found on medium."));
+	y2milestone ("CatalogSelect Dialog ret: %1", `back);
 	return `back;
     }
 
@@ -330,6 +332,8 @@ symbol CatalogSelect () {
 	{
 	    y2milestone ("Deleting source %1", sources[0]:0);
 	    Pkg::SourceDelete(sources[0]:0);
+
+	    y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
 	    return AddOnProduct::last_ret;
 	}
 
@@ -351,22 +355,16 @@ symbol CatalogSelect () {
 	    // error report
 	    Report::Error (_("Failed to initialize the catalog."));
 	    AddOnProduct::ClearRegistrationRequest (src_id);
+
+	    y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
 	    return `finish;
 	}
-/*
-// moved below, in order to check whether the product has been installed first
-	// Display /media.1/info.txt if such file exists
-	// Display license and wait for agreement
-	boolean license_ret = AddOnProduct::AcceptedLicenseAndInfoFile(src_id);
-	if (license_ret != true) {
-	    y2milestone("Removing the current source ID %1", src_id);
-	    Pkg::SourceDelete(src_id);
-	    return `finish;
-	}
-*/
+
 	AddOnProduct::src_id = src_id;
 	SourceManager::newSources = [src_id];
 	y2milestone ("Only one source available - skipping dialog");
+
+	y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
 	return AddOnProduct::last_ret;
     }
     y2milestone ("Running catalog select dialog");
@@ -460,13 +458,17 @@ Select the catalog to use.</p>
 	    // error report
 	    Report::Error (_("Failed to initialize the catalog."));
 	    AddOnProduct::ClearRegistrationRequest (selected);
+
+	    y2milestone ("CatalogSelect Dialog ret: %1", `finish);
 	    return `finish;
 	}
 
 	AddOnProduct::src_id = selected;
 	SourceManager::newSources = [selected];
     }
+
     AddOnProduct::last_ret = ret;
+    y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
     return ret;
 }
 
@@ -509,6 +511,8 @@ symbol ProductSelect () {
 	if (license_ret != true) {
 	    y2milestone("Removing the current source ID %1", AddOnProduct::src_id);
 	    Pkg::SourceDelete(AddOnProduct::src_id);
+
+	    y2milestone ("ProductSelect Dialog ret: %1", `abort);
 	    return `abort;
 	}
 
@@ -527,6 +531,8 @@ symbol ProductSelect () {
 	    AddOnProduct::mode_config_sources
 		= add (AddOnProduct::mode_config_sources, AddOnProduct::src_id);
 	}
+
+	y2milestone ("ProductSelect Dialog ret: %1", `next);
 	return `next;
     }
 
@@ -569,6 +575,8 @@ symbol ProductSelect () {
     if (license_ret != true) {
 	    y2milestone("Removing the current source ID %1", AddOnProduct::src_id);
 	    Pkg::SourceDelete(AddOnProduct::src_id);
+
+	    y2milestone ("ProductSelect Dialog ret: %1", `abort);
 	    return `abort;
     }
 
@@ -589,6 +597,8 @@ or selected for installation."));
 		    AddOnProduct::src_id, current_url, src_general_data["product_dir"]:"");
 		Pkg::SourceDelete (AddOnProduct::src_id);
 		AddOnProduct::ClearRegistrationRequest (AddOnProduct::src_id);
+
+		y2milestone ("ProductSelect Dialog ret: %1", `finish);
 		return `finish;
 	    }
 	}
@@ -601,6 +611,8 @@ or selected for installation."));
 	    // message popup
 	    Popup::Message (_("Dependencies of the add-on product cannot be fulfilled."));
 	    AddOnProduct::last_ret = `back;
+
+	    y2milestone ("ProductSelect Dialog ret: %1", `back);
 	    return `back;
 	}
 	// check whether the product is already available on some media - it is similar as below
@@ -635,6 +647,8 @@ or selected for installation."));
 	    AddOnProduct::mode_config_sources =
 		add (AddOnProduct::mode_config_sources, AddOnProduct::src_id);
 	}
+
+	y2milestone ("ProductSelect Dialog ret: %1", `next);
 	return `next;
     }
 
@@ -733,6 +747,8 @@ or selected for installation."));
 			AddOnProduct::src_id, url, product_dir);
 		    Pkg::SourceDelete (AddOnProduct::src_id);
 		    AddOnProduct::ClearRegistrationRequest (AddOnProduct::src_id);
+
+		    y2milestone ("ProductSelect Dialog ret: %1", `finish);
 		    return `finish;
 		}
 	    }
@@ -766,6 +782,7 @@ or selected for installation."));
     }
 
     AddOnProduct::last_ret = ret;
+    y2milestone ("ProductSelect Dialog ret: %1", AddOnProduct::last_ret);
     return ret;
 }
 
@@ -897,7 +914,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
     boolean some_addon_changed = false;
 
     // store the initial settings, only once
-    AddOnProduct::StoreInitialSettings();
+    WorkflowManager::SetBaseWorkflow (false);
 
     repeat {
         ret = (symbol) Wizard::UserInput();
@@ -935,11 +952,12 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    {
                 return prod != nil;
             });
+
+	    // Remove product from add-ons
+	    AddOnProduct::Disintegrate (media);
 	    
-	    // remove a temporary file, not needed anymore
-	    // bugzilla #238307
-	    AddOnProduct::RemoveAddOnControlFile (media);
 	    some_addon_changed = true;
+
 	    // remove product from list of product to register (FATE #301312)
 	    AddOnProduct::RemoveRegistrationFlag (media);
 	    
@@ -949,6 +967,9 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
         } else if (ret == `add) {
             symbol ret = RunWizard ();
 	    if (ret == `next) {
+		// Add-On product has been added, integrate it (change workflow, use y2update)
+		AddOnProduct::Integrate (AddOnProduct::src_id);
+
 		// check whether it requests registration (FATE #301312)
 		AddOnProduct::PrepareForRegistration (AddOnProduct::src_id);
 		some_addon_changed = true;
@@ -957,6 +978,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
         }
 
     } until ( ret == `next || ret == `back );
+
     y2milestone ("Ret: %1, Some Add-on Added/Removed: %2", ret, some_addon_changed);
     y2milestone ("Registration will be requested: %1", AddOnProduct::ProcessRegistration());
 
