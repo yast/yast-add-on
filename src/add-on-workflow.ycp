@@ -896,6 +896,68 @@ select it and click <b>Delete</b>.</p>");
     }
 }
 
+/**
+ * Returns whether the machine has insufficient memory for using
+ * Add-Ons (in inst-sys).
+ *
+ * @return boolean has insufficient memory
+ */
+boolean HasInsufficientMemory () {
+    // 384 MB - 5% (bugzilla #239630)
+    integer enough_memory = 373000;
+
+    map meminfo = (map) SCR::Read (.proc.meminfo);
+    integer totalmem = meminfo["memtotal"]:0 + meminfo["swaptotal"]:0;
+
+    y2milestone ("Memory: %1, Swap: %2, Total: %3",
+	meminfo["memtotal"]:0, meminfo["swaptotal"]:0, totalmem
+    );
+
+    // something is wrong
+    if (totalmem == nil) {
+	// using only RAM if possible
+	if (meminfo["memtotal"]:nil != nil) {
+	    totalmem = meminfo["memtotal"]:0;
+	// can't do anything, just assume we enough
+	} else {
+	    totalmem = enough_memory;
+	}
+    }
+
+    // do we have less memory than needed?
+    return (totalmem < enough_memory);
+}
+
+boolean ContinueIfInsufficientMemory () {
+    y2warning ("Not enough memory!");
+
+    // If already reported, just continue
+    if (! AddOnProduct::low_memory_already_reported) {
+	// report it only once
+	AddOnProduct::low_memory_already_reported = true;
+
+	if (Popup::YesNoHeadline (
+	    // TRANSLATORS: pop-up headline
+	    _("Warning: Not enough memory!"),
+	    // TRANSLATORS: pop-up question
+	    _("Your system needn't have enough memory to use Add-On products
+in installation. Add-On products can be added later on a running system.
+
+Do you want to skip using Add-On products?")
+	)) {
+	    y2milestone ("User decided to skip Add-Ons");
+		
+	    return false;
+	} else {
+	    y2warning ("User decided to continue with not enough memory...!");
+
+	    return true;
+	}
+    }
+
+    return true;
+}
+
 // bugzilla #221377
 // the original control file is stored as /control.xml
 // the other (added) control files are under the
@@ -907,17 +969,42 @@ select it and click <b>Delete</b>.</p>");
 // in the installation proposal - cancel / accept buttons
 //
 symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back_button, string next_button) {
-    Redraw (enable_back, enable_next, back_button, next_button);
     symbol ret = nil;
 
-    // added / removed
-    boolean some_addon_changed = false;
+    boolean not_enough_memory = (Stage::initial() && HasInsufficientMemory());
+    boolean no_addons = (size (AddOnProduct::add_on_products) == 0);
+
+    // FATE #301928 - Saving one click
+    if (no_addons) {
+	ret = `first_time;
+    }
+
+    // Show Add-Ons table
+    if (not_enough_memory || ! no_addons) {
+	Redraw (enable_back, enable_next, back_button, next_button);
+    }
 
     // store the initial settings, only once
     WorkflowManager::SetBaseWorkflow (false);
 
+    // bugzilla #239630
+    // It might be dangerous to add more installation sources in installation
+    // on machine with less memory
+    // Do not report when some add-ons are already in use
+    if (not_enough_memory && no_addons) {
+	if (! ContinueIfInsufficientMemory ()) return `next;
+    }
+
+    // added / removed
+    boolean some_addon_changed = false;
+
     repeat {
-        ret = (symbol) Wizard::UserInput();
+	// FATE #301928 - Saving one click
+	if (ret == `first_time) {
+	    ret = `add;
+	} else {
+    	    ret = (symbol) Wizard::UserInput();
+	}
 
 	// aborting
         if (ret == `abort || ret == `cancel) {

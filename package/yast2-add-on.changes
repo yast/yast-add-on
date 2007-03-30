@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Fri Mar 30 13:44:18 CEST 2007 - locilka@suse.cz
+
+- Reporting Low-Memory issue during installation on machines with
+  less than 384 MB (-5%) of total memory (together with available
+  swap). User is warned not to use Add-Ons in such case (bugzilla
+  #239630).
+- Skipping the first table listing Add-Ons if no Add-Ons are in
+  use. The first dialog is then Selecting the Add-On (FATE
+  #301928).
+- 2.15.6
+
+-------------------------------------------------------------------
 Wed Mar 28 16:11:59 CEST 2007 - locilka@suse.cz
 
 - Adjusted to use WorkflowManager instead of AddOnProduct module
