@@ -8,6 +8,7 @@ Fri Mar 30 13:44:18 CEST 2007 - locilka@suse.cz
 - Skipping the first table listing Add-Ons if no Add-Ons are in
   use. The first dialog is then Selecting the Add-On (FATE
   #301928).
+- Adjusted RPM dependencies
 - 2.15.6
 
 -------------------------------------------------------------------
