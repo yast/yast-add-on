@@ -25,6 +25,7 @@ import "Progress";
 import "AutoinstSoftware";
 import "PackageCallbacksInit";
 import "Label";
+import "AutoinstGeneral";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -109,6 +110,42 @@ else if (func == "Export") {
 /**
  * Write configuration data
  * return boolean
+ *
+
+  <add-on>
+    <add_on_products config:type="list">
+      <listentry>
+        <media_url>http://software.opensuse.org/download/server:/dns/SLE_10/</media_url>
+        <product>buildservice</product>
+        <product_dir>/</product_dir>
+        <signature-handling>
+           <accept_unsigned_file config:type="boolean">true</accept_unsigned_file>
+           <accept_file_without_checksum config:type="boolean">true</accept_file_without_checksum>
+           <accept_verification_failed config:type="boolean">true</accept_verification_failed>
+           <accept_unknown_gpg_key>
+             <all config:type="boolean">true</all>
+             <keys config:type="list">
+                <keyid>...</keyid>
+                <keyid>3B3011B76B9D6523</keyid>
+             </keys>
+           </accept_unknown_gpg_key>
+           <accept_non_trusted_gpg_key>
+             <all config:type="boolean">true</all>
+             <keys config:type="list">
+                <keyid>...</keyid>
+             </keys>
+           </accept_non_trusted_gpg_key>
+           <import_gpg_key>
+             <all config:type="boolean">true</all>
+             <keys config:type="list">
+                <keyid>...</keyid>
+             </keys>
+           </import_gpg_key>
+        </signature-handling>
+      </listentry>
+    </add_on_products>
+  </add-on>
+
  */
 else if (func == "Write") {
     map<string,map<string,integer> > sources = $[];
@@ -116,6 +153,7 @@ else if (func == "Write") {
 	string media = prod["media_url"]:"";
 	string pth = prod["product_dir"]:"/";
 	sources[media] = sources[media]:$[];
+        AddOnProduct::SetSignatureCallbacks( prod["product"]:"" ); // set addon specific sig-handling
 	if (sources[media, pth]:-1 == -1)
 	{
 	    integer srcid = Pkg::SourceCreate (media, pth);
@@ -123,6 +161,7 @@ else if (func == "Write") {
 		// error report
 		Report::Error (_("Failed to add add-on product."));
 	    sources[media, pth] = srcid;
+            AutoinstGeneral::SetSignatureHandling(); // reset to global sig-handling
 	}
 	prod["media"] = sources[media, pth]:-1;
 	Pkg::ResolvableInstall (prod["product"]:"", `product);
