@@ -8,7 +8,33 @@ listentry =
   element listentry {
      media_url? &
      product? &
-     product_dir?
+     product_dir? &
+     element signature-handling {
+        element accept_unsigned_file { BOOLEAN }? &
+        element accept_file_without_checksum { BOOLEAN }? &
+        element accept_verification_failed { BOOLEAN }? &
+        element accept_unknown_gpg_key {
+            element all { BOOLEAN }? &
+            element keys {
+                LIST,
+                element keyid { text }*
+            }?
+        }? &
+        element accept_non_trusted_gpg_key {
+            element all { BOOLEAN }? &
+            element keys {
+                LIST,
+                element keyid { text }*
+            }?
+        }? &
+        element import_gpg_key {
+            element all { BOOLEAN }? &
+            element keys {
+                LIST,
+                element keyid { text }*
+            }?
+        }?
+     }?
   }
 media_url = element media_url { text }
 product = element product { text }
