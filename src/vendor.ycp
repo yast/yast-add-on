@@ -16,6 +16,9 @@
     import "Popup";
     import "StorageDevices";
     import "Wizard";
+    import "GetInstArgs";
+    import "Mode";
+    import "CommandLine";
 
     // Bugzilla #269911, CommanLine "support"
     // argmap is only a map, CommandLine uses string parameters
