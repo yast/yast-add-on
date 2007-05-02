@@ -17,6 +17,16 @@
     import "StorageDevices";
     import "Wizard";
 
+    // Bugzilla #269911, CommanLine "support"
+    // argmap is only a map, CommandLine uses string parameters
+    if (size (GetInstArgs::argmap()) == 0 && size (WFM::Args()) > 0) {
+        Mode::SetUI ("commandline");
+        y2milestone ("Mode CommandLine not supported, exiting...");
+        // TRANSLATORS: error message - the module does not provide command line interface
+        CommandLine::Print(_("There is no user interface available for this module."));
+        return `auto;
+    }
+
     // display message if the CD seems to be wrong
 
     define symbol wrong_cd (string reason, boolean must_umount) ``{

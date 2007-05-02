@@ -2,6 +2,8 @@
 Wed May  2 10:05:37 CEST 2007 - locilka@suse.cz
 
 - CommandLine interface (no support reported) for add-on (#269886)
+- CommandLine interface (no support reported) for vendor (#269911)
+- 2.15.7
 
 -------------------------------------------------------------------
 Wed Apr  4 15:42:16 CEST 2007 - ug@suse.de
