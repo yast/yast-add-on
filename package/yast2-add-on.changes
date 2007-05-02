@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May  2 10:05:37 CEST 2007 - locilka@suse.cz
+
+- CommandLine interface (no support reported) for add-on (#269886)
+
+-------------------------------------------------------------------
 Wed Apr  4 15:42:16 CEST 2007 - ug@suse.de
 
 - signature checks for individual add-ons for autoyast
