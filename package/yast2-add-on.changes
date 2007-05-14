@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon May 14 09:07:40 CEST 2007 - jsrain@suse.cz
+
+- Fixed Add-Ons in AutoYaST Write function to Integrate all Add-Ons
+  via AddOnProduct::Integrate (#260613).
+- 2.15.8
+
+-------------------------------------------------------------------
 Wed May  2 10:05:37 CEST 2007 - locilka@suse.cz
 
 - CommandLine interface (no support reported) for add-on (#269886)
