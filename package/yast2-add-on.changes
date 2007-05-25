@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri May 25 13:30:04 CEST 2007 - jsrain@suse.cz
+
+- removed outdated translations from .desktop-files (#271209)
+
+-------------------------------------------------------------------
 Mon May 14 09:07:40 CEST 2007 - jsrain@suse.cz
 
 - Fixed Add-Ons in AutoYaST Write function to Integrate all Add-Ons
