@@ -634,11 +634,13 @@ or selected for installation."));
 	}
 	Pkg::ResolvableInstall (prod["name"]:"", `product);
         map data = Pkg::SourceGeneralData (AddOnProduct::src_id);
+
         string url = data["url"]:"";
         string product_dir = data["product_dir"]:"";
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media" : AddOnProduct::src_id,
 	    "product" : prod["display_name"]:prod["short_name"]:prod["name"]:"",
+	    "autoyast_product" : prod["name"]:"",
 	    "media_url" : url,
 	    "product_dir" : product_dir,
 	]);
@@ -754,11 +756,12 @@ or selected for installation."));
 	    }
 
 	    foreach (string product, selected, {
+		integer src_id = (AddOnProduct::src_id == -1 ? prod2src[product]:-1 : AddOnProduct::src_id);
+		
 		AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
-		    "media" : AddOnProduct::src_id == -1
-			? prod2src[product]:-1
-			: AddOnProduct::src_id,
+		    "media" : src_id,
 		    "product" : product,
+		    "autoyast_prouduct" : product,
 		    "media_url" : url,
 		    "product_dir" : product_dir,
 		]);

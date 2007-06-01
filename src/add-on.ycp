@@ -21,14 +21,31 @@ import "CommandLine";
 
 include "add-on/add-on-workflow.ycp";
 
-
-// Bugzilla #269886, CommanLine "support"
-// argmap is only a map, CommandLine uses string parameters
-if (size (GetInstArgs::argmap()) == 0 && size (WFM::Args()) > 0) {
+list wfm_args = WFM::Args();
+y2milestone ("ARGS: %1", wfm_args);
+if (
+    (size (wfm_args) > 0)
+    &&
+    (contains (wfm_args, "help") || contains (wfm_args, "longhelp"))
+) {
     Mode::SetUI ("commandline");
-    y2milestone ("Mode CommandLine not supported, exiting...");
-    // TRANSLATORS: error message - the module does not provide command line interface
-    CommandLine::Print(_("There is no user interface available for this module."));
+    // TRANSLATORS: commandline help
+    CommandLine::Print(_("
+Add-On Module Help
+------------------
+
+To add a new Add-On product via command-line, use this syntax:
+    /sbin/yast2 add-on URL
+URL is the path to the Add-On source.
+
+Examples of URL:
+http://server.name/directory/Lang-AddOn-10.2-i386/
+ftp://server.name/directory/Lang-AddOn-10.2-i386/
+nfs://server.name/directory/SDK1-SLE-i386/
+disk://dev/sda5/directory/Product/CD1/
+cd://
+dvd://
+"));
     return `auto;
 }
 

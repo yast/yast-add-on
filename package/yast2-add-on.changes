@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Jun  1 15:35:46 CEST 2007 - locilka@suse.cz
+
+- Fixed Add-On client to provide command-line again. Providing
+  "help" and "longhelp" (#279074).
+- Fixed Add-On workflow to store the "PRODUCT" tag from content
+  file for later usage in AutoYaST cloning (#279893).
+- 2.15.9
+
+-------------------------------------------------------------------
 Fri May 25 13:30:04 CEST 2007 - jsrain@suse.cz
 
 - removed outdated translations from .desktop-files (#271209)
