@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jun 22 15:11:59 CEST 2007 - locilka@suse.cz
+
+- Added a code checking for open/closed dialogs after Pkg bindings
+  were called to use a new Add-On product.
+- 2.15.10
+
+-------------------------------------------------------------------
 Fri Jun  1 15:35:46 CEST 2007 - locilka@suse.cz
 
 - Fixed Add-On client to provide command-line again. Providing

@@ -338,7 +338,7 @@ symbol CatalogSelect () {
 	}
 
 	// busy message
-	UI::OpenDialog(`Label(_("Initializing new source...")));
+	UI::OpenDialog(`Label(`id (`add_on_popup_id), _("Initializing new source...")));
 	integer src_id = SourceManager::newSources[0]:0;
 	map data = Pkg::SourceGeneralData (src_id);
 	y2milestone("Adding product: %1", data);
@@ -348,7 +348,20 @@ symbol CatalogSelect () {
 	Pkg::SourceDelete (src_id);
 	src_id = Pkg::SourceCreate (url, product_dir);
 	SourceManager::newSources = [src_id];
-	UI::CloseDialog();
+
+	// a little hack because of packager leaving
+	// windows open...
+	if (UI::WidgetExists(`add_on_popup_id)) {
+	    UI::CloseDialog();
+	} else if (UI::WidgetExists(`contents)) {
+	    y2warning ("Already in base dialog!");
+	} else {
+	    y2error ("Error in packager, closing current dialog!");
+	    while (! UI::WidgetExists(`contents)) {
+		y2milestone ("Calling UI::CloseDialog");
+		UI::CloseDialog();
+	    }
+	}
 
 	if (src_id == -1)
 	{
