@@ -956,8 +956,8 @@ boolean ContinueIfInsufficientMemory () {
 	    // TRANSLATORS: pop-up headline
 	    _("Warning: Not enough memory!"),
 	    // TRANSLATORS: pop-up question
-	    _("Your system does not have enough memory to use add-on products
-during installation.  You can enable add-on products later when the
+	    _("Your system does not seem to have enough memory to use add-on products
+during installation. You can enable add-on products later when the
 system is running.
 
 Do you want to skip using add-on products?")
