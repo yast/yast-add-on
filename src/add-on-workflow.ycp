@@ -215,9 +215,16 @@ symbol MediaSelect () {
 	else if (ret == `abort || ret == `cancel)
 	{
 	    ret = `abort;
-	    // yes-no popup
-	    if (Popup::YesNo (_("Really abort add-on product installation?")))
+
+	    // Just return back (abort adding new Add-On) in installation
+	    if (Mode::installation()) {
 		break;
+	    // Ask in other cases
+	    } else {
+		// yes-no popup
+		if (Popup::YesNo (_("Really abort add-on product installation?")))
+		    break;
+	    }
 
 	    ret = nil;
 	    continue;
