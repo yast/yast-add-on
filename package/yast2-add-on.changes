@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug 22 12:29:40 CEST 2007 - locilka@suse.cz
+
+- Disabled [ Back ] button and using [ Cancel ] instead of
+  [ Abort ] button in the "New Add-On" dialog (#298052).
+- 2.15.12
+
+-------------------------------------------------------------------
 Mon Aug  6 10:25:56 CEST 2007 - locilka@suse.cz
 
 - Fixed text by proofreading.

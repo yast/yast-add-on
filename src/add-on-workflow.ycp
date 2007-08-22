@@ -160,6 +160,10 @@ the first CD are located, such as /data1/CD1.</p>
 ");
 
     Wizard::SetContents (title, contents, help_text, Stage::initial(), true);
+    Wizard::RestoreBackButton();
+    Wizard::DisableBackButton();
+    Wizard::RestoreAbortButton();
+    Wizard::SetAbortButton (`cancel, Label::CancelButton());
 }
 
 /**

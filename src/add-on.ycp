@@ -59,12 +59,12 @@ Wizard::SetContents (
     // help
     _("<p>Initializing add-on products...</p>"),
     false,
-    true
+    false
 );
 
 Wizard::SetDesktopIcon("vendor");
-Wizard::HideBackButton();
 
+Wizard::DisableBackButton();
 Wizard::DisableAbortButton();
 Wizard::DisableNextButton();
 
