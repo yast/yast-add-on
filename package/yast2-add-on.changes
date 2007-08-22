@@ -3,6 +3,9 @@ Wed Aug 22 12:29:40 CEST 2007 - locilka@suse.cz
 
 - Disabled [ Back ] button and using [ Cancel ] instead of
   [ Abort ] button in the "New Add-On" dialog (#298052).
+- Do not ask whether to abort the Add-On configuration when
+  [ Cancel ] clicked in installation, just return to the previous
+  dialog (#298052).
 - 2.15.12
 
 -------------------------------------------------------------------
