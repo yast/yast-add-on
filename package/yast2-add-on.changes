@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 27 18:10:53 CEST 2007 - locilka@suse.cz
+
+- Adjusting Add-On's name if set in SourceDialogs when adding it
+  during installation and on a running system (#304659).
+- 2.15.13
+
+-------------------------------------------------------------------
 Wed Aug 22 12:29:40 CEST 2007 - locilka@suse.cz
 
 - Disabled [ Back ] button and using [ Cancel ] instead of

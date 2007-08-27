@@ -321,6 +321,41 @@ without having %1 package installed"),
     return ret;
 }
 
+string new_addon_name = "";
+
+// bugzilla #304659
+/**
+ * Sets the Add-On's product name
+ *
+ * @param integer src_id (source ID)
+ */
+void SetAddOnProductName (integer src_id) {
+    new_addon_name = "";
+
+    if (src_id == nil) {
+	y2error ("Cannot set name, no ID!");
+	return;
+    }
+
+    new_addon_name = SourceDialogs::GetRepoName();
+
+    // no name to change to
+    if (new_addon_name == nil || new_addon_name == "") {
+	y2milestone ("No special name set");
+	return;
+    }
+
+    list <map <string,any> > new_addon_set = [
+	$[ "SrcId" : src_id, "name" : new_addon_name ]
+    ];
+    boolean result = Pkg::SourceEditSet (new_addon_set);
+
+    y2milestone ("Adjusting Add-On: %1 returned: %2", new_addon_set, result);
+
+    // do not use it next time
+    SourceDialogs::SetRepoName ("");
+}
+
 /**
  * Run dialog for selecting the catalog on the media (if more than one present)
  * @return symbol for wizard sequencer
@@ -543,13 +578,18 @@ symbol ProductSelect () {
         map data = Pkg::SourceGeneralData (AddOnProduct::src_id);
         string url = data["url"]:"";
         string product_dir = data["product_dir"]:"";
+
+	// bugzilla #304659
+	SetAddOnProductName (AddOnProduct::src_id);
+
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media" : AddOnProduct::src_id,
 	    // table cell
-	    "product" : _("No product found in the catalog"),
+	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : _("No product found in the catalog")),
 	    "media_url" : url,
 	    "product_dir" : product_dir,
 	]);
+
 	if (Mode::config ())
 	{
 	    AddOnProduct::mode_config_sources
@@ -661,13 +701,18 @@ or selected for installation."));
 
         string url = data["url"]:"";
         string product_dir = data["product_dir"]:"";
+
+	// bugzilla #304659
+	SetAddOnProductName (AddOnProduct::src_id);
+
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media" : AddOnProduct::src_id,
-	    "product" : prod["display_name"]:prod["short_name"]:prod["name"]:"",
+	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : prod["display_name"]:prod["short_name"]:prod["name"]:""),
 	    "autoyast_product" : prod["name"]:"",
 	    "media_url" : url,
 	    "product_dir" : product_dir,
 	]);
+
 	if (found_source == -1 && Mode::config ())
 	{
 	    AddOnProduct::mode_config_sources =
@@ -781,10 +826,13 @@ or selected for installation."));
 
 	    foreach (string product, selected, {
 		integer src_id = (AddOnProduct::src_id == -1 ? prod2src[product]:-1 : AddOnProduct::src_id);
+
+		// bugzilla #304659
+		SetAddOnProductName (AddOnProduct::src_id);
 		
 		AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 		    "media" : src_id,
-		    "product" : product,
+		    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : product),
 		    "autoyast_prouduct" : product,
 		    "media_url" : url,
 		    "product_dir" : product_dir,
