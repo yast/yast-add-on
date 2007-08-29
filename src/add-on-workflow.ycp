@@ -29,6 +29,7 @@ import "PackageSystem";
 import "SuSEFirewall";
 import "Stage";
 import "Wizard";
+import "Confirm";
 
 include "packager/inst_source_dialogs.ycp";
 
@@ -1101,6 +1102,12 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
                 Report::Message (_("Select a product to delete."));
                 continue;
             }
+
+	    // bugzilla #305802
+	    if (! Confirm::DeleteSelected()) {
+		continue;
+	    }
+	    y2milestone ("Deleting %1 %2", selected, AddOnProduct::add_on_products[selected]:nil);
 
             // remove whole media if the product is the only one on the media
             integer media = AddOnProduct::add_on_products[selected, "media"]:-1;

@@ -4,6 +4,8 @@ Wed Aug 29 10:21:17 CEST 2007 - locilka@suse.cz
 - Using new Wizard window without installation steps displayed when
   adding new Add-On. Dialog help is visible immediately. Restoring
   dialog buttons when redrawing list of used Add-Ons (#305788).
+- Requesting confirmation when user wants to delete already added
+  Add-On (#305802).
 - 2.15.14
 
 -------------------------------------------------------------------
