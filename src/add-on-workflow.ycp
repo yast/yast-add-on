@@ -30,8 +30,11 @@ import "SuSEFirewall";
 import "Stage";
 import "Wizard";
 import "Confirm";
+import "GetInstArgs";
 
 include "packager/inst_source_dialogs.ycp";
+
+boolean going_back_in_workflow = GetInstArgs::going_back();
 
 /**
  * Initialize current inst. sources
@@ -1057,26 +1060,28 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
     boolean not_enough_memory = (Stage::initial() && HasInsufficientMemory());
     boolean no_addons = (size (AddOnProduct::add_on_products) == 0);
 
-    // FATE #301928 - Saving one click
-    if (no_addons) {
-	ret = `first_time;
-    }
-
-    // Show Add-Ons table
-    if (not_enough_memory || ! no_addons) {
-	Redraw (enable_back, enable_next, back_button, next_button);
-    }
-
-    // store the initial settings, only once
-    WorkflowManager::SetBaseWorkflow (false);
-
     // bugzilla #239630
     // It might be dangerous to add more installation sources in installation
     // on machine with less memory
     // Do not report when some add-ons are already in use
-    if (not_enough_memory && no_addons) {
+    if (not_enough_memory && ! no_addons) {
 	if (! ContinueIfInsufficientMemory ()) return `next;
     }
+
+    // FATE #301928 - Saving one click
+    // Bugzilla #305809 if "going_back", do not save that click!
+    if (no_addons && ! going_back_in_workflow) {
+	y2milestone ("Skipping to media_select");
+	// only once
+	going_back_in_workflow = false;
+	ret = `first_time;
+    }
+
+    // Show Add-Ons table
+    Redraw (enable_back, enable_next, back_button, next_button);
+
+    // store the initial settings, only once
+    WorkflowManager::SetBaseWorkflow (false);
 
     // added / removed
     boolean some_addon_changed = false;
