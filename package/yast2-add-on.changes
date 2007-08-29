@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Aug 29 10:21:17 CEST 2007 - locilka@suse.cz
+
+- Using new Wizard window without installation steps displayed when
+  adding new Add-On. Dialog help is visible immediately. Restoring
+  dialog buttons when redrawing list of used Add-Ons (#305788).
+- 2.15.14
+
+-------------------------------------------------------------------
 Mon Aug 27 18:10:53 CEST 2007 - locilka@suse.cz
 
 - Adjusting Add-On's name if set in SourceDialogs when adding it

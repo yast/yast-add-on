@@ -958,7 +958,13 @@ select it and click <b>Delete</b>.</p>");
 	)
     );
 
+    // bugzilla #305788
+    Wizard::RestoreBackButton();
+    Wizard::RestoreAbortButton();
+    Wizard::RestoreNextButton();
+
     Wizard::SetContentsButtons (title, contents, help, back_button, next_button);
+
     if (! enable_back) Wizard::DisableBackButton();
     if (! enable_next) Wizard::DisableNextButton();
 
@@ -1128,7 +1134,14 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 
 	// adding new add-on
         } else if (ret == `add) {
+
+	    // bugzilla #305788
+	    // Use new wizard window for adding new Add-On.
+	    // Do not use "Steps" dialog.
+	    Wizard::OpenNextBackDialog();
             symbol ret = RunWizard ();
+	    Wizard::CloseDialog();
+
 	    if (ret == `next) {
 		// Add-On product has been added, integrate it (change workflow, use y2update)
 		AddOnProduct::Integrate (AddOnProduct::src_id);
