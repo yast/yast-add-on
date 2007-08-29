@@ -9,6 +9,8 @@ Wed Aug 29 10:21:17 CEST 2007 - locilka@suse.cz
 - Not skipping to the "Add-On Product Media" dialog in case of
   going_back in the installation workflow even if there is not
   Add-On in use yet (#305809).
+- Disabling [ Next ] button in Media Selection dialog unless some
+  media type is selected (#305850).
 - 2.15.14
 
 -------------------------------------------------------------------

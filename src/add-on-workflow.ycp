@@ -91,25 +91,25 @@ void CreateMediaSelectDialog () {
 	`RadioButtonGroup (`id (`type), `VBox (
 	    `VStretch (),
 	    // radio button
-	    `Left (`RadioButton(`id(`slp),       _("&Scan Using SLP..."))),
+	    `Left (`RadioButton(`id(`slp), `opt(`notify),		_("&Scan Using SLP..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`ftp),       _("&FTP..."))),
+	    `Left (`RadioButton(`id(`ftp), `opt(`notify),		_("&FTP..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`http),      _("&HTTP..."))),
+	    `Left (`RadioButton(`id(`http), `opt(`notify),		_("&HTTP..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`https),      _("HTT&PS..."))),
+	    `Left (`RadioButton(`id(`https), `opt(`notify),		_("HTT&PS..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`samba),     _("&SMB/CIFS"))),
+	    `Left (`RadioButton(`id(`samba), `opt(`notify),		_("&SMB/CIFS"))),
 	    // radio button
-	    `Left (`RadioButton(`id(`nfs),       _("&NFS..."))),
+	    `Left (`RadioButton(`id(`nfs), `opt(`notify),		_("&NFS..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`cd),        _("&CD..."))),
+	    `Left (`RadioButton(`id(`cd), `opt(`notify),		_("&CD..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`dvd),       _("&DVD..."))),
+	    `Left (`RadioButton(`id(`dvd), `opt(`notify),		_("&DVD..."))),
 	    // radio button
-	    `Left (`RadioButton(`id(`local_dir), _("&Local Directory..."))),
+	    `Left (`RadioButton(`id(`local_dir), `opt(`notify),		_("&Local Directory..."))),
 	    // radio button
-	    `Left (`RadioButton (`id (`specify_url),_("Specify &URL..."))),
+	    `Left (`RadioButton (`id (`specify_url), `opt(`notify),	_("Specify &URL..."))),
 	    `VStretch ()
 	))), `HStretch ()
     );
@@ -120,13 +120,13 @@ void CreateMediaSelectDialog () {
 	    `RadioButtonGroup (`id (`type), `VBox (
 		`VStretch (),
 		// radio button
-		`Left (`RadioButton(`id(`cd),        _("&CD..."))),
+		`Left (`RadioButton(`id(`cd), `opt(`notify),		_("&CD..."))),
 		// radio button
-		`Left (`RadioButton(`id(`dvd),       _("&DVD..."))),
+		`Left (`RadioButton(`id(`dvd), `opt(`notify),		_("&DVD..."))),
 		// radio button
-		`Left (`RadioButton(`id(`local_dir), _("&Local Directory..."))),
+		`Left (`RadioButton(`id(`local_dir), `opt(`notify),	_("&Local Directory..."))),
 		// radio button
-		`Left (`RadioButton (`id (`specify_url),_("Specify &URL..."))),
+		`Left (`RadioButton (`id (`specify_url), `opt(`notify),	_("Specify &URL..."))),
 		`VStretch ()
 	    ))), `HStretch ()
 	);
@@ -168,6 +168,10 @@ the first CD are located, such as /data1/CD1.</p>
     Wizard::DisableBackButton();
     Wizard::RestoreAbortButton();
     Wizard::SetAbortButton (`cancel, Label::CancelButton());
+
+    // disable the button unless some option is selected
+    // bugzilla #305850
+    Wizard::DisableNextButton();
 }
 
 /**
@@ -201,10 +205,15 @@ symbol MediaSelect () {
     y2milestone ("Running media select dialog");
     CreateMediaSelectDialog();
 
+    // all supported types
+    // bugzilla #305850
+    list rb_rets = [`slp, `ftp, `http, `https, `samba, `nfs, `cd, `dvd, `local_dir, `specify_url];
+
     symbol ret = nil;
     string url = "";
     while (ret == nil) {
 	ret = (symbol) UI::UserInput ();
+
 	if (ret == `back) {
 	    // bugzilla #216910
 	    // `back means - return to the previous dialog
@@ -215,9 +224,7 @@ symbol MediaSelect () {
 	    } else {
 		break;
 	    }
-	}
-	else if (ret == `abort || ret == `cancel)
-	{
+	} else if (ret == `abort || ret == `cancel) {
 	    ret = `abort;
 
 	    // Just return back (abort adding new Add-On) in installation
@@ -232,14 +239,24 @@ symbol MediaSelect () {
 
 	    ret = nil;
 	    continue;
-	}
-	else if (ret != `next)
+	// one radio button selected
+	} else if (ret != nil && contains (rb_rets, ret)) {
+	    // bugzilla #305850
+	    Wizard::EnableNextButton();
+	    ret = nil;
+	    // next loop
 	    continue;
-
+	} else if (ret == `next) {
+	    y2milestone ("Media type selected...");
+	} else {
+	    y2error ("Unknown ret: %1", ret);
+	    continue;
+	}
 
 	createResult = nil;
 	symbol input = (symbol)UI::QueryWidget (`id (`type), `CurrentButton);
 	y2milestone ("Current: %1", input);
+
 	if ( input == `slp )
 	{
 	    string required_package = "yast2-slp";
