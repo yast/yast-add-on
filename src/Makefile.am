@@ -11,7 +11,8 @@ client_DATA =			 \
 	vendor.ycp
 
 ynclude_DATA =			\
-	add-on-workflow.ycp
+	add-on-workflow.ycp	\
+	misc.ycp
 
 desktop_DATA =			\
 	add-on.desktop		\

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Sep  5 14:02:25 CEST 2007 - locilka@suse.cz
+
+- NotEnoughMemory-functions moved to a separate misc.ycp include
+  file to make them possible to be used from packager (#305554).
+- 2.15.15
+
+-------------------------------------------------------------------
 Wed Aug 29 10:21:17 CEST 2007 - locilka@suse.cz
 
 - Using new Wizard window without installation steps displayed when
