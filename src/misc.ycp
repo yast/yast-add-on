@@ -71,6 +71,7 @@ system is running.
 Do you want to skip using add-on products?")
 	)) {
 	    y2milestone ("User decided to skip Add-Ons");
+	    AddOnProduct::skip_add_ons = true;
 		
 	    return false;
 	} else {

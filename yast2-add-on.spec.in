@@ -6,8 +6,9 @@ Requires:	autoyast2-installation
 Requires:	yast2 >= 2.15.22
 Requires:	yast2-installation
 Requires:	yast2-country
-# AddOnProduct::low_memory_already_reported
-Requires:	yast2-packager >= 2.15.27
+
+# AddOnProduct::skip_add_ons
+Requires:	yast2-packager >= 2.15.75
 Requires:	yast2-storage
 
 BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2-installation yast2-packager yast2-storage

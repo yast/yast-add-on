@@ -3,6 +3,8 @@ Wed Sep  5 14:02:25 CEST 2007 - locilka@suse.cz
 
 - NotEnoughMemory-functions moved to a separate misc.ycp include
   file to make them possible to be used from packager (#305554).
+- Skipping Add-Ons when requested by user (#305554).
+- Adjusted RPM dependencies.
 - 2.15.15
 
 -------------------------------------------------------------------

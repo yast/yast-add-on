@@ -21,6 +21,11 @@ import "Label";
 
 include "add-on/add-on-workflow.ycp";
 
+if (AddOnProduct::skip_add_ons) {
+    y2milestone ("Skipping add-ons (as requested before)");
+    return `auto;
+}
+
 map argmap = GetInstArgs::argmap();
 
 Packages::SelectProduct ();
