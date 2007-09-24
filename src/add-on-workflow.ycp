@@ -266,7 +266,9 @@ symbol MediaSelect () {
 
 	    // in stage initial, packages can't be installed
 	    // bugzilla #327742
-	    if (! Stage::initial() && ! installed_before) {
+	    if (Stage::initial()) {
+		y2milestone ("Stage initial...");
+	    } else if (! installed_before) {
 		// Tries to Check and Install packages
 		if (
 		    ! PackageSystem::CheckAndInstallPackagesInteractive ([required_package]) ||
