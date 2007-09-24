@@ -1109,6 +1109,11 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	// adding new add-on
         } else if (ret == `add) {
 
+	    // bugzilla #293428
+	    // Release all sources before adding a new one
+	    // because of CD/DVD + url cd://
+	    Pkg::SourceReleaseAll();
+
 	    // bugzilla #305788
 	    // Use new wizard window for adding new Add-On.
 	    // Do not use "Steps" dialog.
@@ -1129,7 +1134,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    Redraw (enable_back, enable_next, back_button, next_button);
 
 	    // bugzilla #293428
-	    // Release all sources before adding a new one
+	    // Release all sources after adding a new one
 	    // because of CD/DVD + url cd://
 	    Pkg::SourceReleaseAll();
         }
