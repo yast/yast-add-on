@@ -264,7 +264,9 @@ symbol MediaSelect () {
 	    string required_package = "yast2-slp";
 	    boolean installed_before = PackageSystem::Installed (required_package);
 
-	    if (! Mode::installation () && ! installed_before) {
+	    // in stage initial, packages can't be installed
+	    // bugzilla #327742
+	    if (! Stage::initial() && ! installed_before) {
 		// Tries to Check and Install packages
 		if (
 		    ! PackageSystem::CheckAndInstallPackagesInteractive ([required_package]) ||
