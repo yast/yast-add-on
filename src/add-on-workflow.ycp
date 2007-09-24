@@ -1125,7 +1125,13 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 		AddOnProduct::PrepareForRegistration (AddOnProduct::src_id);
 		some_addon_changed = true;
 	    }
-            Redraw (enable_back, enable_next, back_button, next_button);
+
+	    Redraw (enable_back, enable_next, back_button, next_button);
+
+	    // bugzilla #293428
+	    // Release all sources before adding a new one
+	    // because of CD/DVD + url cd://
+	    Pkg::SourceReleaseAll();
         }
 
     } until ( ret == `next || ret == `back );
@@ -1141,6 +1147,11 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    AddOnProduct::ReIntegrateFromScratch();
 	}
     }
+
+    // bugzilla #293428
+    // Release all sources after all Add-Ons are added and merged
+    y2milestone ("Releasing all sources...");
+    Pkg::SourceReleaseAll();
     
     return ret;
 }

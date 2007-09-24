@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Sep 24 09:29:12 CEST 2007 - locilka@suse.cz
+
+- Calling Pkg::SourceReleaseAll(); after a new Add-On is used and
+  completely merged (#293428 c#44).
+- 2.15.16
+
+-------------------------------------------------------------------
 Wed Sep  5 14:02:25 CEST 2007 - locilka@suse.cz
 
 - NotEnoughMemory-functions moved to a separate misc.ycp include

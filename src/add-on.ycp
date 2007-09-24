@@ -108,6 +108,12 @@ else
     AddOnProduct::last_ret = `next;
     ret = RunAutorunWizard ();
 }
+
+    // bugzilla #293428
+    // Release all sources before adding a new one
+    // because of CD/DVD + url cd://
+    Pkg::SourceReleaseAll();
+
 if (ret == `next)
 {
     // feedback heading
