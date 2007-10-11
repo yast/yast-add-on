@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 11 11:03:11 CEST 2007 - locilka@suse.cz
+
+- List Product Name, then Product URL instead if vice versa
+  (#332837).
+
+-------------------------------------------------------------------
 Mon Sep 24 14:15:57 CEST 2007 - locilka@suse.cz
 
 - Do not ask whether to install packages in the inst-sys (#327742).

@@ -960,22 +960,27 @@ select it and click <b>Delete</b>.</p>");
 	if (dir == "")
 	    dir = "/";
 	// table cell, %1 is URL, %2 is directory name
-	string media = sformat (_("URL: %1, Directory: %2"),
+	string media = sformat (_("%1, Directory: %2"),
 	    // placeholder for unknown URL
 	    data["url"]:_("Unknown"), dir);
-	return `item (`id (index),
-	    media,
+	return `item (
+	    `id (index),
 	    // sformat (_("Product %1"), product["product"]:"")
-	    product["product"]:""
+	    product["product"]:"",
+	    media
 	);
     });
     term contents = `VBox (
-	`Table (`id (`summary), `header (
+	`Table (
+	    `id (`summary),
+	    `header (
 		// table header
-		_("Media"),
+		_("Product"),
 		// table header
-		_("Product")),
-	    items),
+		_("Media")
+	    ),
+	    items
+	),
 	`Left(
 	    `HBox (
 		`PushButton (`id (`add), Label::AddButton ()),
