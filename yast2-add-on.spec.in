@@ -9,7 +9,8 @@ Requires:	yast2-country
 
 # AddOnProduct::skip_add_ons
 Requires:	yast2-packager >= 2.15.75
-Requires:	yast2-storage
+# bugzilla #335582, new API for StorageDevices
+Requires:	yast2-storage >= 2.16.1
 
 BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2-installation yast2-packager yast2-storage
 BuildRequires:	yast2 >= 2.15.22
