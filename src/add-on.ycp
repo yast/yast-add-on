@@ -120,7 +120,7 @@ if (ret == `next)
     string heading = _("Add-On Product Installation");
     // feedback message
     string message
-	= _("Reading packages available on the installation sources...");
+	= _("Reading packages available at the installation repositories...");
 
     Popup::ShowFeedback (heading, message);
 

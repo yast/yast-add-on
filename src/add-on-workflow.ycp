@@ -139,7 +139,7 @@ void CreateMediaSelectDialog () {
     // dialog caption
     string title = _("Add-On Product Media");
     // help
-    string help_text = _("<p><big><b>Catalog Media</b></big><br>
+    string help_text = _("<p><big><b>Software Repository</b></big><br>
 Add-on products can be installed from CD, over a
 network, or from the hard disk.</p>
 ");
@@ -276,7 +276,7 @@ symbol MediaSelect () {
 		) {
 		    Report::Error (sformat (
 			// popup error message, %1 is the package name
-			_("Cannot search for SLP installation sources
+			_("Cannot search for SLP installation repositories
 without having %1 package installed"),
 			required_package
 		    ));
@@ -394,7 +394,7 @@ symbol CatalogSelect () {
     if (size (sources) == 0)
     {
 	// error report
-	Report::Error (_("No catalog found on medium."));
+	Report::Error (_("No software repository found on medium."));
 	y2milestone ("CatalogSelect Dialog ret: %1", `back);
 	return `back;
     }
@@ -439,7 +439,7 @@ symbol CatalogSelect () {
 	if (src_id == -1)
 	{
 	    // error report
-	    Report::Error (_("Failed to initialize the catalog."));
+	    Report::Error (_("Failed to initialize the software repository."));
 	    AddOnProduct::ClearRegistrationRequest (src_id);
 
 	    y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
@@ -466,16 +466,16 @@ symbol CatalogSelect () {
     });
 
     // dialog caption
-    string title = _("Catalog Selection");
+    string title = _("Software Repository Selection");
     // help text
-    string help_text = _("<p><big><b>Catalog Selection</b></big><br>
-There were multiple catalogs found on the selected medium.
-Select the catalog to use.</p>
+    string help_text = _("<p><big><b>Software Repository Selection</b></big><br>
+There were multiple repositories found on the selected medium.
+Select the repository to use.</p>
 ");
 
     term contents = `HBox (`HSpacing(4), `VBox (
 	`VSpacing (2),
-	`SelectionBox (`id (`catalogs), _("&Found Catalogs"), catalogs),
+	`SelectionBox (`id (`catalogs), _("Repositories &Found"), catalogs),
 	`VSpacing (2)
     ), `HSpacing (4));
     Wizard::SetContents (title, contents, help_text, true, true);
@@ -511,7 +511,7 @@ Select the catalog to use.</p>
 	    {
 		ret = nil;
 		// popup message
-		Popup::Message (_("Select a catalog."));
+		Popup::Message (_("Select a repository."));
 	    }
 	}
     }
@@ -542,7 +542,7 @@ Select the catalog to use.</p>
 	if (selected == -1)
 	{
 	    // error report
-	    Report::Error (_("Failed to initialize the catalog."));
+	    Report::Error (_("Failed to initialize the software repository."));
 	    AddOnProduct::ClearRegistrationRequest (selected);
 
 	    y2milestone ("CatalogSelect Dialog ret: %1", `finish);
@@ -612,7 +612,7 @@ symbol ProductSelect () {
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media" : AddOnProduct::src_id,
 	    // table cell
-	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : _("No product found in the catalog")),
+	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : _("No product found in the repository")),
 	    "media_url" : url,
 	    "product_dir" : product_dir,
 	]);
@@ -766,7 +766,7 @@ or selected for installation."));
     ), `HStretch ());
     // help text
     string help_text = _("<p><b><big>Product Selection</big></b><br>
-There were multiple products found in the catalog. Select the products
+There were multiple products found in the repository. Select the products
 to install.</p>
 ");
     Wizard::SetContents (title, contents, help_text, true, true);

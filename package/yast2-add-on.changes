@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov 19 16:46:21 CET 2007 - locilka@suse.cz
+
+- Fixed / unified used terminology (repositories) (FATE #302970).
+
+-------------------------------------------------------------------
 Wed Oct 24 16:27:41 CEST 2007 - locilka@suse.cz
 
 - Changes in StorageDevices module API (#335582).
