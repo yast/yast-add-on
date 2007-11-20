@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Nov 20 13:33:28 CET 2007 - locilka@suse.cz
+
+- Displaying busy-message when removing add-on (#305807).
+
+-------------------------------------------------------------------
 Mon Nov 19 16:46:21 CET 2007 - locilka@suse.cz
 
 - Fixed / unified used terminology (repositories) (FATE #302970).

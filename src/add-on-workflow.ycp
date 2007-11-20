@@ -1009,6 +1009,33 @@ select it and click <b>Delete</b>.</p>");
     }
 }
 
+void RemoveSelectedAddOn (integer selected) {
+    y2milestone ("Deleting %1 %2", selected, AddOnProduct::add_on_products[selected]:nil);
+
+    // remove whole media if the product is the only one on the media
+    integer media = AddOnProduct::add_on_products[selected, "media"]:-1;
+    integer med_count = size (filter (map<string,any> prod, AddOnProduct::add_on_products, {
+    	    return prod["media"]:-1 == media;
+    }));
+
+    if (med_count == 1) {
+	y2milestone ("Deleting source %1", media);
+            Pkg::SourceDelete (media);
+    }
+
+    // remove the selected record
+    AddOnProduct::add_on_products[selected] = nil;
+    AddOnProduct::add_on_products = filter (map<string,any> prod, AddOnProduct::add_on_products, {
+        return prod != nil;
+    });
+
+    // Remove product from add-ons
+    AddOnProduct::Disintegrate (media);
+
+    // remove product from list of product to register (FATE #301312)
+    AddOnProduct::RemoveRegistrationFlag (media);
+}
+
 // bugzilla #221377
 // the original control file is stored as /control.xml
 // the other (added) control files are under the
@@ -1083,37 +1110,16 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    if (! Confirm::DeleteSelected()) {
 		continue;
 	    }
-	    y2milestone ("Deleting %1 %2", selected, AddOnProduct::add_on_products[selected]:nil);
 
-            // remove whole media if the product is the only one on the media
-            integer media = AddOnProduct::add_on_products[selected, "media"]:-1;
-            integer med_count = size (filter (map<string,any> prod,
-                AddOnProduct::add_on_products,
-            {
-                return prod["media"]:-1 == media;
-            }));
-            if (med_count == 1) {
-		y2milestone ("Deleting source %1", media);
-                Pkg::SourceDelete (media);
-	    }
+	    // TRANSLATORS: busy message
+	    UI::OpenDialog (`Label (_("Removing selected add-on...")));
 
-            // remove the selected record
-            AddOnProduct::add_on_products[selected] = nil;
-            AddOnProduct::add_on_products = filter (map<string,any> prod,
-		AddOnProduct::add_on_products,
-	    {
-                return prod != nil;
-            });
-
-	    // Remove product from add-ons
-	    AddOnProduct::Disintegrate (media);
-	    
+	    RemoveSelectedAddOn (selected);
 	    some_addon_changed = true;
 
-	    // remove product from list of product to register (FATE #301312)
-	    AddOnProduct::RemoveRegistrationFlag (media);
-	    
-            Redraw (enable_back, enable_next, back_button, next_button);
+	    UI::CloseDialog();
+
+	    Redraw (enable_back, enable_next, back_button, next_button);
 
 	// adding new add-on
         } else if (ret == `add) {
