@@ -32,6 +32,7 @@ import "Wizard";
 import "Confirm";
 import "GetInstArgs";
 import "Installation";
+import "PackageCallbacks";
 
 include "packager/inst_source_dialogs.ycp";
 include "add-on/misc.ycp";
