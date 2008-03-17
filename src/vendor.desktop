@@ -22,3 +22,4 @@ Exec=/sbin/yast2 vendor
 Name=Vendor Driver CD
 GenericName=Install a driver from a vendor-specific CD-ROM
 X-KDE-SubstituteUID=true
+StartupNotify=true
