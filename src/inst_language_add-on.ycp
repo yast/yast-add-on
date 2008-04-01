@@ -167,7 +167,7 @@
 		    `MultiSelectionBox (
 			`id ("languages"),
 			// TRANSLATORS:: multi-selection box
-			_("&Select Language Extensions to Be Installed"),
+			_("&Select Language Extensions to be Installed"),
 			items
 		    ),
 		    `HStretch ()

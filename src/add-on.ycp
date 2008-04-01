@@ -34,9 +34,9 @@ if (
 Add-On Module Help
 ------------------
 
-To add a new Add-On product via command-line, use this syntax:
+To add a new add-on product via command-line, use this syntax:
     /sbin/yast2 add-on URL
-URL is the path to the Add-On source.
+URL is the path to the add-on source.
 
 Examples of URL:
 http://server.name/directory/Lang-AddOn-10.2-i386/
