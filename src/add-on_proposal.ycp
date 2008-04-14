@@ -50,7 +50,7 @@ if ( func == "MakeProposal" )
 else if ( func == "AskUser" )
 {
     Wizard::CreateDialog();
-    symbol result = RunAddOnMainDialog (true, true, Label::CancelButton(), Label::AcceptButton());
+    symbol result = RunAddOnMainDialog (true, true, Label::CancelButton(), Label::OKButton());
     UI::CloseDialog();
 
     // Fill return map

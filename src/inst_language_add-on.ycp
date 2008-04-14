@@ -174,9 +174,9 @@
 		)
 	    ),
 	    // TRANSLATORS: help text
-	    _("<p>Select language extensions to be installed and click <b>Accept</b>.</p>"),
+	    _("<p>Select language extensions to be installed and click <b>OK</b>.</p>"),
 	    Label::BackButton(),
-	    Label::AcceptButton()
+	    Label::OKButton()
 	);
 	Wizard::SetDesktopIcon("yast-language");
 	Wizard::DisableBackButton();

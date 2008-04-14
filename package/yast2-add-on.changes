@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 14 12:17:23 CEST 2008 - locilka@suse.cz
+
+- Unified Button Labels: OK instead of Accept (fate #120373).
+- 2.16.3
+
+-------------------------------------------------------------------
 Tue Apr  1 10:02:15 CEST 2008 - jsrain@suse.cz
 
 - merged texts from proofread
