@@ -9,6 +9,7 @@ listentry =
      media_url? &
      product? &
      product_dir? &
+     ask_on_error? &
      element signature-handling {
         element accept_unsigned_file { BOOLEAN }? &
         element accept_file_without_checksum { BOOLEAN }? &
@@ -39,6 +40,7 @@ listentry =
 media_url = element media_url { text }
 product = element product { text }
 product_dir = element product_dir { text }
+ask_on_error = element ask_on_error { BOOLEAN }
 add_on_products =
   element add_on_products {
      attribute config:type { text }?,

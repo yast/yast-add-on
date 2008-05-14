@@ -154,18 +154,21 @@ else if (func == "Write") {
 	string pth = prod["product_dir"]:"/";
 	sources[media] = sources[media]:$[];
         AddOnProduct::SetSignatureCallbacks( prod["product"]:"" ); // set addon specific sig-handling
-	if (sources[media, pth]:-1 == -1)
-	{
+	//if (sources[media, pth]:-1 == -1)
+	do {
 	    integer srcid = Pkg::SourceCreate (media, pth);
-	    if (srcid == -1 || srcid == nil)
+	    if ( (srcid == -1 || srcid == nil) && !prod["ask_on_error"]:false )
 		// error report
 		Report::Error (_("Failed to add add-on product."));
+            else if( (srcid == -1 || srcid == nil) && prod["ask_on_error"]:false )
+                prod["ask_on_error"] = Popup::ContinueCancel( sformat(_("Please make the add-on \"%1\" available via \"%2\""), prod["product"]:"" ,media) );
 	    sources[media, pth] = srcid;
 	    // bugzilla #260613
 	    if (srcid != -1)
 		AddOnProduct::Integrate (srcid);
             AutoinstGeneral::SetSignatureHandling(); // reset to global sig-handling
-	}
+
+	} while (sources[media, pth]:-1 == -1 && prod["ask_on_error"]:false);
 	prod["media"] = sources[media, pth]:-1;
 	Pkg::ResolvableInstall (prod["product"]:"", `product);
     });
