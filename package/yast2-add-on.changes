@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu May 15 16:20:48 CEST 2008 - locilka@suse.cz
+
+- Using functions for adding repositories exported by the
+  yast2-packager to unify the offered types of repositories
+  (bnc #368207).
+- Updated RPM dependencies.
+- 2.16.5
+
+-------------------------------------------------------------------
 Wed May 14 11:15:45 CEST 2008 - ug@suse.de
 
 - ask for add-on source when ask_on_error is set

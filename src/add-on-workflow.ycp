@@ -35,6 +35,7 @@ import "Installation";
 import "PackageCallbacks";
 
 include "packager/inst_source_dialogs.ycp";
+include "packager/repositories_include.ycp";
 include "add-on/misc.ycp";
 
 boolean going_back_in_workflow = GetInstArgs::going_back();
@@ -87,97 +88,6 @@ boolean IsAnyNetworkAvailable () {
 }
 
 /**
- * Creates dialog content for MediaSelect
- */
-void CreateMediaSelectDialog () {
-    term contents = `HBox (`HStretch (), `VBox (
-	`RadioButtonGroup (`id (`type), `VBox (
-	    `VStretch (),
-	    // radio button
-	    `Left (`RadioButton(`id(`slp), `opt(`notify),		_("&Scan Using SLP..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`ftp), `opt(`notify),		_("&FTP..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`http), `opt(`notify),		_("&HTTP..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`https), `opt(`notify),		_("HTT&PS..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`samba), `opt(`notify),		_("&SMB/CIFS"))),
-	    // radio button
-	    `Left (`RadioButton(`id(`nfs), `opt(`notify),		_("&NFS..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`cd), `opt(`notify),		_("&CD..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`dvd), `opt(`notify),		_("&DVD..."))),
-	    // radio button
-	    `Left (`RadioButton(`id(`local_dir), `opt(`notify),		_("&Local Directory..."))),
-	    // radio button
-	    `Left (`RadioButton (`id (`specify_url), `opt(`notify),	_("Specify &URL..."))),
-	    `VStretch ()
-	))), `HStretch ()
-    );
-    if (! IsAnyNetworkAvailable()) {
-	y2milestone ("Network is not available, skipping all Network-related options...");
-
-	contents = `HBox (`HStretch (), `VBox (
-	    `RadioButtonGroup (`id (`type), `VBox (
-		`VStretch (),
-		// radio button
-		`Left (`RadioButton(`id(`cd), `opt(`notify),		_("&CD..."))),
-		// radio button
-		`Left (`RadioButton(`id(`dvd), `opt(`notify),		_("&DVD..."))),
-		// radio button
-		`Left (`RadioButton(`id(`local_dir), `opt(`notify),	_("&Local Directory..."))),
-		// radio button
-		`Left (`RadioButton (`id (`specify_url), `opt(`notify),	_("Specify &URL..."))),
-		`VStretch ()
-	    ))), `HStretch ()
-	);
-    } else {
-	y2milestone("Network is available, allowing Network-related options...");
-    }
-
-    // dialog caption
-    string title = _("Add-On Product Media");
-    // help
-    string help_text = _("<p><big><b>Software Repository</b></big><br>
-Add-on products can be installed from CD, over a
-network, or from the hard disk.</p>
-");
-
-    // help, continued
-    help_text = help_text + _("<p>
-To install add-on product from <b>CD</b>,
-have the product CD set or the DVD available.</p>");
-
-    // help, continued
-    help_text = help_text + _("<p>
-The product CDs can be copied to the hard disk.
-Insert the path where the first
-CD is located, for example, /data1/<b>CD1</b>.
-Only the base path is required if all CDs are copied
-into one directory.</p>
-");
-
-    // help, continued
-    help_text = help_text + _("<p>
-Network installation requires a working network connection.
-Specify the directory where the packages from
-the first CD are located, such as /data1/CD1.</p>
-");
-
-    Wizard::SetContents (title, contents, help_text, Stage::initial(), true);
-    Wizard::RestoreBackButton();
-    Wizard::DisableBackButton();
-    Wizard::RestoreAbortButton();
-    Wizard::SetAbortButton (`cancel, Label::CancelButton());
-
-    // disable the button unless some option is selected
-    // bugzilla #305850
-    Wizard::DisableNextButton();
-}
-
-/**
  * Returns begining string for source type
  *
  * @param symbol source_type
@@ -203,146 +113,30 @@ string GetURLBeginsWith (symbol source_type) {
  * @return symbol for wizard sequencer
  */
 symbol MediaSelect () {
-    // FIXME: this function is ugly
-    //        rewrite especially handling `back (see #216910)
-    y2milestone ("Running media select dialog");
-    CreateMediaSelectDialog();
+    map<string,any> aliases = $[
+	"type" : ``(TypeDialog()),
+	"edit" : ``(EditDialog ()),
+	"store" : ``(StoreSource ()),
+    ];
 
-    // all supported types
-    // bugzilla #305850
-    list rb_rets = [`slp, `ftp, `http, `https, `samba, `nfs, `cd, `dvd, `local_dir, `specify_url];
+    map sequence = $[
+	"ws_start" : "type",
+	"type" : $[
+	    `next : "edit",
+	    `abort : `abort,
+	],
+	"edit" : $[
+	    `next : "store",
+	    `abort : `abort,
+	],
+	"store" : $[
+	    `next : `next,
+	    `abort : `abort,
+	],
+    ];
 
-    symbol ret = nil;
-    string url = "";
-    while (ret == nil) {
-	ret = (symbol) UI::UserInput ();
-
-	if (ret == `back) {
-	    // bugzilla #216910
-	    // `back means - return to the previous dialog
-	    // in Mode::normal, there is no previous dialog
-	    if (Mode::normal()) {
-		ret = nil;
-		continue;
-	    } else {
-		break;
-	    }
-	} else if (ret == `abort || ret == `cancel) {
-	    ret = `abort;
-
-	    // Just return back (abort adding new Add-On) in installation
-	    if (Mode::installation()) {
-		break;
-	    // Ask in other cases
-	    } else {
-		// yes-no popup
-		if (Popup::YesNo (_("Really abort add-on product installation?")))
-		    break;
-	    }
-
-	    ret = nil;
-	    continue;
-	// one radio button selected
-	} else if (ret != nil && contains (rb_rets, ret)) {
-	    // bugzilla #305850
-	    Wizard::EnableNextButton();
-	    ret = nil;
-	    // next loop
-	    continue;
-	} else if (ret == `next) {
-	    y2milestone ("Media type selected...");
-	} else {
-	    y2error ("Unknown ret: %1", ret);
-	    continue;
-	}
-
-	createResult = nil;
-	symbol input = (symbol)UI::QueryWidget (`id (`type), `CurrentButton);
-	y2milestone ("Current: %1", input);
-
-	if ( input == `slp )
-	{
-	    string required_package = "yast2-slp";
-	    boolean installed_before = PackageSystem::Installed (required_package);
-
-	    // in stage initial, packages can't be installed
-	    // bugzilla #327742
-	    if (Stage::initial()) {
-		y2milestone ("Stage initial...");
-	    } else if (! installed_before) {
-		// Tries to Check and Install packages
-		if (
-		    ! PackageSystem::CheckAndInstallPackagesInteractive ([required_package]) ||
-		    ! PackageSystem::Installed (required_package)
-		) {
-		    Report::Error (sformat (
-			// popup error message, %1 is the package name
-			_("Cannot search for SLP installation repositories
-without having %1 package installed"),
-			required_package
-		    ));
-		    y2warning ("Not searching for SLP sources");
-		    ret = nil;
-		    continue;
-		// New .slp agent has been added
-		} else {
-		    SCR::RegisterNewAgents();
-		}
-	    }
-
-	    // moved to another function
-	    ret = (symbol) WFM::call("add_inst_source_slptype");
-	    y2milestone("SLP-Add returned: %1", ret);
-	    if (ret == `next)
-		createResult = `ok;
-	    else
-		ret = nil;
-		continue;
-	}
-	else if (contains ([`ftp, `http, `https, `samba, `nfs, `cd, `dvd,
-	    `local_dir, `specify_url], input))
-	{
-	    url = GetURLBeginsWith (input);
-
-	    if (input == `cd || input == `dvd)
-	    {
-		Pkg::SourceReleaseAll();
-		string msg = input == `cd
-		    ? _("Insert the add-on product CD")
-		    : _("Insert the add-on product DVD");
-
-		// bugzilla #237264
-		boolean ask_for_media = SourceManager::AskForCD (msg);
-		y2milestone ("SourceManager::AskForCD returned: %1", ask_for_media);
-		if (ask_for_media == true) {
-		    createResult = SourceManager::createSource( url);
-		} else {
-		    createResult = nil;
-		    ret = nil;
-		    continue;
-		}
-	    }
-	    else
-	    {
-	      do {
-		url = editUrl( url );
-		y2milestone ("New url: '%1'", url);
-		if (url == nil || url == "") {
-		    break;
-		} else {
-		    y2milestone ("Adding source");
-		    createResult = SourceManager::createSource( url);
-		}
-              } while ( createResult == `again );
-	      y2milestone ("New Add-On: finished");
-	    }
-        }
-	if (createResult != `ok)
-	{
-	    ret = nil;
-	    continue;
-	}
-    }
+    y2milestone ("Starting repository sequence");
+    symbol ret = Sequencer::Run (aliases, sequence);
 
     AddOnProduct::last_ret = ret;
     y2milestone ("MediaSelect Dialog ret: %1", ret);
@@ -487,13 +281,13 @@ Select the repository to use.</p>");
 	if (ret == `abort || ret == `cancel)
 	{
 	    ret = `abort;
-/*	    if (Stage::initial())
-	    {
-	        if (Popup::ConfirmAbort (`painless))
-		    break;
-	    }
-	    else
-	    {*/
+//	    if (Stage::initial())
+//	    {
+//	        if (Popup::ConfirmAbort (`painless))
+//		    break;
+//	    }
+//	    else
+//	    {
 		// yes-no popup
 		if (Popup::YesNo (_("Really abort add-on product installation?")))
 		    break;
@@ -775,13 +569,13 @@ to install.</p>");
 	if (ret == `cancel || ret == `abort)
 	{
 	    ret = `abort;
-/*	    if (Stage::initial())
-	    {
-	        if (Popup::ConfirmAbort (`painless))
-		    break;
-	    }
-	    else
-	    {*/
+//	    if (Stage::initial())
+//	    {
+//	        if (Popup::ConfirmAbort (`painless))
+//		    break;
+//	    }
+//	    else
+//	    {
 		// yes-no popup
 		if (Popup::YesNo (_("Really abort add-on product installation?")))
 		    break;
@@ -890,27 +684,27 @@ or selected for installation."));
 symbol RunWizard() {
     map aliases = $[
 	"media" : ``(MediaSelect ()),
-	"catalog" : ``(CatalogSelect ()),
-	"product" : ``(ProductSelect ()),
+	// "catalog" : ``(CatalogSelect ()),
+	// "product" : ``(ProductSelect ()),
     ];
 
     map sequence = $[
 	"ws_start" : "media",
 	"media" : $[
 	    `abort : `abort,
-	    `next : "catalog",
-	    `finish : `next,
-	],
-	"catalog" : $[
-	    `abort : `abort,
-	    `next : "product",
-	    `finish : `next,
-	],
-	"product" : $[
-	    `abort : `abort,
 	    `next : `next,
 	    `finish : `next,
 	],
+//	"catalog" : $[
+//	    `abort : `abort,
+//	    `next : "product",
+//	    `finish : `next,
+//	],
+//	"product" : $[
+//	    `abort : `abort,
+//	    `next : `next,
+//	    `finish : `next,
+//	],
     ];
     return Sequencer::Run(aliases, sequence);
 }

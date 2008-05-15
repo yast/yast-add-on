@@ -7,8 +7,8 @@ Requires:	yast2 >= 2.15.22
 Requires:	yast2-installation
 Requires:	yast2-country
 
-# AddOnProduct::skip_add_ons
-Requires:	yast2-packager >= 2.15.75
+# repositories_include.ycp
+Requires:	yast2-packager >= 2.16.47
 # bugzilla #335582, new API for StorageDevices
 Requires:	yast2-storage >= 2.16.1
 
