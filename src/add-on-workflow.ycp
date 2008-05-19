@@ -123,14 +123,20 @@ symbol MediaSelect () {
 	"ws_start" : "type",
 	"type" : $[
 	    `next : "edit",
+	    // bnc #392083
+	    `finish : "store",
 	    `abort : `abort,
 	],
 	"edit" : $[
 	    `next : "store",
+	    // bnc #392083
+	    `finish : "store",
 	    `abort : `abort,
 	],
 	"store" : $[
 	    `next : `next,
+	    // bnc #392083
+	    `finish : `next,
 	    `abort : `abort,
 	],
     ];
