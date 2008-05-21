@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed May 21 16:30:09 CEST 2008 - locilka@suse.cz
+
+- Adjusting AddOnProduct::src_id to the latest source ID added.
+  It is needed for downloading the product workflow and
+  registration to proceed (bnc #393011).
+- 2.16.7
+
+-------------------------------------------------------------------
 Mon May 19 16:32:19 CEST 2008 - locilka@suse.cz
 
 - Re-enabling SLP and Community Repositories for Add-Ons

@@ -119,6 +119,9 @@ symbol MediaSelect () {
 	"store" : ``(StoreSource ()),
     ];
 
+    list <integer> sources_before = Pkg::SourceGetCurrent (false);
+    y2milestone ("Sources before adding new one: %1", sources_before);
+
     map sequence = $[
 	"ws_start" : "type",
 	"type" : $[
@@ -143,6 +146,27 @@ symbol MediaSelect () {
 
     y2milestone ("Starting repository sequence");
     symbol ret = Sequencer::Run (aliases, sequence);
+
+    list <integer> sources_after = Pkg::SourceGetCurrent (false);
+    y2milestone ("Sources with new one added: %1", sources_after);
+
+    // bnc #393011
+    // AddOnProduct::src_id must be set to the latest source ID
+    boolean src_id_found = false;
+
+    foreach (integer one_source, sources_after, {
+	if (! contains (sources_before, one_source)) {
+	    AddOnProduct::src_id = one_source;
+	    y2milestone ("Added source ID is: %1", AddOnProduct::src_id);
+	    src_id_found = true;
+	    break;
+	}
+    });
+
+    if (! src_id_found) {
+	AddOnProduct::src_id = sources_after[size(sources_after) - 1]:0;
+	y2warning ("Fallback src_id: %1", AddOnProduct::src_id);
+    }
 
     AddOnProduct::last_ret = ret;
     y2milestone ("MediaSelect Dialog ret: %1", ret);
