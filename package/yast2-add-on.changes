@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu May 22 17:18:25 CEST 2008 - locilka@suse.cz
+
+- Readded managing AddOnProduct::add_on_products (list of used
+  Add-On products) when a new Add-On is used (bnc #393620).
+- 2.16.8
+
+-------------------------------------------------------------------
 Wed May 21 16:30:09 CEST 2008 - locilka@suse.cz
 
 - Adjusting AddOnProduct::src_id to the latest source ID added.

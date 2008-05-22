@@ -108,6 +108,25 @@ string GetURLBeginsWith (symbol source_type) {
     return url;
 }
 
+// used Add-Ons are stored in AddOnProduct::add_on_products
+// bnc #393620
+void AddAddOnToStore (integer src_id) {
+    if (src_id == nil) {
+	y2error ("Wrong src_id: %1", src_id);
+	return;
+    }
+
+    map source_data = Pkg::SourceGeneralData (src_id);
+
+    AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
+	"media" : AddOnProduct::src_id,
+	// table cell
+	"product" : source_data["name"]:source_data["alias"]:_("No product found in the repository"),
+	"media_url" : source_data["url"]:"",
+	"product_dir" : source_data["product_dir"]:"",
+    ]);
+}
+
 /**
  * Run dialog for selecting the media
  * @return symbol for wizard sequencer
@@ -163,7 +182,10 @@ symbol MediaSelect () {
 	}
     });
 
-    if (! src_id_found) {
+    if (src_id_found) {
+	// used add-ons are stored in a special list
+	AddAddOnToStore (AddOnProduct::src_id);
+    } else {
 	AddOnProduct::src_id = sources_after[size(sources_after) - 1]:0;
 	y2warning ("Fallback src_id: %1", AddOnProduct::src_id);
     }
