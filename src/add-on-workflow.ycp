@@ -52,7 +52,7 @@ symbol Read () {
  * Write (changed) inst. sources
  */
 symbol Write () {
-    Pkg::SourceFinishAll();
+    Pkg::SourceSaveAll();
     return `next;
 }
 

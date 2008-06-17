@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun 17 14:23:45 CEST 2008 - lslezak@suse.cz
+
+- use Pkg::SourceSaveAll() instead of Pkg::SourceFinishAll()
+  (bnc#395738) 
+- 2.17.0
+
+-------------------------------------------------------------------
 Thu May 22 17:18:25 CEST 2008 - locilka@suse.cz
 
 - Readded managing AddOnProduct::add_on_products (list of used
