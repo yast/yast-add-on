@@ -1050,7 +1050,9 @@ void CreateAddOnsOverviewDialog () {
 		`PushButton (`id (`add), Label::AddButton()),
 		`HSpacing (1),
 		`PushButton (`id (`delete), Label::DeleteButton()),
-		`HStretch()
+		`HStretch(),
+		// TRANSLATORS: push button
+		`PushButton (`id (`packager), _("Run &Package Manager..."))
 	    )
 	),
 	// TRANSLATORS: dialog help adp/1
@@ -1142,6 +1144,22 @@ void RedrawAddOnsOverviewTable () {
     AdjustInfoWidget();
 
     UI::ChangeWidget (`id(`delete), `Enabled, (size (all_products) > 0));
+}
+
+boolean RunPackageSelector () {
+	boolean solve_ret = Pkg::PkgSolve (false);
+	y2milestone ("Calling Solve() retutned: %1", solve_ret);
+
+	map opts = $[ "dialog_type" : `summaryMode, "repo_mgmt" : true ];
+
+	y2milestone ("Running inst_packages: Using packager widget options: %1", opts);
+	symbol result = (symbol) WFM::CallFunction ("inst_packages", [opts]);
+	y2milestone ("inst_packages returned: %1", result);
+
+	if (result == `accept) {
+	    y2error ("FIXME: .....");
+	    // set variable to run inst_rpmcopy at the end...
+	}
 }
 
 /**
@@ -1248,19 +1266,7 @@ boolean RemoveProductWithDependencies () {
     });
 
     if (status_changed) {
-	boolean solve_ret = Pkg::PkgSolve (false);
-	y2milestone ("Calling Solve() retutned: %1", solve_ret);
-
-	map opts = $[ "dialog_type" : `summaryMode, "repo_mgmt" : true ];
-
-	y2milestone ("Running inst_packages: Using packager widget options: %1", opts);
-	symbol result = (symbol) WFM::CallFunction ("inst_packages", [opts]);
-	y2milestone ("inst_packages returned: %1", result);
-
-	if (result == `accept) {
-	    y2error ("FIXME: .....");
-	    // set variable to run inst_rpmcopy at the end...
-	}
+	RunPackageSelector();
     }
 
     return true;
@@ -1323,6 +1329,8 @@ symbol RunAddOnsOverviewDialog () {
 		RedrawAddOnsOverviewTable();
 	} else if (userret == "list_of_addons") {
 	    AdjustInfoWidget();
+	} else if (userret == `packager) {
+	    RunPackageSelector();
 	} else {
 	    y2error ("Uknown ret: %1", userret);
 	}
