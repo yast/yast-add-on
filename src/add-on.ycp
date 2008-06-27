@@ -53,7 +53,7 @@ Wizard::CreateDialog();
 
 Wizard::SetContents (
     // dialog caption
-    _("Add-On Product Media"),
+    _("Add-On Products"),
     // busy message (dialog)
     `VBox(`Label(_("Initializing..."))),
     // help
@@ -79,7 +79,8 @@ if (! Confirm::MustBeRoot () || ! PackageLock::Check ())
 }
 
 // initialize target to import all trusted keys (#165849)
-Pkg::TargetInit( "/", false );
+Pkg::TargetInitialize ("/");
+Pkg::TargetLoad();
 
 PackageCallbacksInit::InitPackageCallbacks ();
 
@@ -94,8 +95,8 @@ Wizard::EnableNextButton();
 
 if (size (WFM::Args()) == 0)
 {
-    y2milestone ("Url not specified in the command line, asking user");
-    ret = RunWizard();
+    y2milestone ("Url not specified in cmdline, starting full-featured module");
+    ret = RunAddOnsOverviewDialog();
 }
 else
 {
@@ -109,33 +110,15 @@ else
     ret = RunAutorunWizard ();
 }
 
-    // bugzilla #293428
-    // Release all sources before adding a new one
-    // because of CD/DVD + url cd://
-    Pkg::SourceReleaseAll();
-
-if (ret == `next)
-{
-    // feedback heading
-    string heading = _("Add-On Product Installation");
-    // feedback message
-    string message
-	= _("Reading packages available at the installation repositories...");
-
-    Popup::ShowFeedback (heading, message);
-
-    y2milestone ("syncing srcid %1 to zmd", AddOnProduct::src_id);
-    boolean synced
-	= SourceManager::SyncAddedAndDeleted ([AddOnProduct::src_id], []);
-    y2milestone ("sync status: %1", synced);
-
-    Popup::ClearFeedback ();
-
-    WFM::CallFunction ("inst_addon_update_sources", []);
-    ret = AddOnProduct::DoInstall ();
-    // Write only when there are some changes
-    Write();
+if (ret == `next) {
+    Pkg::SourceSaveAll();
 }
+
+// bugzilla #293428
+// Release all sources before adding a new one
+// because of CD/DVD + url cd://
+Pkg::SourceReleaseAll();
+
 UI::CloseDialog();
 return ret;
 

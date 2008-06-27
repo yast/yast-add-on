@@ -1021,5 +1021,316 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
     return ret;
 }
 
+// AddOnsOverviewDialog -->
+
+void CreateAddOnsOverviewDialog () {
+    y2milestone ("Creating OverviewDialog");
+
+    Wizard::SetContents (
+	// TRANSLATORS: dialog caption
+	_("Installed Add-On Products"),
+	`VBox (
+	    `Table (
+		`id ("list_of_addons"),
+		`opt (`notify, `immediate),
+		`header (
+		    // TRANSLATORS: table header item
+		    _("Add-On Product"),
+		    // TRANSLATORS: table header item
+		    _("URL")
+		),
+		[]
+	    ),
+	    `VSquash(
+		`MinHeight (3,
+		    `RichText (`id ("product_details"), "")
+		)
+	    ),
+	    `HBox (
+		`PushButton (`id (`add), Label::AddButton()),
+		`HSpacing (1),
+		`PushButton (`id (`delete), Label::DeleteButton()),
+		`HStretch()
+	    )
+	),
+	// TRANSLATORS: dialog help adp/1
+	_("<p>Here you can see all add-on products installed on your system.</p>") +
+	// TRANSLATORS: dialog help adp/2
+	_("<p>Use <b>Add</b> button to use a new add-on product or <b>Delete</b> to remove an add-on in use.</p>"),
+	false,
+	true
+    );
+
+    Wizard::SetNextButton (`next, Label::FinishButton());
+    Wizard::SetAbortButton (`abort, Label::CancelButton());
+}
+
+map product_infos = $[];
+
+map ReturnCurrentlySelectedProductInfo () {
+    if (! UI::WidgetExists (`id ("list_of_addons"))) {
+	y2error ("No such widget: %1", "list_of_addons");
+	return nil;
+    }
+
+    string item_id = (string) UI::QueryWidget (`id ("list_of_addons"), `CurrentItem);
+
+    // no items
+    if (item_id == nil) {
+	return nil;
+    }
+
+    if (! regexpmatch (item_id, "product_")) {
+	y2error ("Wrong product ID '%1'", item_id);
+	return nil;
+    }
+
+    item_id = substring (item_id, 8);
+
+    return product_infos[item_id]:$[];
+}
+
+void AdjustInfoWidget () {
+    map pi = ReturnCurrentlySelectedProductInfo();
+    if (pi == nil || pi == $[]) {
+	UI::ChangeWidget (`id ("product_details"), `Value, "");
+	return;
+    }
+
+    string rt_description = sformat (
+	_("<p><b>Vendor:</b> %1<br><b>Repository URL:</b> %2</p>"),
+	pi["product","vendor"]:_("Unknown vendor"),
+	pi["repository","url"]:_("Unknown repository URL")
+    );
+    UI::ChangeWidget (`id ("product_details"), `Value, rt_description);
+}
+
+void RedrawAddOnsOverviewTable () {
+    list <map <string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
+
+    integer medium_nr = nil;
+    map repository_info = nil;
+    integer counter = -1;
+
+    list <term> products = [];
+    product_infos = $[];
+
+    foreach (map <string,any> one_product, all_products, {
+	medium_nr = one_product["medium_nr"]:-1;
+	if (medium_nr != nil && medium_nr != -1) {
+	    counter = counter + 1;
+
+	    repository_info = Pkg::SourceGeneralData (one_product["source"]:-1);
+
+	    y2milestone ("Product: %1", one_product);
+	    y2milestone ("Info: %1", repository_info);
+
+	    product_infos[tostring(counter)] = $[
+		"product" : one_product,
+		"repository" : repository_info,
+	    ];
+
+	    products = add (products, `item (
+		`id (sformat ("product_%1", counter)),
+		one_product["display_name"]:one_product["name"]:_("Unknown product"),
+		repository_info["url"]:repository_info["base_urls",0]:_("Unknown URL")
+	    ));
+	}
+    });
+
+    UI::ChangeWidget (`id ("list_of_addons"), `Items, products);
+    AdjustInfoWidget();
+
+    UI::ChangeWidget (`id(`delete), `Enabled, (size (all_products) > 0));
+}
+
+/**
+ * Removes the currently selected Add-On
+ *
+ * @return boolean whether something has changed its state
+ */
+boolean RemoveProductWithDependencies () {
+    // FIXME: UI feedback is needed
+
+    map pi = ReturnCurrentlySelectedProductInfo();
+    if (pi == nil || pi == $[]) {
+	y2error ("Cannot remove unknown product");
+	return false;
+    }
+
+    string product_name = pi["product","display_name"]:pi["product","name"]:_("Unknown product");
+    if (! Confirm::Delete (product_name)) {
+	y2milestone ("Deleting '%1' canceled", product_name);
+	return false;
+    }
+
+    integer src_id = pi["product","source"]:-1;
+
+    // Temporary definitions
+    boolean pack_ret = false;
+    string package_string = "";
+
+    // ["pkg1 version release arch", "pkg2 version release arch", ... ]
+    list <string> installed_packages = maplist (string inst_package, Pkg::GetPackages (`installed, false), {
+	// ... but we need ["pkg1 version-release arch", "pkg2 version-release arch", ... ]
+	return regexpsub (inst_package, "(.*) (.*) (.*) (.*)", "\\1 \\2-\\3 \\4");
+    });
+
+    // y2milestone ("Installed packages: %1", installed_packages);
+
+    // All packages from Add-On / Repository
+    list <map <string,any> > packages_from_repo = Pkg::ResolvableProperties ("", `package, "");
+
+    packages_from_repo = filter (map <string, any> one_package, packages_from_repo, {
+	// Package is not at the repository to be deleted
+	if (one_package["source"]:-1 != src_id)
+	    return false;
+
+	// Package *is* at the repository to delete
+
+	// "name version-release arch", "version" already contains a release
+	package_string = sformat ("%1 %2 %3",  one_package["name"]:"", one_package["version"]:"", one_package["arch"]:"");
+
+	// The very same package (which is avaliable at the source) is also installed
+	return contains (installed_packages, package_string);
+    });
+
+    y2milestone ("%1 packages installed from repository", size (packages_from_repo));
+
+    // Removing selected product, whatever it means
+    if ((pi["product","status"]:`unknown == `installed || pi["product","status"]:`unknown == `selected) && pi["product","name"]:"" != "") {
+	y2milestone ("Removing product: '%1'", pi["product","name"]:"");
+	Pkg::ResolvableRemove (pi["product","name"]:"", `product);
+    } else {
+	y2milestone ("Product is neither `installed nor `selected");
+    }
+
+    // Removing repository of the selected product
+    if (src_id > -1) {
+	y2milestone ("Removing repository: %1, url: %2", src_id, pi["repository","url"]:"");
+	Pkg::SourceDelete (src_id);
+    } else {
+	y2milestone ("Product doesn't have any repository in use");
+    }
+
+    // The product repository is already removed, checking all installed packages
+
+    // All available packages
+    list <string> available_packages = maplist (string inst_package, Pkg::GetPackages (`available, false), {
+	// ... but we need ["pkg1 version-release arch", "pkg2 version-release arch", ... ]
+	return regexpsub (inst_package, "(.*) (.*) (.*) (.*)", "\\1 \\2-\\3 \\4");
+    });
+
+    list <string> available_package_names = Pkg::GetPackages (`available, true);
+    y2milestone ("%1 available packages", size (available_package_names));
+
+    boolean status_changed = false;
+
+    // check all packages installed from the just removed repository
+    foreach (map <string, any> one_package, packages_from_repo, {
+	// "name version-release arch", "version" already contains a release
+	package_string = sformat ("%1 %2 %3",  one_package["name"]:"", one_package["version"]:"", one_package["arch"]:"");
+
+	// installed package is not available anymore
+	if (! contains (available_packages, package_string)) {
+	    status_changed = true;
+
+	    // it must be removed
+	    y2milestone ("Removing: %1", package_string);
+	    Pkg::ResolvableRemove (one_package["name"]:"~~~", `package);
+
+	    // but if another version is present, select if for installation
+	    if (contains (available_package_names, one_package["name"]:"~~~")) {
+		y2milestone ("Installing another version of %1", one_package["name"]:"");
+		Pkg::ResolvableInstall (one_package["name"]:"", `package);
+	    }
+	}
+    });
+
+    if (status_changed) {
+	boolean solve_ret = Pkg::PkgSolve (false);
+	y2milestone ("Calling Solve() retutned: %1", solve_ret);
+
+	map opts = $[ "dialog_type" : `summaryMode, "repo_mgmt" : true ];
+
+	y2milestone ("Running inst_packages: Using packager widget options: %1", opts);
+	symbol result = (symbol) WFM::CallFunction ("inst_packages", [opts]);
+	y2milestone ("inst_packages returned: %1", result);
+
+	if (result == `accept) {
+	    y2error ("FIXME: .....");
+	    // set variable to run inst_rpmcopy at the end...
+	}
+    }
+
+    return true;
+}
+
+void RunAddProductWorkflow () {
+    // feedback heading
+    string heading = _("Add-On Product Installation");
+    // feedback message
+    string message
+        = _("Reading packages available at the installation repositories...");
+
+    Popup::ShowFeedback (heading, message);
+
+    y2milestone ("syncing srcid %1 to zmd", AddOnProduct::src_id);
+    boolean synced
+        = SourceManager::SyncAddedAndDeleted ([AddOnProduct::src_id], []);
+    y2milestone ("sync status: %1", synced);
+
+    Popup::ClearFeedback ();
+
+    WFM::CallFunction ("inst_addon_update_sources", []);
+    AddOnProduct::DoInstall();
+    // Write only when there are some changes
+    Write();
+
+    Pkg::SourceReleaseAll();
+}
+
+symbol RunAddOnsOverviewDialog () {
+    y2milestone ("Overview Dialog");
+    symbol ret = `next;
+
+    // to see which products are installed
+    Pkg::PkgSolve (true);
+
+    CreateAddOnsOverviewDialog();
+    RedrawAddOnsOverviewTable();
+
+    any userret = nil;
+
+    while (true) {
+	userret = UI::UserInput();
+
+	if (userret == `abort) {
+	    ret = `abort;
+	    break;
+	} else if (userret == `next || userret == `finish) {
+	    ret = `next;
+	    break;
+	} else if (userret == `add) {
+	    if (RunWizard() == `next) {
+		RunAddProductWorkflow();
+	    }
+
+	    CreateAddOnsOverviewDialog();
+	    RedrawAddOnsOverviewTable();
+	} else if (userret == `delete) {
+	    if (RemoveProductWithDependencies())
+		RedrawAddOnsOverviewTable();
+	} else if (userret == "list_of_addons") {
+	    AdjustInfoWidget();
+	} else {
+	    y2error ("Uknown ret: %1", userret);
+	}
+    }
+
+    return ret;
+}
+
+// <-- AddOnsOverviewDialog
 
 } //end of include

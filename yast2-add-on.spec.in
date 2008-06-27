@@ -22,6 +22,9 @@ Provides:	yast2-installation:/usr/share/YaST2/clients/add-on.ycp
 # SCR::RegisterNewAgents, bugzilla #245508
 Conflicts:	yast2-core < 2.15.4
 
+# Fixed Pkg::GetPackages(`available) to ignore installed packages
+Conflicts:	yast2-pkg-bindings < 2.17.2
+
 BuildArchitectures:	noarch
 
 Summary:	Add-On Configuration

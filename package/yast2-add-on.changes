@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 27 18:11:27 CEST 2008 - locilka@suse.cz
+
+- Implemented Add-Ons overview (FATE #303588).
+- Implemented deinstallation of Add-On (FATE #300654).
+
+-------------------------------------------------------------------
 Tue Jun 17 14:23:45 CEST 2008 - lslezak@suse.cz
 
 - use Pkg::SourceSaveAll() instead of Pkg::SourceFinishAll()
