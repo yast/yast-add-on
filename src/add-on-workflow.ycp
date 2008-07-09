@@ -1063,8 +1063,8 @@ void CreateAddOnsOverviewDialog () {
 	true
     );
 
-    Wizard::SetNextButton (`next, Label::FinishButton());
     Wizard::SetAbortButton (`abort, Label::CancelButton());
+    Wizard::SetNextButton (`next, Label::OKButton());
 }
 
 map product_infos = $[];
@@ -1118,14 +1118,18 @@ void RedrawAddOnsOverviewTable () {
     product_infos = $[];
 
     foreach (map <string,any> one_product, all_products, {
+	if (one_product["category"]:"unknown" == "base") {
+	    y2milestone ("Skipping base product: %1", one_product["display_name"]:one_product["name"]:"");
+	    continue;
+	}
+
 	medium_nr = one_product["medium_nr"]:-1;
 	if (medium_nr != nil && medium_nr != -1) {
 	    counter = counter + 1;
 
 	    repository_info = Pkg::SourceGeneralData (one_product["source"]:-1);
 
-	    y2milestone ("Product: %1", one_product);
-	    y2milestone ("Info: %1", repository_info);
+	    y2milestone ("Product: %1, Info: %2", one_product, repository_info);
 
 	    product_infos[tostring(counter)] = $[
 		"product" : one_product,
