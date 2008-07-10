@@ -1042,7 +1042,8 @@ void CreateAddOnsOverviewDialog () {
 		[]
 	    ),
 	    `VSquash(
-		`MinHeight (3,
+		// Rich text plus border
+		`MinHeight (6,
 		    `RichText (`id ("product_details"), "")
 		)
 	    ),
@@ -1102,10 +1103,15 @@ void AdjustInfoWidget () {
     string rt_description = sformat (
 	"<p>%1
 %2
-%3</p>",
+%3
+%4</p>",
 	sformat (
 	    _("<b>Vendor:</b> %1<br>"),
 	    pi["product","vendor"]:_("Unknown vendor")
+	),
+	sformat (
+	    _("<b>Version:</b> %1<br>"),
+	    pi["product","version"]:_("Unknown version")
 	),
 	sformat (
 	    _("<b>Repository URL:</b> %1<br>"),
