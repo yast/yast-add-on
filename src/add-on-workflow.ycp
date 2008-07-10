@@ -1100,10 +1100,24 @@ void AdjustInfoWidget () {
     }
 
     string rt_description = sformat (
-	_("<p><b>Vendor:</b> %1<br><b>Repository URL:</b> %2</p>"),
-	pi["product","vendor"]:_("Unknown vendor"),
-	pi["repository","url"]:_("Unknown repository URL")
+	"<p>%1
+%2
+%3</p>",
+	sformat (
+	    _("<b>Vendor:</b> %1<br>"),
+	    pi["product","vendor"]:_("Unknown vendor")
+	),
+	sformat (
+	    _("<b>Repository URL:</b> %1<br>"),
+	    pi["repository","url"]:_("Unknown repository URL")
+	),
+	(pi["repository","url"]:"" != pi["repository","alias"]:"" ?
+	    sformat (_("<b>Repository Alias:</b> %1<br>"), pi["repository","alias"]:"")
+	    :
+	    ""
+	)
     );
+
     UI::ChangeWidget (`id ("product_details"), `Value, rt_description);
 }
 
