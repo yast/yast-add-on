@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Tue Jul 22 12:16:55 CEST 2008 - coolo@suse.de
+
+- revert again
+
+-------------------------------------------------------------------
+Tue Jul 22 11:55:51 CEST 2008 - ro@suse.de
+
+- temporarily remove conflicts with older yast2-pkg-bindings
+  to have alpha1 installable 
+
+-------------------------------------------------------------------
 Fri Jun 27 18:11:27 CEST 2008 - locilka@suse.cz
 
 - Implemented Add-Ons overview (FATE #303588).
