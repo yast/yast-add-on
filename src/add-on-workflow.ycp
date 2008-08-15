@@ -1181,9 +1181,12 @@ boolean RunPackageSelector () {
 	y2milestone ("inst_packages returned: %1", result);
 
 	if (result == `accept) {
-	    y2error ("FIXME: .....");
-	    // set variable to run inst_rpmcopy at the end...
+	    y2milestone ("Calling inst_rpmcopy");
+	    WFM::call ("inst_rpmcopy");
+	    y2milestone ("Done");
 	}
+
+	return true;
 }
 
 /**
@@ -1192,8 +1195,6 @@ boolean RunPackageSelector () {
  * @return boolean whether something has changed its state
  */
 boolean RemoveProductWithDependencies () {
-    // FIXME: UI feedback is needed
-
     map pi = ReturnCurrentlySelectedProductInfo();
     if (pi == nil || pi == $[]) {
 	y2error ("Cannot remove unknown product");
@@ -1205,6 +1206,10 @@ boolean RemoveProductWithDependencies () {
 	y2milestone ("Deleting '%1' canceled", product_name);
 	return false;
     }
+
+    // TRANSLATORS: busy popup message
+    UI::OpenDialog (`Label(_("Removing product dependencies...")));
+    // OpenDialog-BusyMessage
 
     integer src_id = pi["product","source"]:-1;
 
@@ -1289,6 +1294,9 @@ boolean RemoveProductWithDependencies () {
 	}
     });
 
+    // See OpenDialog-BusyMessage
+    UI::CloseDialog();
+
     if (status_changed) {
 	RunPackageSelector();
     }
@@ -1349,8 +1357,10 @@ symbol RunAddOnsOverviewDialog () {
 	    CreateAddOnsOverviewDialog();
 	    RedrawAddOnsOverviewTable();
 	} else if (userret == `delete) {
-	    if (RemoveProductWithDependencies())
+	    if (RemoveProductWithDependencies()) {
+		CreateAddOnsOverviewDialog();
 		RedrawAddOnsOverviewTable();
+	    }
 	} else if (userret == "list_of_addons") {
 	    AdjustInfoWidget();
 	} else if (userret == `packager) {
