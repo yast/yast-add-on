@@ -174,7 +174,7 @@
 		)
 	    ),
 	    // TRANSLATORS: help text
-	    _("<p>Select language extensions to be installed and click <b>OK</b>.</p>"),
+	    _("<p>Select the language extensions to be installed and then click the <b>OK</b> button.</p>"),
 	    Label::BackButton(),
 	    Label::OKButton()
 	);

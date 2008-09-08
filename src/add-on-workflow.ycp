@@ -316,8 +316,9 @@ symbol CatalogSelect () {
     string title = _("Software Repository Selection");
     // help text
     string help_text = _("<p><big><b>Software Repository Selection</b></big><br>
-Multiple repositories found on the selected medium.
-Select the repository to use.</p>");
+Multiple repositories were found on the selected medium.
+Select the repository to use.</p>
+");
 
     term contents = `HBox (`HSpacing(4), `VBox (
 	`VSpacing (2),
@@ -611,9 +612,10 @@ or selected for installation."));
 	`VStretch ()
     ), `HStretch ());
     // help text
-    string help_text = _("<p><b><big>Product Selection</big></b><br>
-Multiple products found in the repository. Select the products
-to install.</p>");
+    string help_text = _("<p><b><big>Product Selection</big></b><br/>
+Multiple products were found in the repository. Select the products
+to install.</p>
+");
     Wizard::SetContents (title, contents, help_text, true, true);
     while (ret == nil)
     {
@@ -1057,9 +1059,9 @@ void CreateAddOnsOverviewDialog () {
 	    )
 	),
 	// TRANSLATORS: dialog help adp/1
-	_("<p>Here you can see all add-on products installed on your system.</p>") +
+	_("<p>Here you can see all of the add-on products which are installed on your system.</p>") +
 	// TRANSLATORS: dialog help adp/2
-	_("<p>Use <b>Add</b> button to use a new add-on product or <b>Delete</b> to remove an add-on in use.</p>"),
+	_("<p>Use the <b>Add</b> button to add a new add-on product, or the <b>Delete</b> button to remove an add-on which is in use.</p>"),
 	false,
 	true
     );

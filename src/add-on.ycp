@@ -34,7 +34,7 @@ if (
 Add-On Module Help
 ------------------
 
-To add a new add-on product via command-line, use this syntax:
+To add a new add-on product via the command-line, use this syntax:
     /sbin/yast2 add-on URL
 URL is the path to the add-on source.
 
