@@ -18,16 +18,20 @@ import "Wizard";
 import "GetInstArgs";
 import "Mode";
 import "CommandLine";
+import "Directory";
+import "XML";
 
 include "add-on/add-on-workflow.ycp";
 
 list wfm_args = WFM::Args();
 y2milestone ("ARGS: %1", wfm_args);
-if (
-    (size (wfm_args) > 0)
-    &&
-    (contains (wfm_args, "help") || contains (wfm_args, "longhelp"))
-) {
+
+map <string, any> commands = CommandLine::Parse (wfm_args);
+
+y2internal ("Commands: %1", commands);
+
+// bnc #430852
+if (commands["command"]:"" == "help" || commands["command"]:"" == "longhelp") {
     Mode::SetUI ("commandline");
     // TRANSLATORS: commandline help
     CommandLine::Print(_("
@@ -47,6 +51,31 @@ cd://
 dvd://
 "));
     return `auto;
+} else if (commands["command"]:"" == "xmlhelp") {
+    Mode::SetUI ("commandline");
+    if (! haskey (commands["options"]:$[], "xmlfile")) {
+	CommandLine::Print(_("Target file name ('xmlfile' option) is missing. Use xmlfile=<target_XML_file> command line option."));
+	return `auto;
+    } else {
+	map doc = $[];
+
+	doc["listEntries"] = $[
+	    "commands": "command",
+	    "options": "option",
+	    "examples": "example",
+	];
+	doc["systemID"] = Directory::schemadir + "/commandline.dtd";
+	doc["typeNamespace"] = "http://www.suse.com/1.0/configns";
+	doc["rootElement"] = "commandline";
+	XML::xmlCreateDoc(`xmlhelp, doc);
+
+	map exportmap = $[
+	    "module" : "add-on",
+	];
+	XML::YCPToXMLFile(`xmlhelp, exportmap, commands["options", "xmlfile"]:"");
+	y2milestone("exported XML map: %1", exportmap);
+	return `auto;
+    }
 }
 
 Wizard::CreateDialog();
