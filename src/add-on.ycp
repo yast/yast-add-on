@@ -27,8 +27,7 @@ list wfm_args = WFM::Args();
 y2milestone ("ARGS: %1", wfm_args);
 
 map <string, any> commands = CommandLine::Parse (wfm_args);
-
-y2internal ("Commands: %1", commands);
+y2debug ("Commands: %1", commands);
 
 // bnc #430852
 if (commands["command"]:"" == "help" || commands["command"]:"" == "longhelp") {
