@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct  1 11:57:38 CEST 2008 - locilka@suse.cz
+
+- Changed texts (bnc #431177).
+- 2.17.5
+
+-------------------------------------------------------------------
 Tue Sep 30 10:53:19 CEST 2008 - locilka@suse.cz
 
 - Support for commandline: "help", "longhelp", and "xmlhelp"

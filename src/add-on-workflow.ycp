@@ -847,7 +847,7 @@ select it and click <b>Delete</b>.</p>");
     if (! enable_back) Wizard::DisableBackButton();
     if (! enable_next) Wizard::DisableNextButton();
 
-    Wizard::SetDesktopIcon("vendor");
+    Wizard::SetTitleIcon("vendor");
 
     // disable delete button if no items listed
     // bug #203809
@@ -980,7 +980,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    // Use new wizard window for adding new Add-On.
 	    // Do not use "Steps" dialog.
 	    Wizard::OpenNextBackDialog();
-	    Wizard::SetDesktopIcon("vendor");
+	    Wizard::SetTitleIcon("vendor");
             symbol ret = RunWizard ();
 	    Wizard::CloseDialog();
 
@@ -1055,7 +1055,7 @@ void CreateAddOnsOverviewDialog () {
 		`PushButton (`id (`delete), Label::DeleteButton()),
 		`HStretch(),
 		// TRANSLATORS: push button
-		`PushButton (`id (`packager), _("Run &Package Manager..."))
+		`PushButton (`id (`packager), _("Run &Software Manager..."))
 	    )
 	),
 	// TRANSLATORS: dialog help adp/1

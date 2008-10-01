@@ -90,7 +90,7 @@ Wizard::SetContents (
     false
 );
 
-Wizard::SetDesktopIcon("vendor");
+Wizard::SetTitleIcon("vendor");
 
 Wizard::DisableBackButton();
 Wizard::DisableAbortButton();

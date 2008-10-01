@@ -119,7 +119,7 @@
 	    Label::BackButton(),
 	    Label::NextButton()
 	);
-	Wizard::SetDesktopIcon("yast-language");
+	Wizard::SetTitleIcon("yast-language");
 	Wizard::DisableBackButton();
 	Wizard::DisableAbortButton();
 	Wizard::DisableNextButton();
@@ -178,7 +178,7 @@
 	    Label::BackButton(),
 	    Label::OKButton()
 	);
-	Wizard::SetDesktopIcon("yast-language");
+	Wizard::SetTitleIcon("yast-language");
 	Wizard::DisableBackButton();
 	Wizard::EnableAbortButton();
 	Wizard::EnableNextButton();

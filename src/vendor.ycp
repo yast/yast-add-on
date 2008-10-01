@@ -85,7 +85,7 @@
     any result = nil;
 
     Wizard::CreateDialog();
-    Wizard::SetDesktopIcon("vendor");
+    Wizard::SetTitleIcon("vendor");
     Wizard::HideAbortButton();
 
     // VENDOR: main screen heading
