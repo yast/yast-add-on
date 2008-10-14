@@ -111,67 +111,131 @@ else if (func == "Export") {
  * Write configuration data
  * return boolean
  *
-
-  <add-on>
-    <add_on_products config:type="list">
-      <listentry>
-        <media_url>http://software.opensuse.org/download/server:/dns/SLE_10/</media_url>
-        <product>buildservice</product>
-        <product_dir>/</product_dir>
-        <signature-handling>
-           <accept_unsigned_file config:type="boolean">true</accept_unsigned_file>
-           <accept_file_without_checksum config:type="boolean">true</accept_file_without_checksum>
-           <accept_verification_failed config:type="boolean">true</accept_verification_failed>
-           <accept_unknown_gpg_key>
-             <all config:type="boolean">true</all>
-             <keys config:type="list">
-                <keyid>...</keyid>
-                <keyid>3B3011B76B9D6523</keyid>
-             </keys>
-           </accept_unknown_gpg_key>
-           <accept_non_trusted_gpg_key>
-             <all config:type="boolean">true</all>
-             <keys config:type="list">
-                <keyid>...</keyid>
-             </keys>
-           </accept_non_trusted_gpg_key>
-           <import_gpg_key>
-             <all config:type="boolean">true</all>
-             <keys config:type="list">
-                <keyid>...</keyid>
-             </keys>
-           </import_gpg_key>
-        </signature-handling>
-      </listentry>
-    </add_on_products>
-  </add-on>
-
+ * @struct
+ * <add-on>
+ *	<add_on_products config:type="list">
+ *		<listentry>
+ *			<media_url>http://software.opensuse.org/download/server:/dns/SLE_10/</media_url>
+ *			<product>buildservice</product>
+ *			<product_dir>/</product_dir>
+ *			<!-- (optional) -->
+ *			<name>User-Defined Product Name</name>
+ *			<signature-handling>
+ *				<accept_unsigned_file config:type="boolean">true</accept_unsigned_file>
+ *				<accept_file_without_checksum config:type="boolean">true</accept_file_without_checksum>
+ *				<accept_verification_failed config:type="boolean">true</accept_verification_failed>
+ *				<accept_unknown_gpg_key>
+ *					<all config:type="boolean">true</all>
+ *					<keys config:type="list">
+ *						<keyid>...</keyid>
+ *						<keyid>3B3011B76B9D6523</keyid>
+ *					</keys>
+ *				</accept_unknown_gpg_key>
+ *				<accept_non_trusted_gpg_key>
+ *				<all config:type="boolean">true</all>
+ *					<keys config:type="list">
+ *						<keyid>...</keyid>
+ *					</keys>
+ *				</accept_non_trusted_gpg_key>
+ *				<import_gpg_key>
+ *					<all config:type="boolean">true</all>
+ *					<keys config:type="list">
+ *						<keyid>...</keyid>
+ *					</keys>
+ *				</import_gpg_key>
+ *			</signature-handling>
+ *		</listentry>
+ *	</add_on_products>
+ * </add-on>
+ *
  */
 else if (func == "Write") {
-    map<string,map<string,integer> > sources = $[];
-    AddOnProduct::add_on_products = maplist (map<string,any> prod, AddOnProduct::add_on_products, {
+    map <string, map <string, integer> > sources = $[];
+
+    AddOnProduct::add_on_products = maplist (map <string, any> prod, AddOnProduct::add_on_products, {
 	string media = prod["media_url"]:"";
 	string pth = prod["product_dir"]:"/";
 	sources[media] = sources[media]:$[];
-        AddOnProduct::SetSignatureCallbacks( prod["product"]:"" ); // set addon specific sig-handling
-	//if (sources[media, pth]:-1 == -1)
+
+	// set addon specific sig-handling
+        AddOnProduct::SetSignatureCallbacks (prod["product"]:"");
+
+	integer srcid = -1;
+
 	do {
-	    integer srcid = Pkg::SourceCreate (media, pth);
-	    if ( (srcid == -1 || srcid == nil) && !prod["ask_on_error"]:false )
+	    srcid = Pkg::SourceCreate (media, pth);
+
+	    if ((srcid == -1 || srcid == nil) && !prod["ask_on_error"]:false) {
 		// error report
 		Report::Error (_("Failed to add add-on product."));
-            else if( (srcid == -1 || srcid == nil) && prod["ask_on_error"]:false )
-                prod["ask_on_error"] = Popup::ContinueCancel( sformat(_("Please make the add-on \"%1\" available via \"%2\""), prod["product"]:"" ,media) );
+	    } else if( (srcid == -1 || srcid == nil) && prod["ask_on_error"]:false) {
+		prod["ask_on_error"] = Popup::ContinueCancel (
+		    sformat (_("Please make the add-on \"%1\" available via \"%2\""), prod["product"]:"", media)
+		);
+	    }
+
 	    sources[media, pth] = srcid;
+	    y2milestone ("New source ID: %1", srcid);
+
 	    // bugzilla #260613
 	    if (srcid != -1)
 		AddOnProduct::Integrate (srcid);
-            AutoinstGeneral::SetSignatureHandling(); // reset to global sig-handling
 
-	} while (sources[media, pth]:-1 == -1 && prod["ask_on_error"]:false);
+	    // reset to global sig-handling
+            AutoinstGeneral::SetSignatureHandling();
+
+	} while (sources[media, pth]:-1 == -1 && prod["ask_on_error"]:false == true);
+
 	prod["media"] = sources[media, pth]:-1;
-	Pkg::ResolvableInstall (prod["product"]:"", `product);
+
+	// Adjust "name", bnc #434708
+	if (srcid != nil && srcid != -1) {
+	    list <map <string, any> > repos = Pkg::SourceEditGet();
+
+	    integer found_at = -1;
+	    integer counter = -1;
+
+	    foreach (map one_repo, repos, {
+		counter = counter + 1;
+		if (one_repo["SrcId"]:-1 == srcid) {
+		    found_at = counter;
+		    break;
+		}
+	    });
+
+	    if (found_at != -1) {
+		string name = repos[found_at, "name"]:"";
+
+		// Possibility to set name in control file, bnc #433981
+		if (haskey (prod, "name")) {
+		    name = prod["name"]:"";
+		    y2milestone ("Preferred name: %1", name);
+		// Or use the one returned by Pkg::RepositoryScan
+		} else {
+		    list <list <string> > repos_at_url = Pkg::RepositoryScan (media);
+		    // [ ["Product Name", "Path" ] ]
+		    foreach (list <string> one_repo, repos_at_url, {
+			if (one_repo[1]:"" == pth) {
+			    name = one_repo[0]:"";
+			    break;
+			}
+		    });
+		    y2milestone ("Preferred name: %1", name);
+		}
+
+		repos[found_at, "name"] = name;
+		Pkg::SourceEditSet (repos);
+	    }
+	}
+
+	if (prod["product"]:"" != "") {
+	    y2milestone ("Installing product: %1", prod["product"]:"");
+	    Pkg::ResolvableInstall (prod["product"]:"", `product);
+	} else {
+	    y2warning ("No product to install");
+	}
     });
+
     ret = true;
 }
 /**

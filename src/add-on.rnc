@@ -8,6 +8,7 @@ listentry =
   element listentry {
      media_url? &
      product? &
+     name? &
      product_dir? &
      ask_on_error? &
      element signature-handling {
@@ -39,6 +40,7 @@ listentry =
   }
 media_url = element media_url { text }
 product = element product { text }
+name = element name { text }
 product_dir = element product_dir { text }
 ask_on_error = element ask_on_error { BOOLEAN }
 add_on_products =

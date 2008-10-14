@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Oct 14 13:00:52 CEST 2008 - locilka@suse.cz
+
+- Add-Ons AutoYaST client now sets the product name if found by
+  RepositoryScan (bnc #434708).
+- Repository name defined in AutoYaST profile is preferred
+  (bnc #433981).
+- 2.17.6
+
+-------------------------------------------------------------------
 Wed Oct  1 11:57:38 CEST 2008 - locilka@suse.cz
 
 - Changed texts (bnc #431177).
