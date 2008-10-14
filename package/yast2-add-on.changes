@@ -5,6 +5,8 @@ Tue Oct 14 13:00:52 CEST 2008 - locilka@suse.cz
   RepositoryScan (bnc #434708).
 - Repository name defined in AutoYaST profile is preferred
   (bnc #433981).
+- Using [OK] button to accept the AutoYaST configuration overview
+  dialog (bnc #427407).
 - 2.17.6
 
 -------------------------------------------------------------------
