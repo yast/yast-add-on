@@ -1345,7 +1345,7 @@ symbol RunAddOnsOverviewDialog () {
     while (true) {
 	userret = UI::UserInput();
 
-	if (userret == `abort) {
+	if (userret == `abort || userret == `cancel) {
 	    ret = `abort;
 	    break;
 	} else if (userret == `next || userret == `finish) {
