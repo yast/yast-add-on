@@ -1066,6 +1066,7 @@ void CreateAddOnsOverviewDialog () {
 	true
     );
 
+    Wizard::HideBackButton();
     Wizard::SetAbortButton (`abort, Label::CancelButton());
     Wizard::SetNextButton (`next, Label::OKButton());
 }
@@ -1371,6 +1372,8 @@ symbol RunAddOnsOverviewDialog () {
 	    y2error ("Uknown ret: %1", userret);
 	}
     }
+
+    Wizard::RestoreBackButton();
 
     return ret;
 }

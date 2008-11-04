@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Nov  4 09:32:38 CET 2008 - locilka@suse.cz
+
+- Hiding back button instead of disabling it (acccording to YaST
+  Style Guide) (bnc #440565).
+- 2.17.8
+
+-------------------------------------------------------------------
 Mon Nov  3 17:37:44 CET 2008 - locilka@suse.cz
 
 - Make `cancel behave like `abort (bnc #439435).
