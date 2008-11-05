@@ -190,6 +190,12 @@ symbol MediaSelect () {
 	y2warning ("Fallback src_id: %1", AddOnProduct::src_id);
     }
 
+    // BNC #441380
+    // Refresh and load the added source, this is needed since the unified
+    // functions from packager are used.
+    Pkg::SourceRefreshNow (AddOnProduct::src_id);
+    Pkg::SourceLoad();
+
     AddOnProduct::last_ret = ret;
     y2milestone ("MediaSelect Dialog ret: %1", ret);
     return ret;

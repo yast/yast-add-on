@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Nov  5 14:15:06 CET 2008 - locilka@suse.cz
+
+- Always refreshing and loading the newly added source
+  (bnc #441380).
+- 2.17.9
+
+-------------------------------------------------------------------
 Tue Nov  4 09:32:38 CET 2008 - locilka@suse.cz
 
 - Hiding back button instead of disabling it (acccording to YaST
