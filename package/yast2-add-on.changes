@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Nov  7 17:34:05 CET 2008 - locilka@suse.cz
+
+- Checking download files signatures (bnc #409927).
+- 2.17.10
+
+-------------------------------------------------------------------
 Wed Nov  5 14:15:06 CET 2008 - locilka@suse.cz
 
 - Always refreshing and loading the newly added source

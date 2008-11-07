@@ -27,7 +27,7 @@
      *   (e.g., ["af", "ar", "be_BY", "bg", "ca", "cs", "cy", "da", "el", "et", "fi"])
      */
     list <string> GetListOfSupportedLanguages (integer source) {
-	string content_file = Pkg::SourceProvideFile (source, 1, "/content");
+	string content_file = Pkg::SourceProvideSignedFile (source, 1, "/content", false);
 	if (content_file == nil || content_file == "") {
 	    y2error ("There is no content file!");
 	    return nil;
