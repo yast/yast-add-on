@@ -33,6 +33,7 @@ import "Confirm";
 import "GetInstArgs";
 import "Installation";
 import "PackageCallbacks";
+import "PackagesUI";
 
 include "packager/inst_source_dialogs.ycp";
 include "packager/repositories_include.ycp";
@@ -1114,6 +1115,7 @@ void AdjustInfoWidget () {
 %2
 %3
 %4</p>",
+
 	sformat (
 	    _("<b>Vendor:</b> %1<br>"),
 	    pi["product","vendor"]:_("Unknown vendor")
@@ -1147,8 +1149,8 @@ void RedrawAddOnsOverviewTable () {
     product_infos = $[];
 
     foreach (map <string,any> one_product, all_products, {
-	if (one_product["category"]:"unknown" == "base") {
-	    y2milestone ("Skipping base product: %1", one_product["display_name"]:one_product["name"]:"");
+	if (one_product["type"]:"addon" != "addon") {
+	    y2milestone ("Skipping product: %1", one_product["display_name"]:one_product["name"]:"");
 	    continue;
 	}
 
@@ -1157,13 +1159,20 @@ void RedrawAddOnsOverviewTable () {
 	    counter = counter + 1;
 
 	    repository_info = Pkg::SourceGeneralData (one_product["source"]:-1);
+	    if (repository_info == nil) {
+		repository_info = $[];
+	    }
 
-	    y2milestone ("Product: %1, Info: %2", one_product, repository_info);
+	    //y2milestone ("Product: %1, Info: %2", one_product, repository_info);
 
 	    product_infos[tostring(counter)] = $[
 		"product" : one_product,
 		"repository" : repository_info,
 	    ];
+
+	    if (! haskey (repository_info, "base_urls")) {
+		repository_info["base_urls"] = [];
+	    }
 
 	    products = add (products, `item (
 		`id (sformat ("product_%1", counter)),
@@ -1181,13 +1190,9 @@ void RedrawAddOnsOverviewTable () {
 
 boolean RunPackageSelector () {
 	boolean solve_ret = Pkg::PkgSolve (false);
-	y2milestone ("Calling Solve() retutned: %1", solve_ret);
+	y2milestone ("Calling Solve() returned: %1", solve_ret);
 
-	map opts = $[ "dialog_type" : `summaryMode, "repo_mgmt" : true ];
-
-	y2milestone ("Running inst_packages: Using packager widget options: %1", opts);
-	symbol result = (symbol) WFM::CallFunction ("inst_packages", [opts]);
-	y2milestone ("inst_packages returned: %1", result);
+	symbol result = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
 
 	if (result == `accept) {
 	    y2milestone ("Calling inst_rpmcopy");
@@ -1211,7 +1216,17 @@ boolean RemoveProductWithDependencies () {
     }
 
     string product_name = pi["product","display_name"]:pi["product","name"]:_("Unknown product");
-    if (! Confirm::Delete (product_name)) {
+
+    if (! Popup::AnyQuestion (
+	Label::WarningMsg(),
+	sformat (_("Deleting the add-on product %1 may result in removing all the packages
+installed from this add-on.
+
+Are sure you want to delete it?"), product_name),
+	Label::DeleteButton (),
+	Label::CancelButton (),
+	`focus_no
+    )) {
 	y2milestone ("Deleting '%1' canceled", product_name);
 	return false;
     }

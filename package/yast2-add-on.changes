@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Nov 18 12:45:49 CET 2008 - locilka@suse.cz
+
+- Listing only type=="addon" products (bnc #441984).
+- Informing user what is going to happen after removing an add-on
+  product (bnc #441984).
+- 2.17.11
+
+-------------------------------------------------------------------
 Fri Nov  7 17:34:05 CET 2008 - locilka@suse.cz
 
 - Checking download files signatures (bnc #409927).
