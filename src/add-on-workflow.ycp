@@ -794,7 +794,9 @@ symbol RunAutorunWizard() {
 }
 
 
-void Redraw (boolean enable_back, boolean enable_next, string back_button, string next_button) {
+void Redraw (boolean enable_back, boolean enable_next, boolean enable_abort,
+    string back_button, string next_button, string abort_button) {
+
     y2milestone ("Called Redraw()");
     // main screen heading
     string title = _("Add-On Product Installation");
@@ -824,6 +826,7 @@ select it and click <b>Delete</b>.</p>");
 	    media
 	);
     });
+
     term contents = `VBox (
 	`Table (
 	    `id (`summary),
@@ -844,17 +847,18 @@ select it and click <b>Delete</b>.</p>");
 	)
     );
 
-    // bugzilla #305788
-    Wizard::RestoreBackButton();
-    Wizard::RestoreAbortButton();
-    Wizard::RestoreNextButton();
-
     Wizard::SetContentsButtons (title, contents, help, back_button, next_button);
+    Wizard::SetAbortButton (`abort, abort_button);
 
-    if (! enable_back) Wizard::DisableBackButton();
+    // Disable next button according to settings
     if (! enable_next) Wizard::DisableNextButton();
 
-    Wizard::SetTitleIcon("vendor");
+    // If back or abort buttons should not be enabled, hide them
+    // -> [Cancel] [OK] dialog
+    if (! enable_back) Wizard::HideBackButton();
+    if (! enable_abort) Wizard::HideAbortButton();
+
+    Wizard::SetTitleIcon("yast-addon");
 
     // disable delete button if no items listed
     // bug #203809
@@ -900,7 +904,13 @@ void RemoveSelectedAddOn (integer selected) {
 // in the installation workflow - back/ next buttons
 // in the installation proposal - cancel / accept buttons
 //
-symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back_button, string next_button) {
+// bugzilla #449773
+// added enable_abort, abort_button
+//
+symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, boolean enable_abort,
+    string back_button, string next_button, string abort_button,
+    boolean confirm_abort) {
+
     symbol ret = nil;
 
     boolean not_enough_memory = (Stage::initial() && HasInsufficientMemory());
@@ -930,7 +940,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
     }
 
     // Show Add-Ons table
-    Redraw (enable_back, enable_next, back_button, next_button);
+    Redraw (enable_back, enable_next, enable_abort, back_button, next_button, abort_button);
 
     // store the initial settings, only once
     WorkflowManager::SetBaseWorkflow (false);
@@ -943,13 +953,23 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	if (ret == `first_time) {
 	    ret = `add;
 	} else {
-    	    ret = (symbol) Wizard::UserInput();
+    	    ret = (symbol) UI::UserInput();
 	}
 
 	// aborting
-        if (ret == `abort || ret == `cancel) {
-            if (Popup::ConfirmAbort (`incomplete))
-                break;
+	if (ret == `abort || ret == `cancel) {
+	    // User should confirm that
+            if (confirm_abort == true) {
+		if (Popup::ConfirmAbort (`incomplete)) {
+		    ret = `abort;
+		    break;
+		} else {
+		    ret = nil;
+		}
+	    // Running system
+	    } else {
+		break;
+	    }
 
 	// removing add-on
         } else if (ret == `delete) {
@@ -973,7 +993,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 
 	    UI::CloseDialog();
 
-	    Redraw (enable_back, enable_next, back_button, next_button);
+	    Redraw (enable_back, enable_next, enable_abort, back_button, next_button, abort_button);
 
 	// adding new add-on
         } else if (ret == `add) {
@@ -987,7 +1007,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 	    // Use new wizard window for adding new Add-On.
 	    // Do not use "Steps" dialog.
 	    Wizard::OpenNextBackDialog();
-	    Wizard::SetTitleIcon("vendor");
+	    Wizard::SetTitleIcon("yast-addon");
             symbol ret = RunWizard ();
 	    Wizard::CloseDialog();
 
@@ -1000,7 +1020,7 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
 		some_addon_changed = true;
 	    }
 
-	    Redraw (enable_back, enable_next, back_button, next_button);
+	    Redraw (enable_back, enable_next, enable_abort, back_button, next_button, abort_button);
 
 	    // bugzilla #293428
 	    // Release all sources after adding a new one
@@ -1026,6 +1046,11 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, string back
     // Release all sources after all Add-Ons are added and merged
     y2milestone ("Releasing all sources...");
     Pkg::SourceReleaseAll();
+
+    // bugzilla #305788
+    Wizard::RestoreBackButton();
+    Wizard::RestoreAbortButton();
+    Wizard::RestoreNextButton();
     
     return ret;
 }
@@ -1072,6 +1097,8 @@ void CreateAddOnsOverviewDialog () {
 	false,
 	true
     );
+
+    Wizard::SetTitleIcon ("yast-addon");
 
     Wizard::HideBackButton();
     Wizard::SetAbortButton (`abort, Label::CancelButton());

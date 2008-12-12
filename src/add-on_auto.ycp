@@ -96,7 +96,11 @@ else if (func == "Change") {
     Wizard::CreateDialog ();
     AutoinstSoftware::pmInit ();
     PackageCallbacksInit::InitPackageCallbacks ();
-    ret = RunAddOnMainDialog (true, true, Label::BackButton(), Label::OKButton());
+    ret = RunAddOnMainDialog (
+	false, true, true,
+	Label::BackButton(), Label::OKButton(), Label::CancelButton(),
+	false
+    );
     UI::CloseDialog ();
     return ret;
 }

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Dec 12 15:35:36 CET 2008 - locilka@suse.cz
+
+- Fixed appearance of buttons and their handling (e.g.,
+  confirmation when aborting the configuration) in the Add-Ons
+  overview/installation dialogs (bnc #449773).
+- 2.17.12
+
+-------------------------------------------------------------------
 Tue Nov 18 12:45:49 CET 2008 - locilka@suse.cz
 
 - Listing only type=="addon" products (bnc #441984).

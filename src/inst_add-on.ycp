@@ -33,8 +33,9 @@ Packages::SelectProduct ();
 PackageCallbacksInit::SetMediaCallbacks();
 
 symbol ret = RunAddOnMainDialog (
-    GetInstArgs::enable_back(), GetInstArgs::enable_next(),
-    Label::BackButton(), Label::NextButton()
+    GetInstArgs::enable_back(), GetInstArgs::enable_next(), true,
+    Label::BackButton(), Label::NextButton(), Label::AbortButton(),
+    true
 );
 
 if (ret == `next)
