@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Dec 16 14:33:23 CET 2008 - locilka@suse.cz
+
+- Preventing from showing add-on added by Community Repositories
+  twice (bnc #450274).
+
+-------------------------------------------------------------------
 Fri Dec 12 15:35:36 CET 2008 - locilka@suse.cz
 
 - Fixed appearance of buttons and their handling (e.g.,
