@@ -117,6 +117,17 @@ void AddAddOnToStore (integer src_id) {
 	return;
     }
 
+    // BNC #450274
+    // Prevent from adding one product twice
+    list <map> matching_products = filter (map one_product, AddOnProduct::add_on_products, {
+	return (one_product["media"]:-1 == src_id);
+    });
+
+    if (size (matching_products) > 0) {
+	y2milestone ("Product already added: %1", matching_products);
+	return;
+    }
+
     map source_data = Pkg::SourceGeneralData (src_id);
 
     AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
@@ -806,6 +817,8 @@ void Redraw (boolean enable_back, boolean enable_next, boolean enable_abort,
 Here see all add-on products that are selected for installation.
 To add a new product, click <b>Add</b>. To remove an already added one,
 select it and click <b>Delete</b>.</p>");
+
+    y2milestone ("Current products: %1", AddOnProduct::add_on_products);
 
     integer index = -1;
     list items = maplist (map<string,any> product, AddOnProduct::add_on_products, {
