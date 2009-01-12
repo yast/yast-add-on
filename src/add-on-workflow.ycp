@@ -822,8 +822,19 @@ select it and click <b>Delete</b>.</p>");
 
     integer index = -1;
     list items = maplist (map<string,any> product, AddOnProduct::add_on_products, {
+	y2milestone ("%1", product);
+
 	index = index + 1;
-	map data = Pkg::SourceGeneralData (product["media"]:-1);
+	map data = $[];
+
+	// BNC #464162, In AytoYaST, there is no media nr. yet
+	if (haskey (product, "media") && product["media"]:-1 > -1) {
+	    data = Pkg::SourceGeneralData (product["media"]:-1);
+	} else {
+	    data = product;
+	    if (haskey (data, "media_url")) data["url"] = data["media_url"]:"";
+	}
+
 	// placeholder for unknown path
 	string dir = data["product_dir"]:_("Unknown");
 	if (dir == "")
