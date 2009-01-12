@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jan 12 15:12:49 CET 2009 - locilka@suse.cz
+
+- Fixed displaying URL and product directory while editing an
+  already stored and opened AutoYaST configuration.
+
+-------------------------------------------------------------------
 Tue Dec 16 14:33:23 CET 2008 - locilka@suse.cz
 
 - Preventing from showing add-on added by Community Repositories
