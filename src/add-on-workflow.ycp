@@ -208,6 +208,14 @@ symbol MediaSelect () {
     Pkg::SourceRefreshNow (AddOnProduct::src_id);
     Pkg::SourceLoad();
 
+    // BNC #468449
+    // It may happen that the add-on control file contains some code that
+    // would drop the changes made, so it's better to save the soruces now
+    if (Mode::normal()) {
+	y2milestone ("Saving all sources");
+	Pkg::SourceSaveAll();
+    }
+
     AddOnProduct::last_ret = ret;
     y2milestone ("MediaSelect Dialog ret: %1", ret);
     return ret;
@@ -1189,10 +1197,20 @@ void AdjustInfoWidget () {
     UI::ChangeWidget (`id ("product_details"), `Value, rt_description);
 }
 
+/**
+ * Logs wrong product with 'log_this' error and returns 'return_this'.
+ * Added because of bnc #459461
+ */
+string LogWrongProduct (map <string,any> one_product, string log_this, string return_this) {
+    y2error ("Erroneous product: %1: %2", log_this, one_product);
+
+    return return_this;
+}
+
 void RedrawAddOnsOverviewTable () {
     list <map <string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
 
-    integer medium_nr = nil;
+    integer source_nr = nil;
     map repository_info = nil;
     integer counter = -1;
 
@@ -1200,21 +1218,29 @@ void RedrawAddOnsOverviewTable () {
     product_infos = $[];
 
     foreach (map <string,any> one_product, all_products, {
-	if (one_product["type"]:"addon" != "addon") {
+	// only add-on products should be listed
+	if (haskey (one_product, "type") && one_product["type"]:"addon" != "addon") {
 	    y2milestone ("Skipping product: %1", one_product["display_name"]:one_product["name"]:"");
-	    continue;
+	    return;
 	}
 
-	medium_nr = one_product["medium_nr"]:-1;
-	if (medium_nr != nil && medium_nr != -1) {
+	// BNC #459461
+	// It's currently "source" key which defines the repository ID
+	source_nr = one_product["source"]:-1;
+
+	if (source_nr == nil || source_nr == -1) {
+	    y2warning ("Skipping product with no 'source' ID: %1", one_product);
+	} else {
 	    counter = counter + 1;
 
-	    repository_info = Pkg::SourceGeneralData (one_product["source"]:-1);
+	    repository_info = Pkg::SourceGeneralData (source_nr);
 	    if (repository_info == nil) {
 		repository_info = $[];
 	    }
 
-	    //y2milestone ("Product: %1, Info: %2", one_product, repository_info);
+	    // otherwise it fills the log too much
+	    one_product["license"] = "";
+	    y2milestone ("Product: %1, Info: %2", one_product, repository_info);
 
 	    product_infos[tostring(counter)] = $[
 		"product" : one_product,
@@ -1228,7 +1254,9 @@ void RedrawAddOnsOverviewTable () {
 	    products = add (products, `item (
 		`id (sformat ("product_%1", counter)),
 		one_product["display_name"]:one_product["name"]:_("Unknown product"),
-		repository_info["url"]:repository_info["base_urls",0]:_("Unknown URL")
+		repository_info["url"]:repository_info["base_urls",0]:LogWrongProduct (
+		    one_product, "Unknown URL", _("Unknown URL")
+		)
 	    ));
 	}
     });
