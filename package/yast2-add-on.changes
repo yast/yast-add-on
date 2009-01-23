@@ -1,7 +1,11 @@
 -------------------------------------------------------------------
-Fri Jan 23 13:00:28 CET 2009 - locilka@suse.cz
+Fri Jan 23 16:40:01 CET 2009 - locilka@suse.cz
 
-- Added more logging when a wrong product is found.
+- Fixed displaying repository information for add-on products
+  (bnc #459461)
+- Storing sources before calling registration on a running system
+  (bnc #468449)
+- 2.18.0
 
 -------------------------------------------------------------------
 Mon Jan 12 15:12:49 CET 2009 - locilka@suse.cz
