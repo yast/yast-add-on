@@ -1189,6 +1189,16 @@ void AdjustInfoWidget () {
     UI::ChangeWidget (`id ("product_details"), `Value, rt_description);
 }
 
+/**
+ * Logs wrong product with 'log_this' error and returns 'return_this'.
+ * Added because of bnc #459461
+ */
+string LogWrongProduct (map <string,any> one_product, string log_this, string return_this) {
+    y2error ("Erroneous product: %1: %2", log_this, one_product);
+
+    return return_this;
+}
+
 void RedrawAddOnsOverviewTable () {
     list <map <string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
 
@@ -1228,7 +1238,9 @@ void RedrawAddOnsOverviewTable () {
 	    products = add (products, `item (
 		`id (sformat ("product_%1", counter)),
 		one_product["display_name"]:one_product["name"]:_("Unknown product"),
-		repository_info["url"]:repository_info["base_urls",0]:_("Unknown URL")
+		repository_info["url"]:repository_info["base_urls",0]:LogWrongProduct (
+		    one_product, "Unknown URL", _("Unknown URL")
+		)
 	    ));
 	}
     });

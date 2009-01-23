@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jan 23 13:00:28 CET 2009 - locilka@suse.cz
+
+- Added more logging when a wrong product is found.
+
+-------------------------------------------------------------------
 Mon Jan 12 15:12:49 CET 2009 - locilka@suse.cz
 
 - Fixed displaying URL and product directory while editing an
