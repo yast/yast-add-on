@@ -1,0 +1,102 @@
+/**
+ * File: inst_add-on_software.ycp
+ *
+ * Client providing the software overview/selection to be used
+ * in add-on products (their control files). If not set otherwise,
+ * (skip_installation), it also installs the selected resolvables
+ * and calls SuSEconfig.
+ *
+ * Control File Example (installation.xml):
+ * <workflows config:type="list">
+ *   <workflow>
+ *     <stage>normal</stage>
+ *     <mode>installation,normal</mode>
+ *     <modules config:type="list">
+ *       ...
+ *       <module>
+ *         <label>Software Selection</label>
+ *         <name>inst_add-on_software</name>
+ *         <arguments>
+ *           
+ *           <!--
+ *             Mode in which the Packager dialog opens up. See Available Modes.
+ *             The defalt mode is "patterns" if not set
+ *           -->
+ *           <sw_mode>patterns</sw_mode>
+ *           
+ *           <!--
+ *             If set to "yes", packages (patterns/...) will not be installed
+ *             automatically. Default is "no" (packages will get installed).
+ *            -->
+ *           <skip_installation config:type="boolean">true</skip_installation>
+ *           
+ *         </arguments>
+ *       </module>
+ *       ...
+ *     </modules>
+ *   </workflow>
+ * </workflows>
+ *
+ * Available Modes:
+ *   o patterns - list of all available (installed/selected/...) patterns
+ *   o search - dialog capable of searching through packages
+ *   o summary - installation summary
+ *   o repositories - list of enabled repositories (including the @System)
+ *
+ * See also BNC #469320
+ */
+{
+    import "PackagesUI";
+    import "GetInstArgs";
+    import "ProductControl";
+    import "ProductFeatures";
+    import "Installation";
+
+    if (GetInstArgs::going_back()) {
+	return `auto;
+    }
+
+    map argmap = GetInstArgs::argmap();
+    y2milestone ("Client called with args: %1", argmap);
+
+    // Mapping of modes
+    // module->arguments->sw_mode : UI_mode
+    map <string, symbol> modes = $[
+	"patterns"	: `patternSelector,
+	"search"	: `searchMode,
+	"summary"	: `summaryMode,
+	"repositories"	: `repoMode,
+    ];
+
+    // For sure
+    Pkg::TargetInit (Installation::destdir, false);
+    Pkg::SourceStartManager (true);
+
+    string pcg_mode = argmap["sw_mode"]:"patterns";
+    symbol run_in_mode = modes[pcg_mode]:`summaryMode;
+    y2milestone ("Running package selector in mode %1/%2", pcg_mode, run_in_mode);
+
+    // Call the package selector
+    // Since yast2 >= 2.17.58
+    symbol ret = PackagesUI::RunPackageSelector ($["mode":run_in_mode]);
+    y2milestone ("RunPackageSelector returned %1", ret);
+
+    symbol dialog_ret = `next;
+
+    if (ret == `accept || ret == `ok) {
+	// Add-on requires packages to be installed right now
+	if (argmap["skip_installation"]:false != true) {
+	    y2milestone ("Selected resolvables will be installed now");
+
+	    if (WFM::CallFunction ("inst_rpmcopy", [GetInstArgs::Buttons (false, false)]) == `abort) {
+		dialog_ret = `abort;
+	    } else if (WFM::CallFunction ("inst_suseconfig", [GetInstArgs::Buttons (false, false)]) == `abort) {
+		dialog_ret = `abort;
+	    } else {
+		y2milestone ("Done");
+	    }
+	}
+    }
+
+    return dialog_ret;
+}
