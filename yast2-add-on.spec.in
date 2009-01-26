@@ -2,8 +2,8 @@
 
 @HEADER@
 Requires:	autoyast2-installation
-# WorkflowManager module
-Requires:	yast2 >= 2.15.22
+# PackagesUI module, BNC #469320
+Requires:	yast2 >= 2.15.58
 Requires:	yast2-installation
 Requires:	yast2-country
 

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jan 26 16:51:09 CET 2009 - locilka@suse.cz
+
+- Added new client inst_add-on_software providing the functionality
+  to open package selector in a desired mode (and optionally to
+  install the selected software) (bnc #469320).
+- 2.18.1
+
+-------------------------------------------------------------------
 Fri Jan 23 16:40:01 CET 2009 - locilka@suse.cz
 
 - Fixed displaying repository information for add-on products

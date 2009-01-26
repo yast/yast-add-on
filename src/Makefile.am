@@ -8,7 +8,8 @@ client_DATA =			 \
 	add-on_proposal.ycp	 \
 	inst_add-on.ycp		 \
 	inst_language_add-on.ycp \
-	vendor.ycp
+	vendor.ycp		 \
+	inst_add-on_software.ycp
 
 ynclude_DATA =			\
 	add-on-workflow.ycp	\
