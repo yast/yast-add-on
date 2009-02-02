@@ -1274,9 +1274,13 @@ boolean RunPackageSelector () {
 	symbol result = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
 
 	if (result == `accept) {
+	    Wizard::OpenNextBackDialog();
+
 	    y2milestone ("Calling inst_rpmcopy");
 	    WFM::call ("inst_rpmcopy");
 	    y2milestone ("Done");
+
+	    Wizard::CloseDialog();
 	}
 
 	return true;
@@ -1446,28 +1450,51 @@ symbol RunAddOnsOverviewDialog () {
     while (true) {
 	userret = UI::UserInput();
 
+	// Abort
 	if (userret == `abort || userret == `cancel) {
+	    y2warning ("Aborting...");
 	    ret = `abort;
 	    break;
+
+	// Closing
 	} else if (userret == `next || userret == `finish) {
+	    y2milestone ("Finishing...");
 	    ret = `next;
 	    break;
+
+	// Addin new product
 	} else if (userret == `add) {
+	    y2milestone ("Using new Add-On...");
+
 	    if (RunWizard() == `next) {
 		RunAddProductWorkflow();
 	    }
 
 	    CreateAddOnsOverviewDialog();
 	    RedrawAddOnsOverviewTable();
+
+	// Removing product
 	} else if (userret == `delete) {
+	    y2milestone ("Removing selected product...");
+
 	    if (RemoveProductWithDependencies()) {
 		CreateAddOnsOverviewDialog();
 		RedrawAddOnsOverviewTable();
 	    }
+
+	// Redrawing info widget
 	} else if (userret == "list_of_addons") {
 	    AdjustInfoWidget();
+
+	// Calling packager directly
 	} else if (userret == `packager) {
+	    y2milestone ("Calling packager...");
 	    RunPackageSelector();
+
+	    CreateAddOnsOverviewDialog();
+	    RedrawAddOnsOverviewTable();
+
+	// Everything else
 	} else {
 	    y2error ("Uknown ret: %1", userret);
 	}
