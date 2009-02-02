@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Mon Feb  2 14:34:27 CET 2009 - locilka@suse.cz
+
+- Forcing recreating and redrawing the table of add-on products.
+- Opening new wizard window before calling inst_rpmcopy and closing
+  after it returns.
+- Adding more debugging messages (all bnc #471020).
+- 2.18.2
+
+-------------------------------------------------------------------
 Mon Jan 26 16:51:09 CET 2009 - locilka@suse.cz
 
 - Added new client inst_add-on_software providing the functionality
