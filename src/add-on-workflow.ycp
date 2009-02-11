@@ -431,6 +431,59 @@ Select the repository to use.</p>
     return ret;
 }
 
+// BNC #474745
+// Installs all the products from just added add-on media
+symbol InstallProduct () {
+    y2milestone ("AddOnID: %1", AddOnProduct::src_id);
+
+    if (AddOnProduct::src_id == nil || AddOnProduct::src_id < 0) {
+	y2error ("No source has been added");
+	return `next;
+    }
+
+    list <map <string, any> > all_products = Pkg::ResolvableProperties ("", `product, "");
+
+    // `selected and `installed products
+    // each map contains "name" and "version"
+    list <map> s_a_i_products = [];
+
+    foreach (map <string, any> one_product, all_products, {
+	s_a_i_products = add (s_a_i_products,
+	    $["name":one_product["name"]:"xyz", "version":one_product["version"]:"abc"]
+	);
+    });
+
+    foreach (map <string, any> one_product, all_products, {
+//	map this_product = $["name":one_product["name"]:"zyx", "version":one_product["version"]:"cba"];
+
+	// Product doesn't match the new source ID
+	if (one_product["source"]:-255 != AddOnProduct::src_id) {
+	    return;
+	}
+
+	// Product is not available (either `installed or `selected or ...)
+	if (one_product["status"]:`available != `available) {
+	    return;
+	}
+
+//	// Available but also already installed or selected
+//	if (contains (s_a_i_products, this_product)) {
+//	    y2warning ("Product %1 is already installed", this_product);
+//	    return;
+//	}
+
+	string product_name = one_product["name"]:"-Unknown-Product-";
+
+	y2milestone (
+	    "Selecting product '%1' for installation -> %2",
+	    product_name,
+	    Pkg::ResolvableInstall (product_name, `product)
+	);
+    });
+
+    return `next;
+}
+
 symbol ProductSelect () {
     list<map<string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
 
@@ -766,14 +819,15 @@ symbol RunWizard() {
 	"media" : ``(MediaSelect ()),
 	// "catalog" : ``(CatalogSelect ()),
 	// "product" : ``(ProductSelect ()),
+	"install_product" : ``(InstallProduct ()),
     ];
 
     map sequence = $[
 	"ws_start" : "media",
 	"media" : $[
 	    `abort : `abort,
-	    `next : `next,
-	    `finish : `next,
+	    `next : "install_product",
+	    `finish : "install_product",
 	],
 //	"catalog" : $[
 //	    `abort : `abort,
@@ -785,6 +839,11 @@ symbol RunWizard() {
 //	    `next : `next,
 //	    `finish : `next,
 //	],
+	"install_product" : $[
+	    `abort : `abort,
+	    `next : `next,
+	    `finish : `next,
+	],
     ];
     return Sequencer::Run(aliases, sequence);
 }

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 11 19:10:33 CET 2009 - locilka@suse.cz
+
+- Selecting all products available on add-on media for installation
+  (bnc #474745).
+
+-------------------------------------------------------------------
 Mon Feb  2 14:34:27 CET 2009 - locilka@suse.cz
 
 - Forcing recreating and redrawing the table of add-on products.
