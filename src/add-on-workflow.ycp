@@ -1244,10 +1244,14 @@ void AdjustInfoWidget () {
 	),
 	sformat (
 	    _("<b>Repository URL:</b> %1<br>"),
-	    pi["repository","url"]:_("Unknown repository URL")
+	    (size (pi["info","URLs"]:[]) > 0 ?
+		mergestring (pi["info","URLs"]:[], ",")
+		:
+		_("Unknown repository URL")
+	    )
 	),
-	(pi["repository","url"]:"" != pi["repository","alias"]:"" ?
-	    sformat (_("<b>Repository Alias:</b> %1<br>"), pi["repository","alias"]:"")
+	(size (pi["info","aliases"]:[]) > 0 ?
+	    sformat (_("<b>Repository Alias:</b> %1<br>"), mergestring (pi["info","aliases"]:[], ","))
 	    :
 	    ""
 	)
@@ -1266,8 +1270,72 @@ string LogWrongProduct (map <string,any> one_product, string log_this, string re
     return return_this;
 }
 
+/**
+ * Modifies repository info (adds some missing pieces).
+ */
+void AdjustRepositoryInfo (map <string, list> & info) {
+    foreach (integer one_repo, (list <integer>) info["IDs"]:[], {
+	if (one_repo == nil || one_repo == -1) {
+	    y2warning ("Wrong repo ID: %1", one_repo);
+	    return;
+	}
+
+	map source_data = Pkg::SourceGeneralData (one_repo);
+
+	if (source_data != nil && haskey (source_data, "base_urls")) {
+	    info["URLs"] = source_data["base_urls"]:[];
+	} else {
+	    y2error ("No URLs for repo ID %1", one_repo);
+	}
+
+	if (source_data != nil && haskey (source_data, "alias")) {
+	    info["aliases"] = [source_data["alias"]:""];
+	}
+    });
+}
+
+/**
+ * @struct $[
+ *     "IDs"  : [8, 9, 12],
+ *     "URLs" : ["dvd://", "http://some/URL/", "ftp://another/URL/"],
+ *     "aliases" : ["alias1", "alias2", "alias3"],
+ * ]
+ */
+map <string, list> GetRepoInfo (map <string,any> & this_product, list <map <string,any> > & all_products) {
+    map <string, list> ret = $["IDs" : [], "URLs" : [], "aliases" : []];
+
+    string product_arch		= this_product["arch"]:"";
+    string product_name		= this_product["name"]:"";
+    string product_version	= this_product["version"]:"";
+
+    foreach (map <string,any> one_product, all_products, {
+	// if (one_product["status"]:`unknown != `available)	return;
+	if (one_product["arch"]:""	!= product_arch)	return;
+	if (one_product["name"]:""	!= product_name)	return;
+	if (one_product["version"]:""	!= product_version)	return;
+
+	if (haskey (one_product, "source") && one_product["source"]:-1 != -1)
+	    ret["IDs"] = add (ret["IDs"]:[], one_product["source"]:-1);
+    });
+
+    AdjustRepositoryInfo (ret);
+
+    return ret;
+}
+
 void RedrawAddOnsOverviewTable () {
     list <map <string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
+
+    all_products = maplist (map <string,any> one_product, all_products, {
+	// otherwise it fills the log too much
+	foreach (string key, ["license", "description"], {
+	    if (haskey (one_product, key)) {
+		one_product[key] = substring (one_product[key]:"", 0, 40) + "...";
+	    }
+	});
+
+	return one_product;
+    });
 
     integer source_nr = nil;
     map repository_info = nil;
@@ -1276,54 +1344,44 @@ void RedrawAddOnsOverviewTable () {
     list <term> products = [];
     product_infos = $[];
 
-    foreach (map <string,any> one_product, all_products, {
+    list <map <string,any> > installed_products = filter (map <string,any> one_product, all_products, {
+	// Do not list the base product
+	if (one_product["category"]:"addon" == "base")
+	    return false;
+	// BNC #475591: Only those `installed or `selected ones should be actually visible
+	return (one_product["status"]:`unknown == `installed || one_product["status"]:`unknown == `selected);
+    });
+
+    foreach (map <string,any> one_product, installed_products, {
 	// only add-on products should be listed
 	if (haskey (one_product, "type") && one_product["type"]:"addon" != "addon") {
 	    y2milestone ("Skipping product: %1", one_product["display_name"]:one_product["name"]:"");
 	    return;
 	}
 
-	// BNC #459461
-	// It's currently "source" key which defines the repository ID
-	source_nr = one_product["source"]:-1;
+	counter = counter + 1;
 
-	if (source_nr == nil || source_nr == -1) {
-	    y2warning ("Skipping product with no 'source' ID: %1", one_product);
-	} else {
-	    counter = counter + 1;
+	y2milestone ("Product: %1, Info: %2", one_product, repository_info);
 
-	    repository_info = Pkg::SourceGeneralData (source_nr);
-	    if (repository_info == nil) {
-		repository_info = $[];
-	    }
+	repository_info = GetRepoInfo (one_product, all_products);
 
-	    // otherwise it fills the log too much
-	    one_product["license"] = "";
-	    y2milestone ("Product: %1, Info: %2", one_product, repository_info);
+	product_infos[tostring(counter)] = $[
+	    "product" : one_product,
+	    "info" : repository_info,
+	];
 
-	    product_infos[tostring(counter)] = $[
-		"product" : one_product,
-		"repository" : repository_info,
-	    ];
-
-	    if (! haskey (repository_info, "base_urls")) {
-		repository_info["base_urls"] = [];
-	    }
-
-	    products = add (products, `item (
-		`id (sformat ("product_%1", counter)),
-		one_product["display_name"]:one_product["name"]:_("Unknown product"),
-		repository_info["url"]:repository_info["base_urls",0]:LogWrongProduct (
-		    one_product, "Unknown URL", _("Unknown URL")
-		)
-	    ));
-	}
+	products = add (products, `item (
+	    `id (sformat ("product_%1", counter)),
+	    one_product["display_name"]:one_product["name"]:_("Unknown product"),
+	    repository_info["URLs", 0]:_("Unknown URL")
+	));
     });
 
     UI::ChangeWidget (`id ("list_of_addons"), `Items, products);
     AdjustInfoWidget();
 
-    UI::ChangeWidget (`id(`delete), `Enabled, (size (all_products) > 0));
+    // Nothing to do delete when there are no product listed
+    UI::ChangeWidget (`id(`delete), `Enabled, (size (installed_products) > 0));
 }
 
 boolean RunPackageSelector () {
@@ -1332,15 +1390,17 @@ boolean RunPackageSelector () {
 
 	symbol result = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
 
-	if (result == `accept) {
-	    Wizard::OpenNextBackDialog();
-
-	    y2milestone ("Calling inst_rpmcopy");
-	    WFM::call ("inst_rpmcopy");
-	    y2milestone ("Done");
-
-	    Wizard::CloseDialog();
+	if (result != `accept) {
+	    return false;
 	}
+
+	Wizard::OpenNextBackDialog();
+
+	y2milestone ("Calling inst_rpmcopy");
+	WFM::call ("inst_rpmcopy");
+	y2milestone ("Done");
+
+	Wizard::CloseDialog();
 
 	return true;
 }
@@ -1354,7 +1414,7 @@ boolean RemoveProductWithDependencies () {
     map pi = ReturnCurrentlySelectedProductInfo();
     if (pi == nil || pi == $[]) {
 	y2error ("Cannot remove unknown product");
-	return false;
+	return nil;
     }
 
     string product_name = pi["product","display_name"]:pi["product","name"]:_("Unknown product");
@@ -1370,14 +1430,14 @@ Are sure you want to delete it?"), product_name),
 	`focus_no
     )) {
 	y2milestone ("Deleting '%1' canceled", product_name);
-	return false;
+	return nil;
     }
 
     // TRANSLATORS: busy popup message
     UI::OpenDialog (`Label(_("Removing product dependencies...")));
     // OpenDialog-BusyMessage
 
-    integer src_id = pi["product","source"]:-1;
+    list <integer> src_ids = pi["info","IDs"]:[];
 
     // Temporary definitions
     boolean pack_ret = false;
@@ -1395,8 +1455,8 @@ Are sure you want to delete it?"), product_name),
     list <map <string,any> > packages_from_repo = Pkg::ResolvableProperties ("", `package, "");
 
     packages_from_repo = filter (map <string, any> one_package, packages_from_repo, {
-	// Package is not at the repository to be deleted
-	if (one_package["source"]:-1 != src_id)
+	// Package is not at the repositories to be deleted
+	if (! contains (src_ids, one_package["source"]:-1))
 	    return false;
 
 	// Package *is* at the repository to delete
@@ -1411,6 +1471,7 @@ Are sure you want to delete it?"), product_name),
     y2milestone ("%1 packages installed from repository", size (packages_from_repo));
 
     // Removing selected product, whatever it means
+    // It might remove several products when they use the same name
     if ((pi["product","status"]:`unknown == `installed || pi["product","status"]:`unknown == `selected) && pi["product","name"]:"" != "") {
 	y2milestone ("Removing product: '%1'", pi["product","name"]:"");
 	Pkg::ResolvableRemove (pi["product","name"]:"", `product);
@@ -1418,13 +1479,16 @@ Are sure you want to delete it?"), product_name),
 	y2milestone ("Product is neither `installed nor `selected");
     }
 
-    // Removing repository of the selected product
-    if (src_id > -1) {
-	y2milestone ("Removing repository: %1, url: %2", src_id, pi["repository","url"]:"");
-	Pkg::SourceDelete (src_id);
-    } else {
-	y2milestone ("Product doesn't have any repository in use");
-    }
+    // Removing repositories of the selected product
+    y2milestone ("Removing repositories: %1, url(s): %2", src_ids, pi["info","URLs"]:[]);
+    foreach (integer src_id, src_ids, {
+	if (src_id > -1) {
+	    y2milestone ("Removing repository ID: %1", src_id);
+	    Pkg::SourceDelete (src_id);
+	} else {
+	    y2milestone ("Product doesn't have any repository in use");
+	}
+    });
 
     // The product repository is already removed, checking all installed packages
 
@@ -1464,7 +1528,7 @@ Are sure you want to delete it?"), product_name),
     UI::CloseDialog();
 
     if (status_changed) {
-	RunPackageSelector();
+	return RunPackageSelector();
     }
 
     return true;
