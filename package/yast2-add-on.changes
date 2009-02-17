@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Feb 17 13:30:31 CET 2009 - locilka@suse.cz
+
+- Installed products are not directly connected with their add-on
+  repositories. Merging them together and removing both add-on
+  product and repository when removing an add-on (bnc #475591).
+
+-------------------------------------------------------------------
 Wed Feb 11 19:10:33 CET 2009 - locilka@suse.cz
 
 - Selecting all products available on add-on media for installation
