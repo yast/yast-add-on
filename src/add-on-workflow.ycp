@@ -1600,7 +1600,7 @@ symbol RunAddOnsOverviewDialog () {
 	} else if (userret == `delete) {
 	    y2milestone ("Removing selected product...");
 
-	    if (RemoveProductWithDependencies()) {
+	    if (RemoveProductWithDependencies() == true) {
 		CreateAddOnsOverviewDialog();
 		RedrawAddOnsOverviewTable();
 	    }
