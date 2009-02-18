@@ -1362,6 +1362,9 @@ void RedrawAddOnsOverviewTable () {
 	counter = counter + 1;
 
 	y2milestone ("Product: %1, Info: %2", one_product, repository_info);
+	if (repository_info == nil) {
+	    y2warning ("No matching repository found for product listed above");
+	}
 
 	repository_info = GetRepoInfo (one_product, all_products);
 
@@ -1558,6 +1561,40 @@ void RunAddProductWorkflow () {
     Pkg::SourceReleaseAll();
 }
 
+// Cleanup UI - Prepare it for progress callbacks
+void SetWizardWindowInProgress () {
+    Wizard::SetContents (
+	_("Add-On Products"),
+	`Label (_("Initializing...")),
+	_("<p>Initializing add-on products...</p>"),
+	false,
+	false
+    );
+
+    Wizard::SetTitleIcon ("yast-addon");
+}
+
+// BNC #476417: When user cancels removing an add-on, we have to neutralize all
+// libzypp resolvables to their inital states
+void NeutralizeAllResolvables () {
+    foreach (symbol one_type, [`product, `patch, `package, `srcpackage, `pattern], {
+	y2milestone ("Neutralizing all: %1", one_type);
+	Pkg::ResolvableNeutral ("", one_type, true);
+    });
+}
+
+// Either there are no repositories now or they
+// were changed, neutralized, etc.
+void LoadLibzyppNow () {
+    y2milestone ("Reloading libzypp");
+    SetWizardWindowInProgress();
+
+    // Reinitialize
+    Pkg::TargetInitialize (Installation::destdir);
+    Pkg::TargetLoad();
+    Pkg::SourceStartManager (true);
+}
+
 symbol RunAddOnsOverviewDialog () {
     y2milestone ("Overview Dialog");
     symbol ret = `next;
@@ -1593,6 +1630,13 @@ symbol RunAddOnsOverviewDialog () {
 		RunAddProductWorkflow();
 	    }
 
+	    // Something has disabled all the repositories or finished
+	    // libzypp, reload it
+	    list <integer> current_repos = Pkg::SourceGetCurrent(true);
+	    if (current_repos == nil || size (current_repos) == 0) {
+		LoadLibzyppNow();
+	    }
+
 	    CreateAddOnsOverviewDialog();
 	    RedrawAddOnsOverviewTable();
 
@@ -1600,10 +1644,36 @@ symbol RunAddOnsOverviewDialog () {
 	} else if (userret == `delete) {
 	    y2milestone ("Removing selected product...");
 
-	    if (RemoveProductWithDependencies() == true) {
-		CreateAddOnsOverviewDialog();
-		RedrawAddOnsOverviewTable();
+	    boolean rpwd = RemoveProductWithDependencies();
+	    y2milestone ("RPWD result was: %1", rpwd);
+
+	    // nil == user decided not to remove the product
+	    if (rpwd == nil) {
+		y2milestone ("User decided not to remove the selected product");
+		continue;
+
+	    // false == user decided not confirm the add-on removal
+	    // libzypp has been already changed
+	    // BNC #476417: Getting libzypp to the previous state
+	    } else if (rpwd == false) {
+		y2milestone ("User aborted the package manager");
+
+		SetWizardWindowInProgress();
+
+		// Neutralizing all resolvables (some are usually marked for removal)
+		NeutralizeAllResolvables();
+		Pkg::SourceFinishAll();
+
+		LoadLibzyppNow();
+
+	    // true == packages and sources have been removed
+	    } else {
+		// Store sources state
+		Pkg::SourceSaveAll();
 	    }
+
+	    CreateAddOnsOverviewDialog();
+	    RedrawAddOnsOverviewTable();
 
 	// Redrawing info widget
 	} else if (userret == "list_of_addons") {

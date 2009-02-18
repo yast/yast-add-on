@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Feb 18 13:26:03 CET 2009 - locilka@suse.cz
+
+- Reloading libzypp state if user declines the Add-On
+  deinstallation proposal or some add-on finished libzypp in its
+  workflow (bnc #476417).
+- 2.18.3
+
+-------------------------------------------------------------------
 Tue Feb 17 13:30:31 CET 2009 - locilka@suse.cz
 
 - Installed products are not directly connected with their add-on
