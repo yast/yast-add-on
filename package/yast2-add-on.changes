@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Mar 13 12:30:23 CET 2009 - locilka@suse.cz
+
+- Solving MenuButton shortcut conflicts (bnc #50003 c#39).
+
+-------------------------------------------------------------------
 Wed Feb 18 13:26:03 CET 2009 - locilka@suse.cz
 
 - Reloading libzypp state if user declines the Add-On
