@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Mar 18 17:59:31 CET 2009 - locilka@suse.cz
+
+- Removing a work around that broke the possibility to use several
+  add-ons with the same URL (especially physical media-based ones)
+  (bnc #475352).
+
+-------------------------------------------------------------------
 Fri Mar 13 12:30:23 CET 2009 - locilka@suse.cz
 
 - Solving MenuButton shortcut conflicts (bnc #50003 c#39).
