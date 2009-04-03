@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr  3 14:34:11 CEST 2009 - locilka@suse.cz
+
+- Adjusting initial repository name according to LABEL in content
+  file (bnc #481828).
+- 2.18.4
+
+-------------------------------------------------------------------
 Wed Mar 18 17:59:31 CET 2009 - locilka@suse.cz
 
 - Removing a work around that broke the possibility to use several
