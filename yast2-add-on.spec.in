@@ -27,7 +27,7 @@ Conflicts:	yast2-pkg-bindings < 2.17.25
 
 BuildArchitectures:	noarch
 
-Summary:	Add-On Configuration
+Summary:	YaST2 - Add-On media installation code
 
 %description
 Installs an add-on product.
