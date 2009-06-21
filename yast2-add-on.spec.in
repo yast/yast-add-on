@@ -30,7 +30,7 @@ BuildArchitectures:	noarch
 Summary:	YaST2 - Add-On media installation code
 
 %description
-Installs an add-on product.
+This package contains YaST Add-On media installation code.
 
 @PREP@
 
