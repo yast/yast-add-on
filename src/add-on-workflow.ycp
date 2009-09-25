@@ -10,6 +10,7 @@
  *
  * Authors:
  *      Jiri Srain <jsrain@suse.cz>
+ *	Lukas Ocilka <locilka@suse.cz>
  *
  *
  */
@@ -34,6 +35,7 @@ import "GetInstArgs";
 import "Installation";
 import "PackageCallbacks";
 import "PackagesUI";
+import "Packages";
 
 include "packager/inst_source_dialogs.ycp";
 include "packager/repositories_include.ycp";
@@ -195,6 +197,8 @@ symbol MediaSelect () {
     });
 
     if (src_id_found) {
+	// BNC #481828: Using LABEL from content file as a repository name
+	Packages::AdjustSourcePropertiesAccordingToProduct (AddOnProduct::src_id);
 	// used add-ons are stored in a special list
 	AddAddOnToStore (AddOnProduct::src_id);
     } else {
@@ -286,14 +290,9 @@ symbol CatalogSelect () {
 	// busy message
 	UI::OpenDialog(`Label(`id (`add_on_popup_id), _("Initializing new source...")));
 	integer src_id = SourceManager::newSources[0]:0;
-	map data = Pkg::SourceGeneralData (src_id);
-	y2milestone("Adding product: %1", data);
-	string url = data["url"]:"";
-	string product_dir = data["product_dir"]:"";
-	y2milestone ("Deleting source %1", src_id);
-	Pkg::SourceDelete (src_id);
-	src_id = Pkg::SourceCreate (url, product_dir);
-	SourceManager::newSources = [src_id];
+
+	// BNC #481828: Using LABEL from content file as a repository name
+	Packages::AdjustSourcePropertiesAccordingToProduct (src_id);
 
 	// a little hack because of packager leaving
 	// windows open...
@@ -309,16 +308,6 @@ symbol CatalogSelect () {
 	    }
 	}
 
-	if (src_id == -1)
-	{
-	    // error report
-	    Report::Error (_("Failed to initialize the software repository."));
-	    AddOnProduct::ClearRegistrationRequest (src_id);
-
-	    y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
-	    return `finish;
-	}
-
 	AddOnProduct::src_id = src_id;
 	SourceManager::newSources = [src_id];
 	y2milestone ("Only one source available - skipping dialog");
@@ -326,6 +315,7 @@ symbol CatalogSelect () {
 	y2milestone ("CatalogSelect Dialog ret: %1", AddOnProduct::last_ret);
 	return AddOnProduct::last_ret;
     }
+
     y2milestone ("Running catalog select dialog");
     list catalogs = maplist (integer src, sources, {
 	map data = Pkg::SourceGeneralData (src);
@@ -360,17 +350,8 @@ Select the repository to use.</p>
 	if (ret == `abort || ret == `cancel)
 	{
 	    ret = `abort;
-//	    if (Stage::initial())
-//	    {
-//	        if (Popup::ConfirmAbort (`painless))
-//		    break;
-//	    }
-//	    else
-//	    {
-		// yes-no popup
-		if (Popup::YesNo (_("Really abort add-on product installation?")))
-		    break;
-//	    }
+	    if (Popup::YesNo (_("Really abort add-on product installation?")))
+		break;
 	    continue;
 	}
 	else if (ret == `back)
@@ -401,26 +382,13 @@ Select the repository to use.</p>
 	foreach (integer src, SourceManager::newSources, {
 	    if (src != selected)
 	    {
-		y2milestone ("Deleting source %1", src);
+		y2milestone ("Deleting unused source %1", src);
 		Pkg::SourceDelete (src);
 	    }
 	});
-	map data = Pkg::SourceGeneralData (selected);
-	string url = data["url"]:"";
-	string product_dir = data["product_dir"]:"";
-	y2milestone ("Deleting source %1", selected);
-	Pkg::SourceDelete (selected);
-	selected = Pkg::SourceCreate (url, product_dir);
-	SourceManager::newSources = [selected];
-	if (selected == -1)
-	{
-	    // error report
-	    Report::Error (_("Failed to initialize the software repository."));
-	    AddOnProduct::ClearRegistrationRequest (selected);
 
-	    y2milestone ("CatalogSelect Dialog ret: %1", `finish);
-	    return `finish;
-	}
+	// BNC #481828: Using LABEL from content file as a repository name
+	Packages::AdjustSourcePropertiesAccordingToProduct (selected);
 
 	AddOnProduct::src_id = selected;
 	SourceManager::newSources = [selected];
@@ -553,38 +521,6 @@ symbol ProductSelect () {
 	return `next;
     }
 
-// disabling functionality (partly bugzilla #227605)
-// we know whether this product is already installed
-// but we can't know whether the source hasn't been already removed
-// 
-//    products = filter (map<string,any> prod, products, {
-//	boolean installed = false;
-//	find (map<string,any> p, installed_products, {
-//	    if (p["name"]:"" == prod["name"]:"" && p["version"]:"" == prod["version"]:"")
-//	    {
-//		installed = true;
-//		y2milestone ("Product %1 installed", p);
-//		return true;
-//	    }
-//	    return false;
-//	});
-//	if (installed)
-//	{
-//	    y2milestone ("Removing %1 from the list of available products", prod);
-//	    return false;
-//	}
-//	return true;
-//    });
-//    if (size (products) == 0)
-//    {
-//	// message popup
-//	Popup::Message (_("The product on the media is already installed
-//or selected for installation."));
-//	y2milestone ("Deleting installatino source %1", AddOnProduct::src_id);
-//	Pkg::SourceDelete (AddOnProduct::src_id);
-//	AddOnProduct::ClearRegistrationRequest (AddOnProduct::src_id);
-//	return `finish;
-//    }
     // Display /media.1/info.txt if such file exists
     // Display license and wait for agreement
     // FIXME the same code is above
@@ -604,21 +540,6 @@ symbol ProductSelect () {
 	// this product with this url has been already installed or selected for installation
 	map <string, any> src_general_data = Pkg::SourceGeneralData (AddOnProduct::src_id);
 	string current_url = src_general_data["url"]:"";
-	if (current_url != "" && current_url != nil) {
-	    y2milestone ("%1", already_used_urls);
-	    if (already_used_urls[current_url]:"" == src_general_data["product_dir"]:"") {
-		// error pop-up
-		Popup::Message (_("The product on the media is already installed
-or selected for installation."));
-		y2milestone ("Deleting installation source %1 %2 (%3)",
-		    AddOnProduct::src_id, current_url, src_general_data["product_dir"]:"");
-		Pkg::SourceDelete (AddOnProduct::src_id);
-		AddOnProduct::ClearRegistrationRequest (AddOnProduct::src_id);
-
-		y2milestone ("ProductSelect Dialog ret: %1", `finish);
-		return `finish;
-	    }
-	}
 
 	y2milestone ("Only one product available - skipping dialog");
 	map<string,any> prod = products[0]:$[];
@@ -759,23 +680,6 @@ to install.</p>
 	    map data = Pkg::SourceGeneralData (AddOnProduct::src_id);
 	    string url = data["url"]:"";
 	    string product_dir = data["product_dir"]:"";
-
-	    // bugzilla #227605
-	    // this product with this url has been already installed or selected for installation
-	    if (url != "" && url != nil) {
-		if (already_used_urls[url]:"" == product_dir) {
-		    // error pop-up
-		    Popup::Message (_("The product on the media is already installed
-or selected for installation."));
-		    y2milestone ("Deleting installation source %1 %2 (%3)",
-			AddOnProduct::src_id, url, product_dir);
-		    Pkg::SourceDelete (AddOnProduct::src_id);
-		    AddOnProduct::ClearRegistrationRequest (AddOnProduct::src_id);
-
-		    y2milestone ("ProductSelect Dialog ret: %1", `finish);
-		    return `finish;
-		}
-	    }
 
 	    foreach (string product, selected, {
 		integer src_id = (AddOnProduct::src_id == -1 ? prod2src[product]:-1 : AddOnProduct::src_id);
@@ -1194,6 +1098,10 @@ void CreateAddOnsOverviewDialog () {
     Wizard::HideBackButton();
     Wizard::SetAbortButton (`abort, Label::CancelButton());
     Wizard::SetNextButton (`next, Label::OKButton());
+
+    // BNC #517919: Broken layout in some obscure cases
+    // Fixing it...
+    UI::RecalcLayout();
 }
 
 map product_infos = $[];

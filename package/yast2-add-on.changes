@@ -1,4 +1,28 @@
 -------------------------------------------------------------------
+Mon Jul 13 11:06:02 CEST 2009 - locilka@suse.cz
+
+- Recalculating layout after redrawing the list of currently used
+  Add-Ons (bnc #517919).
+
+-------------------------------------------------------------------
+Fri Apr  3 14:34:11 CEST 2009 - locilka@suse.cz
+
+- Adjusting initial repository name according to LABEL in content
+  file (bnc #481828).
+
+-------------------------------------------------------------------
+Wed Mar 18 17:59:31 CET 2009 - locilka@suse.cz
+
+- Removing a work around that broke the possibility to use several
+  add-ons with the same URL (especially physical media-based ones)
+  SLE11 can still hit this issue (bnc #475352).
+
+-------------------------------------------------------------------
+Fri Mar 13 12:30:23 CET 2009 - locilka@suse.cz
+
+- Solving MenuButton shortcut conflicts (bnc #50003 c#39).
+
+-------------------------------------------------------------------
 Wed Feb 18 13:26:03 CET 2009 - locilka@suse.cz
 
 - Reloading libzypp state if user declines the Add-On
