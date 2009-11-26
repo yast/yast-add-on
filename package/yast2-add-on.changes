@@ -3,6 +3,7 @@ Mon Jul 13 11:06:02 CEST 2009 - locilka@suse.cz
 
 - Recalculating layout after redrawing the list of currently used
   Add-Ons (bnc #517919).
+- 2.17.21
 
 -------------------------------------------------------------------
 Fri Apr  3 14:34:11 CEST 2009 - locilka@suse.cz
