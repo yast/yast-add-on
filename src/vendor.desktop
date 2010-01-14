@@ -17,9 +17,8 @@ X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=
 
 Icon=yast-vendor
-Exec=/sbin/yast2 vendor
+Exec=xdg-su -c "/sbin/yast2 vendor"
 
 Name=Vendor Driver CD
 GenericName=Install a driver from a vendor-specific CD-ROM
-X-KDE-SubstituteUID=true
 StartupNotify=true
