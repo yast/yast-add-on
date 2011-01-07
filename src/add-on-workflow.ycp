@@ -784,7 +784,7 @@ void Redraw (boolean enable_back, boolean enable_next, boolean enable_abort,
     string title = _("Add-On Product Installation");
 
     // Help for add-on products
-    string help = _("<p><big><b>Add-On Product Installation</b></big></br>
+    string help = _("<p><big><b>Add-On Product Installation</b></big><br/>
 Here see all add-on products that are selected for installation.
 To add a new product, click <b>Add</b>. To remove an already added one,
 select it and click <b>Delete</b>.</p>");
