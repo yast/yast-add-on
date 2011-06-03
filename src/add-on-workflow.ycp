@@ -1227,7 +1227,7 @@ map <string, list> GetRepoInfo (map <string,any> & this_product, list <map <stri
     return ret;
 }
 
-void RedrawAddOnsOverviewTable () {
+list <map <string,any> > GetAllProductsInfo () {
     list <map <string,any> > all_products = Pkg::ResolvableProperties ("", `product, "");
 
     all_products = maplist (map <string,any> one_product, all_products, {
@@ -1241,20 +1241,29 @@ void RedrawAddOnsOverviewTable () {
 	return one_product;
     });
 
-    integer source_nr = nil;
-    map repository_info = nil;
-    integer counter = -1;
+    return all_products;
+}
 
-    list <term> products = [];
-    product_infos = $[];
-
-    list <map <string,any> > installed_products = filter (map <string,any> one_product, all_products, {
+list <map <string,any> > GetInstalledProducts () {
+    list <map <string,any> > installed_products = filter (map <string,any> one_product, GetAllProductsInfo(), {
 	// Do not list the base product
 	if (one_product["category"]:"addon" == "base")
 	    return false;
 	// BNC #475591: Only those `installed or `selected ones should be actually visible
 	return (one_product["status"]:`unknown == `installed || one_product["status"]:`unknown == `selected);
     });
+
+    return installed_products;
+}
+
+map GetProductInfos () {
+    list <map <string,any> > all_products = GetAllProductsInfo();
+    list <map <string,any> > installed_products = GetInstalledProducts();
+
+    map repository_info = nil;
+    integer counter = -1;
+
+    product_infos = $[];
 
     foreach (map <string,any> one_product, installed_products, {
 	// only add-on products should be listed
@@ -1276,11 +1285,74 @@ void RedrawAddOnsOverviewTable () {
 	    "product" : one_product,
 	    "info" : repository_info,
 	];
+    });
 
+    return product_infos;
+}
+
+/**
+ * List of all selected repositories
+ *
+ * @struct add_on_products = [
+ *   $[
+ *     "media" : 4, // ID of the source
+ *     "product_dir" : "/",
+ *     "product" : "openSUSE version XX.Y",
+ *     "autoyast_product" : "'PRODUCT' tag for AutoYaST Export",
+ *     "media_url" : "Zypp URL of the product",
+ *   ],
+ *   ...
+ * ]
+ */
+boolean ReadFromSystem () {
+    AddOnProduct::add_on_products = [];
+
+    map <string, map> product_infos = (map <string, map>) GetProductInfos();
+    if (product_infos == nil || product_infos == $[]) {
+	y2warning ("No add-on products have been found");
+	return true;
+    }
+
+    integer src_id = nil;
+
+    foreach (string index, map product_desc, product_infos, {
+	src_id = product_desc["info","IDs",0]:-1;
+	if (src_id == nil || src_id == -1) {
+	    y2error ("Cannot get source ID from %1", product_desc);
+	    return;
+	}
+
+	map repo_data = Pkg::SourceGeneralData (src_id);
+
+	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
+	    "media"		: src_id,
+	    "product_dir"	: repo_data["product_dir"]:"/",
+	    "product"		: repo_data["name"]:repo_data["alias"]:_("No product found in the repository"),
+	    "autoyast_product"	: product_desc["product","name"]:repo_data["name"]:repo_data["alias"]:_("No product found in the repository"),
+	    "media_url"		: Pkg::SourceURL(src_id)
+	]);
+    });
+
+    y2milestone ("Add-Ons read: %1", AddOnProduct::add_on_products);
+
+    return true;
+}
+
+void RedrawAddOnsOverviewTable () {
+    list <term> products = [];
+
+    map <string, map> product_infos = (map <string, map>) GetProductInfos();
+
+    if (product_infos == nil)
+	product_infos = $[];
+
+    y2milestone ("Currently used add-ons: %1", product_infos);
+
+    foreach (string index, map product_desc, product_infos, {
 	products = add (products, `item (
-	    `id (sformat ("product_%1", counter)),
-	    one_product["display_name"]:one_product["name"]:_("Unknown product"),
-	    repository_info["URLs", 0]:_("Unknown URL")
+	    `id (sformat ("product_%1", index)),
+	    product_desc["product", "display_name"]:product_desc["product", "name"]:_("Unknown product"),
+	    product_desc["info", "URLs", 0]:_("Unknown URL")
 	));
     });
 
@@ -1288,7 +1360,7 @@ void RedrawAddOnsOverviewTable () {
     AdjustInfoWidget();
 
     // Nothing to do delete when there are no product listed
-    UI::ChangeWidget (`id(`delete), `Enabled, (size (installed_products) > 0));
+    UI::ChangeWidget (`id(`delete), `Enabled, (size (products) > 0));
 }
 
 boolean RunPackageSelector () {
