@@ -26,6 +26,8 @@ import "AutoinstSoftware";
 import "PackageCallbacksInit";
 import "Label";
 import "AutoinstGeneral";
+import "PackageLock";
+import "Installation";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -243,12 +245,26 @@ else if (func == "Write") {
     ret = true;
 }
 /**
- * Read configuration data
- * return boolean
+ * Reads configuration of add-ons from the current system
+ * to memory. To get that configuration, use Export() functionality.
+ *
+ * @returns boolean
  */
 else if (func == "Read") {
-    y2milestone ("Read not supported");
-    ret = true;
+    if (! PackageLock::Check()) {
+	y2error ("Cannot get package lock");
+	return false;
+    }
+    y2milestone ("Reseting Pkg");
+    Pkg::PkgApplReset();
+    Pkg::PkgReset();
+
+    Pkg::TargetInitialize (Installation::destdir);
+    Pkg::TargetLoad();
+    Pkg::SourceStartManager (true);
+    Pkg::PkgSolve (true);
+
+    ret = ReadFromSystem();
 }
 /* unknown function */
 else {
