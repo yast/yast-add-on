@@ -27,6 +27,7 @@ import "Report";
 import "Sequencer";
 import "SourceManager";
 import "PackageSystem";
+import "ProductProfile";
 import "SuSEFirewall";
 import "Stage";
 import "Wizard";
@@ -718,12 +719,29 @@ to install.</p>
     return ret;
 }
 
+/**
+ * Check new product compliance; may abort the installation
+ */
+symbol CheckCompliance () {
+
+    if (ProductProfile::CheckCompliance (AddOnProduct::src_id))
+    {
+	return `next;
+    }
+    else
+    {
+	return `abort;
+    }
+
+}
+
 symbol RunWizard() {
     map aliases = $[
 	"media" : ``(MediaSelect ()),
 	// "catalog" : ``(CatalogSelect ()),
 	// "product" : ``(ProductSelect ()),
 	"install_product" : ``(InstallProduct ()),
+	"check_compliance": ``(CheckCompliance ()),
     ];
 
     map sequence = $[
@@ -745,8 +763,12 @@ symbol RunWizard() {
 //	],
 	"install_product" : $[
 	    `abort : `abort,
+	    `next : "check_compliance",
+	    `finish : "check_compliance",
+	],
+	"check_compliance" : $[
+	    `abort : `abort,
 	    `next : `next,
-	    `finish : `next,
 	],
     ];
     return Sequencer::Run(aliases, sequence);
