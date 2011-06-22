@@ -748,8 +748,8 @@ symbol RunWizard() {
 	"ws_start" : "media",
 	"media" : $[
 	    `abort : `abort,
-	    `next : "install_product",
-	    `finish : "install_product",
+	    `next : "check_compliance",
+	    `finish : "check_compliance",
 	],
 //	"catalog" : $[
 //	    `abort : `abort,
@@ -761,14 +761,14 @@ symbol RunWizard() {
 //	    `next : `next,
 //	    `finish : `next,
 //	],
-	"install_product" : $[
-	    `abort : `abort,
-	    `next : "check_compliance",
-	    `finish : "check_compliance",
-	],
 	"check_compliance" : $[
 	    `abort : `abort,
+	    `next : "install_product",
+	],
+	"install_product" : $[
+	    `abort : `abort,
 	    `next : `next,
+	    `finish: `next,
 	],
     ];
     return Sequencer::Run(aliases, sequence);
