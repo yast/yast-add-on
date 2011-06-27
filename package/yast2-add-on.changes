@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 24 08:19:41 UTC 2011 - lslezak@suse.cz
+
+- properly handle abort in software selection (finish add-on
+  workflow instead of going on) (bnc#691133)
+
+-------------------------------------------------------------------
 Fri Jun  3 15:41:23 CEST 2011 - locilka@suse.cz
 
 - Added support for clonning system configuration (used add-on

@@ -83,6 +83,10 @@
 
     symbol dialog_ret = `next;
 
+    if (ret == `cancel) {
+	dialog_ret = `abort;
+    }
+
     if (ret == `accept || ret == `ok) {
 	// Add-on requires packages to be installed right now
 	if (argmap["skip_installation"]:false != true) {
