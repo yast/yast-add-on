@@ -182,45 +182,45 @@ symbol MediaSelect () {
 
     if (ret != `abort)
     {
-    list <integer> sources_after = Pkg::SourceGetCurrent (false);
-    y2milestone ("Sources with new one added: %1", sources_after);
+	list <integer> sources_after = Pkg::SourceGetCurrent (false);
+	y2milestone ("Sources with new one added: %1", sources_after);
 
-    // bnc #393011
-    // AddOnProduct::src_id must be set to the latest source ID
-    boolean src_id_found = false;
+	// bnc #393011
+	// AddOnProduct::src_id must be set to the latest source ID
+	boolean src_id_found = false;
 
-    foreach (integer one_source, sources_after, {
-	if (! contains (sources_before, one_source)) {
-	    AddOnProduct::src_id = one_source;
-	    y2milestone ("Added source ID is: %1", AddOnProduct::src_id);
-	    src_id_found = true;
-	    break;
+	foreach (integer one_source, sources_after, {
+	    if (! contains (sources_before, one_source)) {
+		AddOnProduct::src_id = one_source;
+		y2milestone ("Added source ID is: %1", AddOnProduct::src_id);
+		src_id_found = true;
+		break;
+	    }
+	});
+
+	if (src_id_found) {
+	    // BNC #481828: Using LABEL from content file as a repository name
+	    Packages::AdjustSourcePropertiesAccordingToProduct (AddOnProduct::src_id);
+	    // used add-ons are stored in a special list
+	    AddAddOnToStore (AddOnProduct::src_id);
+	} else {
+	    AddOnProduct::src_id = sources_after[size(sources_after) - 1]:0;
+	    y2warning ("Fallback src_id: %1", AddOnProduct::src_id);
 	}
-    });
 
-    if (src_id_found) {
-	// BNC #481828: Using LABEL from content file as a repository name
-	Packages::AdjustSourcePropertiesAccordingToProduct (AddOnProduct::src_id);
-	// used add-ons are stored in a special list
-	AddAddOnToStore (AddOnProduct::src_id);
-    } else {
-	AddOnProduct::src_id = sources_after[size(sources_after) - 1]:0;
-	y2warning ("Fallback src_id: %1", AddOnProduct::src_id);
-    }
+	// BNC #441380
+	// Refresh and load the added source, this is needed since the unified
+	// functions from packager are used.
+	Pkg::SourceRefreshNow (AddOnProduct::src_id);
+	Pkg::SourceLoad();
 
-    // BNC #441380
-    // Refresh and load the added source, this is needed since the unified
-    // functions from packager are used.
-    Pkg::SourceRefreshNow (AddOnProduct::src_id);
-    Pkg::SourceLoad();
-
-    // BNC #468449
-    // It may happen that the add-on control file contains some code that
-    // would drop the changes made, so it's better to save the soruces now
-    if (Mode::normal()) {
-	y2milestone ("Saving all sources");
-	Pkg::SourceSaveAll();
-    }
+	// BNC #468449
+	// It may happen that the add-on control file contains some code that
+	// would drop the changes made, so it's better to save the soruces now
+	if (Mode::normal()) {
+	    y2milestone ("Saving all sources");
+	    Pkg::SourceSaveAll();
+	}
     }
 
     AddOnProduct::last_ret = ret;
