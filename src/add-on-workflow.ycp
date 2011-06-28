@@ -181,6 +181,8 @@ symbol MediaSelect () {
     y2milestone ("Starting repository sequence");
     symbol ret = Sequencer::Run (aliases, sequence);
 
+    if (ret != `abort)
+    {
     list <integer> sources_after = Pkg::SourceGetCurrent (false);
     y2milestone ("Sources with new one added: %1", sources_after);
 
@@ -219,6 +221,7 @@ symbol MediaSelect () {
     if (Mode::normal()) {
 	y2milestone ("Saving all sources");
 	Pkg::SourceSaveAll();
+    }
     }
 
     AddOnProduct::last_ret = ret;

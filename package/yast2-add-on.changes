@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jun 27 15:14:21 UTC 2011 - lslezak@suse.cz
+
+- don't start package manager when license agreement is aborted
+  (bnc#701497) 
+- 2.17.25
+
+-------------------------------------------------------------------
 Fri Jun 24 08:19:41 UTC 2011 - lslezak@suse.cz
 
 - properly handle abort in software selection (finish add-on
