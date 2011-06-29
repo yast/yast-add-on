@@ -165,7 +165,7 @@ else if (func == "Write") {
 	if( issubstring( media, "relurl://" ) ) {
 		string base = AddOnProduct::GetBaseProductURL();
 		media = AddOnProduct::GetAbsoluteURL( base, media );
-		y2milestone("relurl changed from %1 to %2", base, media);
+		y2milestone("relurl changed to %1", media);
 	}
 
 	sources[media] = sources[media]:$[];
