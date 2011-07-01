@@ -28,6 +28,7 @@ import "Label";
 import "AutoinstGeneral";
 import "PackageLock";
 import "Installation";
+import "String";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -162,10 +163,11 @@ else if (func == "Write") {
 	string media = prod["media_url"]:"";
 	string pth = prod["product_dir"]:"/";
 
-	if( issubstring( media, "relurl://" ) ) {
+	if (String::StartsWith(media, "relurl://"))
+	{
 		string base = AddOnProduct::GetBaseProductURL();
 		media = AddOnProduct::GetAbsoluteURL( base, media );
-		y2milestone("relurl changed to %1", base, media);
+		y2milestone("relurl changed to %1", media);
 	}
 
 	sources[media] = sources[media]:$[];
