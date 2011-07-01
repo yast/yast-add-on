@@ -161,6 +161,13 @@ else if (func == "Write") {
     AddOnProduct::add_on_products = maplist (map <string, any> prod, AddOnProduct::add_on_products, {
 	string media = prod["media_url"]:"";
 	string pth = prod["product_dir"]:"/";
+
+	if( issubstring( media, "relurl://" ) ) {
+		string base = AddOnProduct::GetBaseProductURL();
+		media = AddOnProduct::GetAbsoluteURL( base, media );
+		y2milestone("relurl changed to %1", base, media);
+	}
+
 	sources[media] = sources[media]:$[];
 
 	// set addon specific sig-handling

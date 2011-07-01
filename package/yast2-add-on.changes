@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jul  1 11:05:21 CEST 2011 - ug@suse.de
+
+- fixed relurl://.... for add-on config in autoyast XML
+  (bnc#702863)
+
+-------------------------------------------------------------------
 Mon Jun 27 15:14:21 UTC 2011 - lslezak@suse.cz
 
 - don't start package manager when license agreement is aborted
