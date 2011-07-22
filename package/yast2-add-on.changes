@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jul 22 13:28:42 UTC 2011 - lslezak@suse.cz
+
+- properly remove an add-on from installation workflow when it
+  is not compliant (bnc#701497) 
+- 2.17.27
+
+-------------------------------------------------------------------
 Fri Jul  1 11:01:27 UTC 2011 - lslezak@suse.cz
 
 - 2.17.26
