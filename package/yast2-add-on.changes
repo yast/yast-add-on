@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jul 22 13:28:42 UTC 2011 - lslezak@suse.cz
+
+- properly remove an add-on from installation workflow when it
+  is not compliant (bnc#701497) 
+- 2.21.3
+
+-------------------------------------------------------------------
 Wed Jun 29 18:07:46 CEST 2011 - ug@suse.de
 
 - fixed relurl://.... for add-on config in autoyast XML

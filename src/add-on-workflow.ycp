@@ -1017,6 +1017,22 @@ symbol RunAddOnMainDialog (boolean enable_back, boolean enable_next, boolean ena
 		AddOnProduct::PrepareForRegistration (AddOnProduct::src_id);
 		some_addon_changed = true;
 	    }
+	    else if (ret == `abort || ret == `cancel)
+	    {
+		y2milestone("Add-on sequence aborted");
+
+		if (AddOnProduct::src_id != nil)
+		{
+		    y2milestone("Removing add-on repository: %1", AddOnProduct::src_id);
+
+		    // remove the repository
+		    Pkg::SourceDelete(AddOnProduct::src_id);
+
+		    AddOnProduct::add_on_products = filter(map<string,any> add_on_product, AddOnProduct::add_on_products,
+			{return add_on_product["media"]:-1 != AddOnProduct::src_id;}
+		    );
+		}
+	    }
 
 	    Redraw (enable_back, enable_next, enable_abort, back_button, next_button, abort_button);
 
