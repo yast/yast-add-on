@@ -1533,21 +1533,6 @@ Are sure you want to delete it?"), product_name),
 }
 
 void RunAddProductWorkflow () {
-    // feedback heading
-    string heading = _("Add-On Product Installation");
-    // feedback message
-    string message
-        = _("Reading packages available at the installation repositories...");
-
-    Popup::ShowFeedback (heading, message);
-
-    y2milestone ("syncing srcid %1 to zmd", AddOnProduct::src_id);
-    boolean synced
-        = SourceManager::SyncAddedAndDeleted ([AddOnProduct::src_id], []);
-    y2milestone ("sync status: %1", synced);
-
-    Popup::ClearFeedback ();
-
     WFM::CallFunction ("inst_addon_update_sources", []);
     AddOnProduct::DoInstall();
     // Write only when there are some changes

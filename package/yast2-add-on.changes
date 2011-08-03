@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug  3 13:21:14 UTC 2011 - lslezak@suse.cz
+
+- cleanup: removed obsoleted SourceManager::SyncAddedAndDeleted()
+  call (zmd sync has been removed)
+- 2.21.4
+
+-------------------------------------------------------------------
 Fri Jul 22 13:28:42 UTC 2011 - lslezak@suse.cz
 
 - properly remove an add-on from installation workflow when it
