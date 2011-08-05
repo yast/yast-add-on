@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Aug  5 12:20:14 CEST 2011 - tgoettlicher@suse.de
+
+- fixed .desktop file (bnc #681249)
+
+-------------------------------------------------------------------
 Wed Aug  3 13:21:14 UTC 2011 - lslezak@suse.cz
 
 - cleanup: removed obsoleted SourceManager::SyncAddedAndDeleted()
