@@ -5,7 +5,8 @@ Group:	System/YaST
 License: GPL v2 or later
 Requires:	autoyast2-installation
 # PackagesUI module, BNC #469320
-Requires:	yast2 >= 2.15.58
+# Wizard::SetDesktopTitleAndIcon
+Requires:	yast2 >= 2.21.22
 Requires:	yast2-installation
 Requires:	yast2-country
 
