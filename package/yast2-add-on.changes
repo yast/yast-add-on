@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 24 07:41:54 UTC 2011 - jsrain@suse.cz
+
+- adjust installation workflow after integrating add-on products
+  via AutoYaST (bnc#725439)
+- 2.21.6
+
+-------------------------------------------------------------------
 Mon Sep 26 14:54:40 CEST 2011 - visnov@suse.cz
 
 - set dialog title
