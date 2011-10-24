@@ -251,6 +251,9 @@ else if (func == "Write") {
 	}
     });
 
+    // reread agents, redraw wizard steps, etc.
+    AddOnProduct::ReIntegrateFromScratch();
+
     ret = true;
 }
 /**

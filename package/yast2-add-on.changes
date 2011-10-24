@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 24 07:41:54 UTC 2011 - jsrain@suse.cz
+
+- adjust installation workflow after integrating add-on products
+  via AutoYaST (bnc#725439)
+- 2.17.28
+
+-------------------------------------------------------------------
 Fri Jul 22 13:28:42 UTC 2011 - lslezak@suse.cz
 
 - properly remove an add-on from installation workflow when it
