@@ -1,8 +1,8 @@
 @HEADER-COMMENT@
 
 @HEADER@
-Group:	System/YaST
-License: GPL-2.0+
+Group:          System/YaST
+License:        GPL-2.0
 Requires:	autoyast2-installation
 # PackagesUI module, BNC #469320
 # Wizard::SetDesktopTitleAndIcon

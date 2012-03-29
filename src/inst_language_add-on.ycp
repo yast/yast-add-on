@@ -167,14 +167,14 @@
 		    `MultiSelectionBox (
 			`id ("languages"),
 			// TRANSLATORS:: multi-selection box
-			_("&Select Language Extensions to be Installed"),
+			_("&Select Language Extensions to Be Installed"),
 			items
 		    ),
 		    `HStretch ()
 		)
 	    ),
 	    // TRANSLATORS: help text
-	    _("<p>Select the language extensions to be installed and then click the <b>OK</b> button.</p>"),
+	    _("<p>Select the language extensions to be installed then click <b>OK</b>.</p>"),
 	    Label::BackButton(),
 	    Label::OKButton()
 	);

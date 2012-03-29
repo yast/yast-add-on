@@ -34,7 +34,7 @@ if (commands["command"]:"" == "help" || commands["command"]:"" == "longhelp") {
     Mode::SetUI ("commandline");
     // TRANSLATORS: commandline help
     CommandLine::Print(_("
-Add-On Module Help
+Add-on Module Help
 ------------------
 
 To add a new add-on product via the command-line, use this syntax:

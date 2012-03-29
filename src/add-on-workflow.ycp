@@ -135,7 +135,7 @@ void AddAddOnToStore (integer src_id) {
     AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	"media" : AddOnProduct::src_id,
 	// table cell
-	"product" : source_data["name"]:source_data["alias"]:_("No product found in the repository"),
+	"product" : source_data["name"]:source_data["alias"]:_("No product found in the repository."),
 	"media_url" : source_data["url"]:"",
 	"product_dir" : source_data["product_dir"]:"",
     ]);
@@ -509,7 +509,7 @@ symbol ProductSelect () {
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media" : AddOnProduct::src_id,
 	    // table cell
-	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : _("No product found in the repository")),
+	    "product" : ((new_addon_name != "" && new_addon_name != nil) ? new_addon_name : _("No product found in the repository.")),
 	    "media_url" : url,
 	    "product_dir" : product_dir,
 	]);
@@ -1076,14 +1076,14 @@ void CreateAddOnsOverviewDialog () {
 
     Wizard::SetContents (
 	// TRANSLATORS: dialog caption
-	_("Installed Add-On Products"),
+	_("Installed Add-on Products"),
 	`VBox (
 	    `Table (
 		`id ("list_of_addons"),
 		`opt (`notify, `immediate),
 		`header (
 		    // TRANSLATORS: table header item
-		    _("Add-On Product"),
+		    _("Add-on Product"),
 		    // TRANSLATORS: table header item
 		    _("URL")
 		),
@@ -1105,9 +1105,9 @@ void CreateAddOnsOverviewDialog () {
 	    )
 	),
 	// TRANSLATORS: dialog help adp/1
-	_("<p>Here you can see all of the add-on products which are installed on your system.</p>") +
+	_("<p>All add-on products installed on your system are displayed.</p>") +
 	// TRANSLATORS: dialog help adp/2
-	_("<p>Use the <b>Add</b> button to add a new add-on product, or the <b>Delete</b> button to remove an add-on which is in use.</p>"),
+	_("<p>Click <b>Add</b> to add a new add-on product, or <b>Delete</b> to remove an add-on which is in use.</p>"),
 	false,
 	true
     );
@@ -1346,8 +1346,8 @@ boolean ReadFromSystem () {
 	AddOnProduct::add_on_products = add (AddOnProduct::add_on_products, $[
 	    "media"		: src_id,
 	    "product_dir"	: repo_data["product_dir"]:"/",
-	    "product"		: repo_data["name"]:repo_data["alias"]:_("No product found in the repository"),
-	    "autoyast_product"	: product_desc["product","name"]:repo_data["name"]:repo_data["alias"]:_("No product found in the repository"),
+	    "product"		: repo_data["name"]:repo_data["alias"]:_("No product found in the repository."),
+	    "autoyast_product"	: product_desc["product","name"]:repo_data["name"]:repo_data["alias"]:_("No product found in the repository."),
 	    "media_url"		: Pkg::SourceURL(src_id)
 	]);
     });

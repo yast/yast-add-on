@@ -185,7 +185,7 @@ else if (func == "Write") {
 		Report::Error (_("Failed to add add-on product."));
 	    } else if( (srcid == -1 || srcid == nil) && prod["ask_on_error"]:false) {
 		prod["ask_on_error"] = Popup::ContinueCancel (
-		    sformat (_("Please make the add-on \"%1\" available via \"%2\""), prod["product"]:"", media)
+		    sformat (_("Make the add-on \"%1\" available via \"%2\"."), prod["product"]:"", media)
 		);
 	    }
 
