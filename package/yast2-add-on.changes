@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 29 15:11:24 CET 2012 - jsuchome@suse.cz
+
+- inst_suseconfig removed, replaced by warning after new kernel
+  installation
+- 2.23.0 
+
+-------------------------------------------------------------------
 Thu Mar 29 13:48:15 CEST 2012 - jsuchome@suse.cz
 
 - merged proofread texts 

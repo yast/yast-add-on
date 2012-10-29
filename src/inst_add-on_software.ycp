@@ -4,7 +4,6 @@
  * Client providing the software overview/selection to be used
  * in add-on products (their control files). If not set otherwise,
  * (skip_installation), it also installs the selected resolvables
- * and calls SuSEconfig.
  *
  * Control File Example (installation.xml):
  * <workflows config:type="list">
@@ -46,6 +45,7 @@
  * See also BNC #469320
  */
 {
+    import "Kernel";
     import "PackagesUI";
     import "GetInstArgs";
     import "ProductControl";
@@ -94,9 +94,8 @@
 
 	    if (WFM::CallFunction ("inst_rpmcopy", [GetInstArgs::Buttons (false, false)]) == `abort) {
 		dialog_ret = `abort;
-	    } else if (WFM::CallFunction ("inst_suseconfig", [GetInstArgs::Buttons (false, false)]) == `abort) {
-		dialog_ret = `abort;
 	    } else {
+		Kernel::InformAboutKernelChange ();
 		y2milestone ("Done");
 	    }
 	}
