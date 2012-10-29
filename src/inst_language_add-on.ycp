@@ -11,6 +11,7 @@
  * $Id$
  */
 {
+    import "Kernel";
     import "Language";
     import "Wizard";
     import "Label";
@@ -70,8 +71,9 @@
 
 	y2milestone("Installing packages");
 	WFM::call("inst_rpmcopy");
-	WFM::call("inst_suseconfig");
-	
+
+	Kernel::InformAboutKernelChange ();
+
 	Popup::Message (
 	    // TRANSLATORS: popup message
 	    _("Installation of the Language Extension has been finished.")
