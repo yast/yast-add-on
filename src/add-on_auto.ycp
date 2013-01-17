@@ -29,7 +29,6 @@ import "AutoinstGeneral";
 import "PackageLock";
 import "Installation";
 import "String";
-import "URL";
 
 include "add-on/add-on-workflow.ycp";
 
