@@ -178,7 +178,9 @@ else if (func == "Write") {
 	integer srcid = -1;
 
 	do {
-	    srcid = Pkg::SourceCreate (media, pth);
+	    string url = AddOnProduct::SetRepoUrlAlias(media, prod["alias"]:"", prod["name"]:"");
+
+	    srcid = Pkg::SourceCreate(url, pth);
 
 	    if ((srcid == -1 || srcid == nil) && !prod["ask_on_error"]:false) {
 		// error report
