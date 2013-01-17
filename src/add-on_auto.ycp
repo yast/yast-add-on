@@ -181,18 +181,29 @@ else if (func == "Write") {
 	do {
 	    string url = media;
 
-	    // set repository alias to product name
-	    if (!isempty(prod["name"]:"")) {
+	    // set repository alias to product name or alias if scpecified
+	    if (!isempty(prod["name"]:"") || !isempty(prod["alias"]:"")) {
 		map url_p = URL::Parse(url);
 
 		// check if alias is already set
 		if (url_p["query"]:"" != "") {
 		    map <string, string> params = URL::MakeMapFromParams(url_p["query"]:"");
 
-		    // no alias present, add product name
+		    // no alias present in URL, add it
 		    if (!haskey(params, "alias")) {
-			y2milestone("Using product name '%s' as repository alias", prod["name"]:"");
-			params["alias"] = prod["name"]:"";
+
+			string alias = "";
+
+			if (!isempty(prod["alias"]:"")) {
+			    y2milestone("Using repository alias: '%s'", prod["alias"]:"");
+			    alias = prod["alias"]:"";
+			}
+			else {
+			    y2milestone("Using product name '%s' as repository alias", prod["name"]:"");
+			    alias = prod["name"]:"";
+			}
+
+			params["alias"] = alias;
 			url_p["query"] = URL::MakeParamsFromMap(params);
 			url = URL::Build(url_p);
 		    }
