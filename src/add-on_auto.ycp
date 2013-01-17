@@ -29,6 +29,7 @@ import "AutoinstGeneral";
 import "PackageLock";
 import "Installation";
 import "String";
+import "URL";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -178,10 +179,27 @@ else if (func == "Write") {
 	integer srcid = -1;
 
 	do {
-	    string url=media;
-	    if( search( url, "?alias" )==nil  && !isempty(prod["name"]:""))
-		    url = url + "?alias="+prod["name"]:"";
-	    srcid = Pkg::SourceCreate (url, pth);
+	    string url = media;
+
+	    // set repository alias to product name
+	    if (!isempty(prod["name"]:"")) {
+		map url_p = URL::Parse(url);
+
+		// check if alias is already set
+		if (url_p["query"]:"" != "") {
+		    map <string, string> params = URL::MakeMapFromParams(url_p["query"]:"");
+
+		    // no alias present, add product name
+		    if (!haskey(params, "alias")) {
+			y2milestone("Using product name '%s' as repository alias", prod["name"]:"");
+			params["alias"] = prod["name"]:"";
+			url_p["query"] = URL::MakeParamsFromMap(params);
+			url = URL::Build(url_p);
+		    }
+		}
+	    }
+
+	    srcid = Pkg::SourceCreate(url, pth);
 
 	    if ((srcid == -1 || srcid == nil) && !prod["ask_on_error"]:false) {
 		// error report
