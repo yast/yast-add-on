@@ -181,33 +181,32 @@ else if (func == "Write") {
 	do {
 	    string url = media;
 
-	    // set repository alias to product name or alias if scpecified
+	    // set repository alias to product name or alias if specified
 	    if (!isempty(prod["name"]:"") || !isempty(prod["alias"]:"")) {
 		map url_p = URL::Parse(url);
+		map <string, string> params = URL::MakeMapFromParams(url_p["query"]:"");
+		string alias = "";
 
-		// check if alias is already set
-		if (url_p["query"]:"" != "") {
-		    map <string, string> params = URL::MakeMapFromParams(url_p["query"]:"");
-
-		    // no alias present in URL, add it
+		if (!isempty(prod["alias"]:"")) {
+		    alias = prod["alias"]:"";
+		    y2milestone("Using repository alias: '%s'", alias);
+		}
+		else {
+		    // no alias present in URL, add use the product name
 		    if (!haskey(params, "alias")) {
-
-			string alias = "";
-
-			if (!isempty(prod["alias"]:"")) {
-			    y2milestone("Using repository alias: '%s'", prod["alias"]:"");
-			    alias = prod["alias"]:"";
-			}
-			else {
-			    y2milestone("Using product name '%s' as repository alias", prod["name"]:"");
-			    alias = prod["name"]:"";
-			}
-
-			params["alias"] = alias;
-			url_p["query"] = URL::MakeParamsFromMap(params);
-			url = URL::Build(url_p);
+			alias = prod["name"]:"";
+			y2milestone("Using product name '%s' as repository alias", alias);
+		    }
+		    // keep the alias from URL
+		    else {
+			alias = params["alias"]:"";
+			y2milestone("Using repository alias from URL: %s", alias);
 		    }
 		}
+
+		params["alias"] = alias;
+		url_p["query"] = URL::MakeParamsFromMap(params);
+		url = URL::Build(url_p);
 	    }
 
 	    srcid = Pkg::SourceCreate(url, pth);
