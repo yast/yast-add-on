@@ -179,35 +179,7 @@ else if (func == "Write") {
 	integer srcid = -1;
 
 	do {
-	    string url = media;
-
-	    // set repository alias to product name or alias if specified
-	    if (!isempty(prod["name"]:"") || !isempty(prod["alias"]:"")) {
-		map url_p = URL::Parse(url);
-		map <string, string> params = URL::MakeMapFromParams(url_p["query"]:"");
-		string alias = "";
-
-		if (!isempty(prod["alias"]:"")) {
-		    alias = prod["alias"]:"";
-		    y2milestone("Using repository alias: '%1'", alias);
-		}
-		else {
-		    // no alias present in the URL, use the product name
-		    if (!haskey(params, "alias")) {
-			alias = prod["name"]:"";
-			y2milestone("Using product name '%1' as repository alias", alias);
-		    }
-		    // keep the alias from URL
-		    else {
-			alias = params["alias"]:"";
-			y2milestone("Using repository alias from URL: %1", alias);
-		    }
-		}
-
-		params["alias"] = alias;
-		url_p["query"] = URL::MakeParamsFromMap(params);
-		url = URL::Build(url_p);
-	    }
+	    string url = AddOnProduct::SetRepoUrlAlias(media, prod["alias"]:"", prod["name"]:"");
 
 	    srcid = Pkg::SourceCreate(url, pth);
 
