@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Jan 20 14:41:39 UTC 2013 - lslezak@suse.cz
+
+- added support for specifying add-on repo alias name (fate#313144)
+  (bnc#741529)
+
+-------------------------------------------------------------------
 Mon Oct 29 15:11:24 CET 2012 - jsuchome@suse.cz
 
 - inst_suseconfig removed, replaced by warning after new kernel
