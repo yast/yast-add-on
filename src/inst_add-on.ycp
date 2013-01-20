@@ -18,6 +18,9 @@ import "ProductControl";
 import "Report";
 import "Wizard";
 import "Label";
+import "Installation";
+import "Linuxrc";
+import "String";
 
 include "add-on/add-on-workflow.ycp";
 
@@ -31,6 +34,35 @@ map argmap = GetInstArgs::argmap();
 Packages::SelectProduct ();
 
 PackageCallbacksInit::SetMediaCallbacks();
+
+// add add-ons specified on the kernel command line
+string addon_opt = Linuxrc::InstallInf("addon");
+
+// add the add-ons just once, skip adding if any add-on is
+// already present (handle going back and forth properly)
+if (addon_opt != nil && AddOnProduct::add_on_products == []) {
+    y2milestone("Specified extra add-ons via kernel cmdline");
+
+    // store the add-ons list into a temporary file
+    string tmp_dir = (string) SCR::Read(.target.tmpdir);
+    string tmp_file = tmp_dir + "/tmp_addon_list";
+    // each add-on on a separate line
+    string addons = String::Replace(addon_opt, ",", "\n");
+
+    SCR::Write(.target.string, tmp_file, addons);
+
+    // import the add-ons from the temporary file
+    AddOnProduct::AddPreselectedAddOnProducts([$["file" : tmp_file, "type" : "plain"]]);
+
+    // remove the temporary file
+    SCR::Execute(.target.bash, sformat ("/bin/rm -rf '%1'", String::Quote(tmp_file)));
+}
+
+// the module was started because of the kernel command line option
+// so finish it after adding the add-ons, no UI is actually needed
+if (Installation::add_on_selected == false) {
+    return `auto;
+}
 
 symbol ret = RunAddOnMainDialog (
     GetInstArgs::enable_back(), GetInstArgs::enable_next(), true,
