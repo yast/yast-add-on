@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Sun Jan 20 15:41:50 UTC 2013 - lslezak@suse.cz
 
-- add the add-ons specified in the boot paramatere (fate#314318)
+- add the add-ons specified in the boot parameters (fate#314318)
 - 2.17.30
 
 -------------------------------------------------------------------
