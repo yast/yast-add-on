@@ -24,6 +24,42 @@ import "String";
 
 include "add-on/add-on-workflow.ycp";
 
+symbol NetworkSetupForAddons(list<string>addon_urls)
+{
+    // protocols locally available (no network needed)
+    list<string> local_protocols = ["cd", "dvd", "hd"];
+
+    // is this CD/DVD/HDD installation?
+    if (contains(local_protocols, Linuxrc::InstallInf("InstMode")))
+    {
+        // is there any remote addon requiring network setup?
+        boolean network_needed = false;
+        foreach(string url, addon_urls,
+            {
+                // is it a remote protocol?
+                if (!contains(local_protocols, tolower(URL::Parse(url)["scheme"]:"")))
+                {
+                    network_needed = true;
+                    break;
+                }
+            }
+        );
+
+        if (network_needed)
+        {
+            // check and setup network
+            symbol ret = (symbol) WFM::CallFunction("inst_network_check", []);
+            y2milestone ("inst_network_check ret: %1", ret);
+
+            if (contains ([`back, `abort], ret)) {
+                return ret;
+            }
+        }
+    }
+
+    return `next;
+}
+
 if (AddOnProduct::skip_add_ons) {
     y2milestone ("Skipping add-ons (as requested before)");
     return `auto;
@@ -48,6 +84,13 @@ if (addon_opt != nil && AddOnProduct::add_on_products == []) {
     string tmp_file = tmp_dir + "/tmp_addon_list";
     // each add-on on a separate line
     string addons = String::Replace(addon_opt, ",", "\n");
+
+    // network setup is needed for CD/DVD/HDD installation with remote Add-ons
+    symbol ret = NetworkSetupForAddons(splitstring(addons, "\n"));
+
+    if (contains ([`back, `abort], ret)) {
+        return ret;
+    }
 
     SCR::Write(.target.string, tmp_file, addons);
 
