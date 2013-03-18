@@ -93,7 +93,7 @@ if (addon_opt != nil && AddOnProduct::add_on_products == []) {
     // each add-on on a separate line
     string addons = String::Replace(addon_opt, ",", "\n");
 
-    // network setup is needed for CD/DVD/HDD installation with remote Add-ons
+    // network setup is needed for local media installation (e.g. DVD) with remote Add-ons
     symbol ret = NetworkSetupForAddons(splitstring(addons, "\n"));
 
     if (contains ([`back, `abort], ret)) {
