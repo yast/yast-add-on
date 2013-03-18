@@ -24,13 +24,21 @@ import "String";
 
 include "add-on/add-on-workflow.ycp";
 
-symbol NetworkSetupForAddons(list<string>addon_urls)
+/*
+ * Ask to user to configure network for installing remote addons.
+ * User is aske when there is a remote add-on found and the network
+ * is not running yet.
+ *
+ * @param addon_urls list of URLs
+ * @return symbol user input result (`next, `back or `abort)
+ */
+symbol NetworkSetupForAddons(list<string> addon_urls)
 {
     // protocols locally available (no network needed)
-    list<string> local_protocols = ["cd", "dvd", "hd"];
+    const list<string> local_protocols = ["cd", "dvd", "hd"];
 
     // is this CD/DVD/HDD installation?
-    if (contains(local_protocols, Linuxrc::InstallInf("InstMode")))
+    if (contains(local_protocols, tolower(Linuxrc::InstallInf("InstMode"))))
     {
         // is there any remote addon requiring network setup?
         boolean network_needed = false;
