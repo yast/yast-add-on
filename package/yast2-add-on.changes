@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar 18 09:05:29 UTC 2013 - lslezak@suse.cz
+
+- configure the network when adding remote add-ons via boot
+  parameter in DVD installation (bnc#809912)
+- 2.24.0
+
+-------------------------------------------------------------------
 Sun Jan 20 15:41:50 UTC 2013 - lslezak@suse.cz
 
 - add the add-ons specified in the boot parameters (fate#314318)
