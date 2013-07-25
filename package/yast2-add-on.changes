@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Jul 25 15:09:55 UTC 2013 - lslezak@suse.cz
+
+- removed obsolete BuildRequires (yast2-testsuite, yast2-packager,
+  yast2-installation, yast2-storage)
+- move development documentation to devel-doc subpackage
+- 2.24.1
+
+-------------------------------------------------------------------
 Mon Mar 18 09:05:29 UTC 2013 - lslezak@suse.cz
 
 - configure the network when adding remote add-ons via boot
