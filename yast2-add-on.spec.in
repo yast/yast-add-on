@@ -14,7 +14,7 @@ Requires:	yast2-packager >= 2.23.1
 # bugzilla #335582, new API for StorageDevices
 Requires:	yast2-storage >= 2.16.1
 
-BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2-installation yast2-packager yast2-storage
+BuildRequires:	update-desktop-files yast2-devtools
 BuildRequires:	yast2 >= 2.23.8
 
 # splitted from yast2-installation
@@ -33,6 +33,15 @@ Summary:	YaST2 - Add-On media installation code
 
 %description
 This package contains YaST Add-On media installation code.
+
+%package devel-doc
+Requires:       yast2-add-on = %version
+Group:          System/YaST
+Summary:        YaST2 - Add-on - Development Documentation
+
+%description devel-doc
+This package contains development documentation for using the API
+provided by yast2-add-on package.
 
 @PREP@
 
@@ -55,4 +64,10 @@ This package contains YaST Add-On media installation code.
 #@moduledir@/*.ybc
 @desktopdir@/*.desktop
 @schemadir@/autoyast/rnc/add-on.rnc
-%doc @docdir@
+%dir @docdir@
+%doc @docdir@/README
+%doc @docdir@/COPYING
+
+%files devel-doc
+%doc @docdir@/autodocs
+
