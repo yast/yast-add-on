@@ -29,6 +29,8 @@ Conflicts:	yast2-pkg-bindings < 2.17.25
 
 BuildArchitectures:	noarch
 
+Requires:       yast2-ruby-bindings >= 1.0.0
+
 Summary:	YaST2 - Add-On media installation code
 
 %description
@@ -55,11 +57,11 @@ provided by yast2-add-on package.
 %defattr(-,root,root)
 %dir @yncludedir@/add-on
 @yncludedir@/add-on/*
-@clientdir@/add-on.ycp
-@clientdir@/add-on_*.ycp
-@clientdir@/inst_add-on*.ycp
-@clientdir@/inst_*_add-on*.ycp
-@clientdir@/vendor.ycp
+@clientdir@/add-on.rb
+@clientdir@/add-on_*.rb
+@clientdir@/inst_add-on*.rb
+@clientdir@/inst_*_add-on*.rb
+@clientdir@/vendor.rb
 #@moduledir@/*.ycp
 #@moduledir@/*.ybc
 @desktopdir@/*.desktop
