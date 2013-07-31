@@ -1,34 +1,27 @@
-# Makefile.am for add-on/src
+# Sources for add-on
+
+client_DATA = \
+  clients/inst_language_add-on.rb \
+  clients/inst_add-on_software.rb \
+  clients/inst_add-on.rb \
+  clients/add-on.rb \
+  clients/add-on_auto.rb \
+  clients/vendor.rb \
+  clients/add-on_proposal.rb
 
 yncludedir = @yncludedir@/add-on
+ynclude_DATA = \
+  include/add-on/misc.rb \
+  include/add-on/add-on-workflow.rb
 
-client_DATA =			 \
-	add-on.ycp		 \
-	add-on_auto.ycp		 \
-	add-on_proposal.ycp	 \
-	inst_add-on.ycp		 \
-	inst_language_add-on.ycp \
-	vendor.ycp		 \
-	inst_add-on_software.ycp
+schemafilesdir = $(schemadir)/autoyast/rnc
+schemafiles_DATA = \
+  autoyast-rnc/add-on.rnc
 
-ynclude_DATA =			\
-	add-on-workflow.ycp	\
-	misc.ycp
+desktop_DATA = \
+  desktop/add-on.desktop \
+  desktop/vendor.desktop
 
-desktop_DATA =			\
-	add-on.desktop		\
-	vendor.desktop
-
-module_DATA =
-
-# create a symlink for local build, #145327
-add-on:
-	ln -sf . $@
-ycpchook = add-on
-
-rncdir =  $(schemadir)/autoyast/rnc
-rnc_DATA = add-on.rnc
-
-EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA) $(desktop_DATA) $(rnc_DATA)
+EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(schemafiles_DATA) $(desktop_DATA)
 
 include $(top_srcdir)/Makefile.am.common
