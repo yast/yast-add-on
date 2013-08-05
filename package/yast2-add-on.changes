@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug  5 13:40:42 CEST 2013 - jsuchome@suse.cz
+
+- check the product profile of new add-on product (backport of
+  fate#310730) 
+- 3.0.1
+
+-------------------------------------------------------------------
 Wed Jul 31 08:25:29 UTC 2013 - yast-devel@opensuse.org
 
 - converted from YCP to Ruby by YCP Killer

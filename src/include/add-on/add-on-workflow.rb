@@ -31,6 +31,7 @@ module Yast
       Yast.import "Sequencer"
       Yast.import "SourceManager"
       Yast.import "PackageSystem"
+      Yast.import "ProductProfile"
       Yast.import "SuSEFirewall"
       Yast.import "Stage"
       Yast.import "Wizard"
@@ -827,23 +828,29 @@ module Yast
       ret
     end
 
+    # Check new product compliance; may abort the installation
+    def CheckCompliance
+      if ProductProfile.CheckCompliance(AddOnProduct.src_id)
+        return :next
+      else
+        return :abort
+      end
+    end
+
     def RunWizard
       aliases = {
-        "media"           => lambda { MediaSelect() },
-        # "catalog" : ``(CatalogSelect ()),
-        # "product" : ``(ProductSelect ()),
-        "install_product" => lambda(
-        ) do
-          InstallProduct()
-        end
+        "media"            => lambda { MediaSelect() },
+        "install_product"  => lambda { InstallProduct() },
+        "check_compliance" => lambda { CheckCompliance() }
       }
+
 
       sequence = {
         "ws_start"        => "media",
         "media"           => {
           :abort  => :abort,
-          :next   => "install_product",
-          :finish => "install_product"
+          :next   => "check_compliance",
+          :finish => "check_compliance"
         },
         #	"catalog" : $[
         #	    `abort : `abort,
@@ -855,6 +862,10 @@ module Yast
         #	    `next : `next,
         #	    `finish : `next,
         #	],
+        "check_compliance" => {
+          :abort => :abort,
+          :next  => "install_product"
+        },
         "install_product" => {
           :abort  => :abort,
           :next   => :next,
