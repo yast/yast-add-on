@@ -1274,6 +1274,10 @@ module Yast
       Wizard.SetAbortButton(:abort, Label.CancelButton)
       Wizard.SetNextButton(:next, Label.OKButton)
 
+      # BNC #517919: Broken layout in some obscure cases
+      # Fixing it...
+      UI.RecalcLayout
+
       nil
     end
 
