@@ -19,7 +19,6 @@ stamp-h*
 Makefile.am.common
 *.ami
 *.bz2
-*.spec
 .dep
 tmp.*
 *.log
