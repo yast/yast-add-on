@@ -91,7 +91,6 @@ provided by yast2-add-on package.
 %{yast_desktopdir}/*.desktop
 %{yast_schemadir}/autoyast/rnc/add-on.rnc
 %dir %{yast_docdir}
-%doc %{yast_docdir}/README
 %doc %{yast_docdir}/COPYING
 
 %files devel-doc
