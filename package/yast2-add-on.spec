@@ -38,7 +38,7 @@ Requires:	yast2-packager >= 2.23.1
 Requires:	yast2-storage >= 2.16.1
 
 BuildRequires:	update-desktop-files
-BuildRequires:  yast2-devtools >= 3.0.6
+BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:	yast2 >= 3.0.1
 
 # splitted from yast2-installation
