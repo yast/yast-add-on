@@ -156,9 +156,7 @@ module Yast
       elsif @func == "Write"
         @sources = {}
 
-        AddOnProduct.add_on_products = Builtins.maplist(
-          AddOnProduct.add_on_products
-        ) do |prod|
+        AddOnProduct.add_on_products.each do |prod|
           media = Ops.get_string(prod, "media_url", "")
           pth = Ops.get_string(prod, "product_dir", "/")
           if String.StartsWith(media, "relurl://")
@@ -232,7 +230,7 @@ module Yast
               # Possibility to set name in control file, bnc #433981
               if Builtins.haskey(prod, "name")
                 name = Ops.get_string(prod, "name", "")
-                Builtins.y2milestone("Preferred name: %1", name) 
+                Builtins.y2milestone("Preferred name: %1", name)
                 # Or use the one returned by Pkg::RepositoryScan
               else
                 repos_at_url = Pkg.RepositoryScan(media)
@@ -294,7 +292,7 @@ module Yast
       Builtins.y2milestone("add-on_auto finished")
       Builtins.y2milestone("----------------------------------------")
 
-      deep_copy(@ret) 
+      deep_copy(@ret)
 
       # EOF
     end
