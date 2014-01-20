@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jan 17 15:51:43 UTC 2014 - vmoravec@suse.com
+
+- Fix autoyast config file issue BNC#846011
+- 3.0.3
+
+-------------------------------------------------------------------
 Tue Sep  3 09:00:14 UTC 2013 - lslezak@suse.cz
 
 - Recalculating layout after redrawing the list of currently used
