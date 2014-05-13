@@ -32,8 +32,8 @@ Requires:	yast2 >= 3.0.1
 Requires:	yast2-installation
 Requires:	yast2-country
 
-# AddOnProduct::SetRepoUrlAlias()
-Requires:	yast2-packager >= 2.23.1
+# SourceDialogs.display_addon_checkbox
+Requires:	yast2-packager >= 3.1.14
 # bugzilla #335582, new API for StorageDevices
 Requires:	yast2-storage >= 2.16.1
 
