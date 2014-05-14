@@ -178,7 +178,8 @@ module Yast
         "type"  => lambda do
           ret = TypeDialog()
           log.debug "SourceDialogs.addon_enabled: #{SourceDialogs.addon_enabled}"
-          ret = SourceDialogs.addon_enabled == false ? :skip : ret
+          # explicitly check for false (nil means the checkbox was not displayed)
+          ret = :skip if SourceDialogs.addon_enabled == false
           log.debug "TypeDialog result: #{ret}"
           ret
         end,
