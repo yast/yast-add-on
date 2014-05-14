@@ -16,6 +16,8 @@
 #
 module Yast
   module AddOnAddOnWorkflowInclude
+    include Yast::Logger
+
     def initialize_add_on_add_on_workflow(include_target)
       Yast.import "UI"
       Yast.import "Pkg"
@@ -87,7 +89,7 @@ module Yast
         if Ops.get_string(cmd_run, "stdout", "") != ""
           Builtins.y2error("Checking the network failed")
           ret = true
-        end 
+        end
         # some devices are listed
       elsif Ops.get_string(cmd_run, "stdout", "") != nil &&
           Ops.get_string(cmd_run, "stdout", "") != "" &&
@@ -172,12 +174,23 @@ module Yast
     # Run dialog for selecting the media
     # @return [Symbol] for wizard sequencer
     def MediaSelect
-      aliases = { "type" => lambda { TypeDialog() }, "edit" => lambda do
-        EditDialog()
-      end, "store" => lambda(
-      ) do
-        StoreSource()
-      end }
+      aliases = {
+        "type"  => lambda do
+          ret = TypeDialog()
+          log.debug "SourceDialogs.addon_enabled: #{SourceDialogs.addon_enabled}"
+          # explicitly check for false (nil means the checkbox was not displayed)
+          ret = :skip if SourceDialogs.addon_enabled == false
+          log.debug "TypeDialog result: #{ret}"
+          ret
+        end,
+        "edit"  => lambda { EditDialog() },
+        "store" => lambda do
+          StoreSource()
+          # the enabled/disabled checkbox is displayed only once
+          # (for the first repository)
+          SourceDialogs.display_addon_checkbox = false
+        end
+      }
 
       sources_before = Pkg.SourceGetCurrent(false)
       Builtins.y2milestone("Sources before adding new one: %1", sources_before)
@@ -188,7 +201,8 @@ module Yast
           :next   => "edit",
           # bnc #392083
           :finish => "store",
-          :abort  => :abort
+          :abort  => :abort,
+          :skip   => :skip
         },
         "edit"     => {
           :next   => "store",
@@ -206,8 +220,9 @@ module Yast
 
       Builtins.y2milestone("Starting repository sequence")
       ret = Sequencer.Run(aliases, sequence)
+      log.info "Repository sequence result: #{ret}"
 
-      if ret != :abort
+      if ret == :next
         sources_after = Pkg.SourceGetCurrent(false)
         Builtins.y2milestone("Sources with new one added: %1", sources_after)
 
@@ -850,7 +865,8 @@ module Yast
         "media"           => {
           :abort  => :abort,
           :next   => "check_compliance",
-          :finish => "check_compliance"
+          :finish => "check_compliance",
+          :skip   => :skip
         },
         #	"catalog" : $[
         #	    `abort : `abort,
@@ -1084,11 +1100,7 @@ module Yast
       some_addon_changed = false
       begin
         # FATE #301928 - Saving one click
-        if ret == :first_time
-          ret = :add
-        else
-          ret = Convert.to_symbol(UI.UserInput)
-        end
+        ret = Convert.to_symbol(UI.UserInput) unless ret == :first_time
 
         # aborting
         if ret == :abort || ret == :cancel
@@ -1099,11 +1111,11 @@ module Yast
               break
             else
               ret = nil
-            end 
+            end
             # Running system
           else
             break
-          end 
+          end
 
           # removing add-on
         elsif ret == :delete
@@ -1134,10 +1146,10 @@ module Yast
             back_button,
             next_button,
             abort_button
-          ) 
+          )
 
           # adding new add-on
-        elsif ret == :add
+        elsif ret == :add || ret == :first_time
           # bugzilla #293428
           # Release all sources before adding a new one
           # because of CD/DVD + url cd://
@@ -1150,6 +1162,8 @@ module Yast
           Wizard.SetTitleIcon("yast-addon")
           ret2 = RunWizard()
           Wizard.CloseDialog
+
+          log.info "Subworkflow result: ret2: #{ret2}"
 
           if ret2 == :next
             # Add-On product has been added, integrate it (change workflow, use y2update)
@@ -1177,6 +1191,10 @@ module Yast
                   AddOnProduct.src_id
               end
             end
+          # extra handling for the global enable checkbox
+          elsif ret == :first_time
+            ret = :back if ret2 == :back
+            ret = :next if ret2 == :skip
           end
 
           Redraw(
@@ -1906,13 +1924,13 @@ module Yast
         if userret == :abort || userret == :cancel
           Builtins.y2warning("Aborting...")
           ret = :abort
-          break 
+          break
 
           # Closing
         elsif userret == :next || userret == :finish
           Builtins.y2milestone("Finishing...")
           ret = :next
-          break 
+          break
 
           # Addin new product
         elsif userret == :add
@@ -1928,7 +1946,7 @@ module Yast
           end
 
           CreateAddOnsOverviewDialog()
-          RedrawAddOnsOverviewTable() 
+          RedrawAddOnsOverviewTable()
 
           # Removing product
         elsif userret == :delete
@@ -1942,7 +1960,7 @@ module Yast
             Builtins.y2milestone(
               "User decided not to remove the selected product"
             )
-            next 
+            next
 
             # false == user decided not confirm the add-on removal
             # libzypp has been already changed
@@ -1956,7 +1974,7 @@ module Yast
             NeutralizeAllResolvables()
             Pkg.SourceFinishAll
 
-            LoadLibzyppNow() 
+            LoadLibzyppNow()
 
             # true == packages and sources have been removed
           else
@@ -1965,11 +1983,11 @@ module Yast
           end
 
           CreateAddOnsOverviewDialog()
-          RedrawAddOnsOverviewTable() 
+          RedrawAddOnsOverviewTable()
 
           # Redrawing info widget
         elsif userret == "list_of_addons"
-          AdjustInfoWidget() 
+          AdjustInfoWidget()
 
           # Calling packager directly
         elsif userret == :packager
@@ -1977,7 +1995,7 @@ module Yast
           RunPackageSelector()
 
           CreateAddOnsOverviewDialog()
-          RedrawAddOnsOverviewTable() 
+          RedrawAddOnsOverviewTable()
 
           # Everything else
         else
