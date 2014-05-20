@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue May 20 08:12:32 UTC 2014 - jreidinger@suse.com
+
+- do not skip to addon workflow too early before add-on from SCC
+  (bnc#878534)
+- 3.1.5
+
+-------------------------------------------------------------------
 Thu May 15 14:19:52 UTC 2014 - lslezak@suse.cz
 
 - fixed going back in URL type dialog
