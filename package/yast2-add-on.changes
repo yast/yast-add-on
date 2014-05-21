@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed May 21 20:08:35 UTC 2014 - jreidinger@suse.com
+
+- Do not create endless loop in add-on selection (bnc#878997)
+- 3.1.6
+
+-------------------------------------------------------------------
 Tue May 20 08:12:32 UTC 2014 - jreidinger@suse.com
 
 - do not skip to addon workflow too early before add-on from SCC
