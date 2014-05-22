@@ -186,9 +186,6 @@ module Yast
         "edit"  => lambda { EditDialog() },
         "store" => lambda do
           StoreSource()
-          # the enabled/disabled checkbox is displayed only once
-          # (for the first repository)
-          SourceDialogs.display_addon_checkbox = false
         end
       }
 
