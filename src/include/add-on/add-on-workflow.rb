@@ -1147,6 +1147,11 @@ module Yast
 
           # adding new add-on
         elsif ret == :add || ret == :first_time
+          # show checkbox only first time in installation when there is no
+          # other addons, so allow to quickly skip adding addons, otherwise
+          # it make no sense as user explicitelly want add addon
+          SourceDialogs.display_addon_checkbox = ret == :first_time
+
           # bugzilla #293428
           # Release all sources before adding a new one
           # because of CD/DVD + url cd://
