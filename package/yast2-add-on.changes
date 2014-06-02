@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jun  2 16:24:42 UTC 2014 - jreidinger@suse.com
+
+- Properly show summary screen in installation after adding first
+  add-on
+- make Abort button working on add-on work-flow (bnc#879397)
+- 3.1.7
+
+-------------------------------------------------------------------
 Wed May 21 20:08:35 UTC 2014 - jreidinger@suse.com
 
 - Do not create endless loop in add-on selection (bnc#878997)
