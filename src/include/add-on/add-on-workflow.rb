@@ -1190,6 +1190,8 @@ module Yast
                   AddOnProduct.src_id
               end
             end
+            # properly return abort in installation
+            ret = :abort if ret == :first_time
           # extra handling for the global enable checkbox
           elsif ret == :first_time
             ret = :back if ret2 == :back
@@ -1210,7 +1212,7 @@ module Yast
           # because of CD/DVD + url cd://
           Pkg.SourceReleaseAll
         end
-      end until ret == :next || ret == :back
+      end until [:next, :back, :abort].include?(ret)
 
       Builtins.y2milestone(
         "Ret: %1, Some Add-on Added/Removed: %2",
