@@ -1070,7 +1070,7 @@ module Yast
       end
 
       # FATE #301928 - Saving one click
-      # Bugzilla #893103 be consistent, so allways when there is no add-on skip
+      # Bugzilla #893103 be consistent, so always when there is no add-on skip
       if no_addons
         Builtins.y2milestone("Skipping to media_select")
         ret = :first_time
