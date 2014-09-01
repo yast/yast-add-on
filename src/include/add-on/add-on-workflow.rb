@@ -48,8 +48,6 @@ module Yast
       Yast.include include_target, "packager/repositories_include.rb"
       Yast.include include_target, "add-on/misc.rb"
 
-      @going_back_in_workflow = GetInstArgs.going_back
-
       # Used for adding sources
       @createResult = :again
 
@@ -1072,11 +1070,9 @@ module Yast
       end
 
       # FATE #301928 - Saving one click
-      # Bugzilla #305809 if "going_back", do not save that click!
-      if no_addons && !@going_back_in_workflow
+      # Bugzilla #893103 be consistent, so allways when there is no add-on skip
+      if no_addons
         Builtins.y2milestone("Skipping to media_select")
-        # only once
-        @going_back_in_workflow = false
         ret = :first_time
       end
 
