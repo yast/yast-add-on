@@ -48,8 +48,6 @@ module Yast
       Yast.include include_target, "packager/repositories_include.rb"
       Yast.include include_target, "add-on/misc.rb"
 
-      @going_back_in_workflow = GetInstArgs.going_back
-
       # Used for adding sources
       @createResult = :again
 
@@ -1072,12 +1070,10 @@ module Yast
       end
 
       # FATE #301928 - Saving one click
-      # Bugzilla #305809 if "going_back", do not save that click!
-      if no_addons && !@going_back_in_workflow
+      # Bugzilla #893103 be consistent, so always when there is no add-on skip
+      if no_addons
         Builtins.y2milestone("Skipping to media_select")
-        # only once
-        @going_back_in_workflow = false
-        ret = :first_time
+        ret = :skip_to_add
       end
 
       # Show Add-Ons table
@@ -1097,7 +1093,7 @@ module Yast
       some_addon_changed = false
       begin
         # FATE #301928 - Saving one click
-        ret = Convert.to_symbol(UI.UserInput) unless ret == :first_time
+        ret = Convert.to_symbol(UI.UserInput) unless ret == :skip_to_add
 
         # aborting
         if ret == :abort || ret == :cancel
@@ -1146,11 +1142,11 @@ module Yast
           )
 
           # adding new add-on
-        elsif ret == :add || ret == :first_time
+        elsif ret == :add || ret == :skip_to_add
           # show checkbox only first time in installation when there is no
           # other addons, so allow to quickly skip adding addons, otherwise
           # it make no sense as user explicitelly want add addon
-          SourceDialogs.display_addon_checkbox = ret == :first_time
+          SourceDialogs.display_addon_checkbox = ret == :skip_to_add
 
           # bugzilla #293428
           # Release all sources before adding a new one
@@ -1175,7 +1171,7 @@ module Yast
             AddOnProduct.PrepareForRegistration(AddOnProduct.src_id)
             some_addon_changed = true
             # do not keep first_time, otherwise summary won't be shown during installation
-            ret = nil if ret == :first_time
+            ret = nil if ret == :skip_to_add
           elsif ret2 == :abort || ret2 == :cancel
             Builtins.y2milestone("Add-on sequence aborted")
 
@@ -1196,9 +1192,9 @@ module Yast
               end
             end
             # properly return abort in installation
-            ret = :abort if ret == :first_time
+            ret = :abort if ret == :skip_to_add
           # extra handling for the global enable checkbox
-          elsif ret == :first_time
+          elsif ret == :skip_to_add
             ret = :back if ret2 == :back
             ret = :next if ret2 == :skip
           end
