@@ -26,6 +26,7 @@ Source0:        %{name}-%{version}.tar.bz2
 
 Group:          System/YaST
 License:        GPL-2.0
+url:            http://github.com/yast/yast-add-on
 Requires:	autoyast2-installation
 # ProductProfile
 Requires:	yast2 >= 3.0.1
@@ -40,6 +41,7 @@ Requires:	yast2-storage >= 2.16.1
 BuildRequires:	update-desktop-files
 BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:	yast2 >= 3.0.1
+BuildRequires:  rubygem(yast-rake)
 
 # splitted from yast2-installation
 Provides:       yast2-installation:/usr/share/YaST2/clients/vendor.ycp
@@ -72,12 +74,14 @@ provided by yast2-add-on package.
 %prep
 %setup -n %{name}-%{version}
 
+%check
+rake test:unit
+
 %build
-%yast_build
+yardoc
 
 %install
-%yast_install
-
+rake install DESTDIR="%{buildroot}"
 
 %files
 %defattr(-,root,root)
@@ -92,7 +96,9 @@ provided by yast2-add-on package.
 %{yast_schemadir}/autoyast/rnc/add-on.rnc
 %dir %{yast_docdir}
 %doc %{yast_docdir}/COPYING
+%doc %{yast_docdir}/CONTRIBUTING.md
 
 %files devel-doc
+%defattr(-,root,root)
 %doc %{yast_docdir}/autodocs
 
