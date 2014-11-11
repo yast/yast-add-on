@@ -1,0 +1,11 @@
+language: cpp
+before_install:
+    # disable rvm, use system Ruby
+    - rvm reset
+    - wget https://raw.githubusercontent.com/yast/yast-devtools/SLE-12-GA/travis-tools/travis_setup.sh
+    - sh ./travis_setup.sh -p "ruby2.1 rake" -g "yast-rake yard"
+script:
+    - yardoc
+    - rake test:unit
+    - sudo rake install
+
