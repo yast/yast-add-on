@@ -132,10 +132,10 @@ module Yast
 
       Builtins.y2milestone("Using URL: '%1'", add_on_url)
 
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "SourceManager"
 
-      PackageCallbacksInit.InitPackageCallbacks
+      PackageCallbacks.InitPackageCallbacks
 
       Pkg.TargetInit("/", true)
       Pkg.SourceStartManager(true)
