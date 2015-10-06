@@ -15,7 +15,7 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "GetInstArgs"
       Yast.import "Packages"
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "Popup"
       Yast.import "ProductControl"
       Yast.import "Report"
@@ -36,7 +36,7 @@ module Yast
 
       Packages.SelectProduct
 
-      PackageCallbacksInit.SetMediaCallbacks
+      PackageCallbacks.SetMediaCallbacks
 
       # add add-ons specified on the kernel command line
       @addon_opt = Linuxrc.InstallInf("addon")

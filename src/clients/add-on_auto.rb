@@ -27,7 +27,7 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "Progress"
       Yast.import "AutoinstSoftware"
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "Label"
       Yast.import "AutoinstGeneral"
       Yast.import "PackageLock"
@@ -94,7 +94,7 @@ module Yast
       elsif @func == "Change"
         Wizard.CreateDialog
         AutoinstSoftware.pmInit
-        PackageCallbacksInit.InitPackageCallbacks
+        PackageCallbacks.InitPackageCallbacks
         @ret = RunAddOnMainDialog(
           false,
           true,

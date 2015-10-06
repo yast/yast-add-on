@@ -15,7 +15,7 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "Confirm"
       Yast.import "PackageLock"
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "Report"
       Yast.import "Wizard"
       Yast.import "GetInstArgs"
@@ -130,7 +130,7 @@ module Yast
       Pkg.TargetInitialize("/")
       Pkg.TargetLoad
 
-      PackageCallbacksInit.InitPackageCallbacks
+      PackageCallbacks.InitPackageCallbacks
 
       # Initialize current sources
       Read()
