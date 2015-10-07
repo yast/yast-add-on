@@ -85,6 +85,14 @@ module Yast
         true
       )
 
+      if @ret == :next
+        @ret = ProductControl.RunFrom(
+          Ops.add(ProductControl.CurrentStep, 1),
+          true
+        )
+        @ret = :finish if @ret == :next
+      end
+
       @ret 
 
       # EOF
