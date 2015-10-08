@@ -6,6 +6,10 @@
 # Authors:	Jiri Srain <jsrain@suse.de>
 #
 module Yast
+  # @note This client should not be called from other clients directly
+  #  via WFM.call (only from the control.xml file), it can restart the workflow
+  #  from the next step and return to the caller AFTER the complete workflow
+  #  is finished (or aborted)
   class InstAddOnClient < Client
     def main
       Yast.import "UI"
@@ -84,6 +88,17 @@ module Yast
         Label.AbortButton,
         true
       )
+
+      if @ret == :next
+        # be careful when calling this client from other modules, this will
+        # start the workflow from the next step and THEN return back
+        # to the caller
+        @ret = ProductControl.RunFrom(
+          Ops.add(ProductControl.CurrentStep, 1),
+          true
+        )
+        @ret = :finish if @ret == :next
+      end
 
       @ret 
 
