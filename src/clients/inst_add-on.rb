@@ -5,6 +5,12 @@
 # Summary:	Select add-on products for installation
 # Authors:	Jiri Srain <jsrain@suse.de>
 #
+
+# NOTE: this client should not be called from other clients directly
+# via WFM.call (only from the control.xml file), it can restart the workflow
+# from the next step and return to the caller AFTER the complete workflow
+# is finished (or aborted)
+
 module Yast
   class InstAddOnClient < Client
     def main
@@ -86,6 +92,9 @@ module Yast
       )
 
       if @ret == :next
+        # be careful when calling this client from other modules, this will
+        # start the workflow from the next step and THEN return back
+        # to the caller
         @ret = ProductControl.RunFrom(
           Ops.add(ProductControl.CurrentStep, 1),
           true
