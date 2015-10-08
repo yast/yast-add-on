@@ -5,13 +5,11 @@
 # Summary:	Select add-on products for installation
 # Authors:	Jiri Srain <jsrain@suse.de>
 #
-
-# NOTE: this client should not be called from other clients directly
-# via WFM.call (only from the control.xml file), it can restart the workflow
-# from the next step and return to the caller AFTER the complete workflow
-# is finished (or aborted)
-
 module Yast
+  # @note This client should not be called from other clients directly
+  #  via WFM.call (only from the control.xml file), it can restart the workflow
+  #  from the next step and return to the caller AFTER the complete workflow
+  #  is finished (or aborted)
   class InstAddOnClient < Client
     def main
       Yast.import "UI"
