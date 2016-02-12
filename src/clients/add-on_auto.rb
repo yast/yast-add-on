@@ -194,7 +194,7 @@ module Yast
               end
             elsif Ops.get_boolean(prod, "confirm_license", false)
               accepted = AddOnProduct.AcceptedLicenseAndInfoFile( srcid )
-              if accepted != nil && accepted == false
+              if accepted == false
                 Builtins.y2warning("License not accepted, delete the repository and halt the system")
                 Pkg.SourceDelete(srcid)
                 SCR.Execute(path(".target.bash"), "/sbin/halt -f -n -p")
