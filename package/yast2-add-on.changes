@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb 11 15:15:24 CET 2016 - schubi@suse.de
+
+- Confirming add-on product licenses while AutoYaST installation.
+  (Fate#318945)
+- 3.1.12
+
+-------------------------------------------------------------------
 Wed Oct  7 19:22:13 UTC 2015 - lslezak@suse.cz
 
 - restart the installation workflow to activate the new

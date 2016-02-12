@@ -179,23 +179,26 @@ module Yast
 
             srcid = Pkg.SourceCreate(url, pth)
 
-            if (srcid == -1 || srcid == nil) &&
-                !Ops.get_boolean(prod, "ask_on_error", false)
-              # error report
-              Report.Error(_("Failed to add add-on product."))
-            elsif (srcid == -1 || srcid == nil) &&
-                Ops.get_boolean(prod, "ask_on_error", false)
-              Ops.set(
-                prod,
-                "ask_on_error",
-                Popup.ContinueCancel(
+            if (srcid == -1 || srcid == nil)
+              if Ops.get_boolean(prod, "ask_on_error", false)
+                prod["ask_on_error"] = Popup.ContinueCancel(
                   Builtins.sformat(
                     _("Make the add-on \"%1\" available via \"%2\"."),
                     Ops.get_string(prod, "product", ""),
                     media
                   )
                 )
-              )
+              else
+                # just report error
+                Report.Error(_("Failed to add add-on product."))
+              end
+            elsif Ops.get_boolean(prod, "confirm_license", false)
+              accepted = AddOnProduct.AcceptedLicenseAndInfoFile( srcid )
+              if accepted == false
+                Builtins.y2warning("License not accepted, delete the repository and halt the system")
+                Pkg.SourceDelete(srcid)
+                SCR.Execute(path(".target.bash"), "/sbin/halt -f -n -p")
+              end
             end
 
             Ops.set(@sources, [media, pth], srcid)
