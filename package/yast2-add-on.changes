@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 22 11:49:43 UTC 2016 - lslezak@suse.cz
+
+- Added missing "priority" tag in the AutoYaST schema (bsc#976457)
+- 3.1.13
+
+-------------------------------------------------------------------
 Thu Feb 11 15:15:24 CET 2016 - schubi@suse.de
 
 - Confirming add-on product licenses while AutoYaST installation.
