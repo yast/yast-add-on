@@ -207,8 +207,6 @@ module Yast
             # bugzilla #260613
             AddOnProduct.Integrate(srcid) if srcid != -1
 
-            # reset to global sig-handling
-            AutoinstGeneral.SetSignatureHandling
           end while Ops.get(@sources, [media, pth], -1) == -1 &&
             Ops.get_boolean(prod, "ask_on_error", false) == true
           Ops.set(prod, "media", Ops.get(@sources, [media, pth], -1))
