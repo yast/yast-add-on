@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr 27 16:52:55 CEST 2016 - schubi@suse.de
+
+- AutoYaST: Do not reset add-on signature handling by the general
+  signature handling. (bnc#976859)
+- 3.1.14
+
+-------------------------------------------------------------------
 Fri Apr 22 11:49:43 UTC 2016 - lslezak@suse.cz
 
 - Added missing "priority" tag in the AutoYaST schema (bsc#976457)
