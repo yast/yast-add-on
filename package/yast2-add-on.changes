@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Apr  3 11:20:57 UTC 2017 - schubi@suse.de
+
+- AutoYaST: Expanding URL in order to handle tags like $releasever.
+  (bnc#972046)
+- 3.2.0
+
+-------------------------------------------------------------------
+
 Thu Aug 11 15:59:06 CEST 2016 - schubi@suse.de
 
 - Added "confirm_license" to the RNC file.

@@ -157,7 +157,8 @@ module Yast
         @sources = {}
 
         AddOnProduct.add_on_products.each do |prod|
-          media = Ops.get_string(prod, "media_url", "")
+          # Expanding URL in order to "translate" tags like $releasever
+          media = Pkg.ExpandedUrl(Ops.get_string(prod, "media_url", ""))
           pth = Ops.get_string(prod, "product_dir", "/")
           if String.StartsWith(media, "relurl://")
             base = AddOnProduct.GetBaseProductURL
