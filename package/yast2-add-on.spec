@@ -38,10 +38,6 @@ Requires:       yast2-packager >= 3.1.14
 Requires:       yast2-ruby-bindings >= 1.0.0
 # bugzilla #335582, new API for StorageDevices
 Requires:       yast2-storage >= 2.16.1
-# SCR::RegisterNewAgents, bugzilla #245508
-Conflicts:      yast2-core < 2.15.4
-# Pkg::SourceProvideSignedFile Pkg::SourceProvideDigestedFile
-Conflicts:      yast2-pkg-bindings < 2.17.25
 # splitted from yast2-installation
 Provides:       yast2-installation:%{_datadir}/YaST2/clients/vendor.ycp
 Provides:       yast2-installation:%{_datadir}/YaST2/clients/add-on.ycp
