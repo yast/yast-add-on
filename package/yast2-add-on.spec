@@ -1,7 +1,7 @@
 #
 # spec file for package yast2-add-on
 #
-# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -19,60 +19,42 @@
 Name:           yast2-add-on
 Version:        3.1.14
 Release:        0
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-Source0:        %{name}-%{version}.tar.bz2
-
-
-Group:          System/YaST
+Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0
-url:            http://github.com/yast/yast-add-on
-Requires:	autoyast2-installation
-# ProductProfile
-Requires:	yast2 >= 3.0.1
-Requires:	yast2-installation
-Requires:	yast2-country
-
-# SourceDialogs.display_addon_checkbox
-Requires:	yast2-packager >= 3.1.14
-# bugzilla #335582, new API for StorageDevices
-Requires:	yast2-storage >= 2.16.1
-
-BuildRequires:	update-desktop-files
-BuildRequires:  yast2-devtools >= 3.1.10
-BuildRequires:	yast2 >= 3.0.1
+Group:          System/YaST
+Url:            http://github.com/yast/yast-add-on
+Source0:        %{name}-%{version}.tar.bz2
 BuildRequires:  rubygem(yast-rake)
-
-# splitted from yast2-installation
-Provides:       yast2-installation:/usr/share/YaST2/clients/vendor.ycp
-Provides:	yast2-installation:/usr/share/YaST2/clients/add-on.ycp
-
-# SCR::RegisterNewAgents, bugzilla #245508
-Conflicts:	yast2-core < 2.15.4
-
-# Pkg::SourceProvideSignedFile Pkg::SourceProvideDigestedFile
-Conflicts:	yast2-pkg-bindings < 2.17.25
-
-BuildArchitectures:	noarch
-
+BuildRequires:  update-desktop-files
+BuildRequires:  yast2 >= 3.0.1
+BuildRequires:  yast2-devtools >= 3.1.10
+Requires:       autoyast2-installation
+# ProductProfile
+Requires:       yast2 >= 3.0.1
+Requires:       yast2-country
+Requires:       yast2-installation
+# SourceDialogs.display_addon_checkbox
+Requires:       yast2-packager >= 3.1.14
 Requires:       yast2-ruby-bindings >= 1.0.0
-
-Summary:	YaST2 - Add-On media installation code
+# bugzilla #335582, new API for StorageDevices
+Requires:       yast2-storage >= 2.16.1
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildArch:      noarch
 
 %description
 This package contains YaST Add-On media installation code.
 
 %package devel-doc
-Requires:       yast2-add-on = %version
-Group:          System/YaST
 Summary:        YaST2 - Add-on - Development Documentation
+Group:          System/YaST
+Requires:       yast2-add-on = %{version}
 
 %description devel-doc
 This package contains development documentation for using the API
 provided by yast2-add-on package.
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
 
 %check
 rake test:unit
@@ -81,7 +63,7 @@ rake test:unit
 yardoc
 
 %install
-rake install DESTDIR="%{buildroot}"
+rake install DESTDIR=%{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -103,3 +85,4 @@ rake install DESTDIR="%{buildroot}"
 %defattr(-,root,root)
 %doc %{yast_docdir}/autodocs
 
+%changelog
