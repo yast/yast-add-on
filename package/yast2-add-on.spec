@@ -44,15 +44,6 @@ BuildArch:      noarch
 %description
 This package contains YaST Add-On media installation code.
 
-%package devel-doc
-Summary:        YaST2 - Add-on - Development Documentation
-Group:          System/YaST
-Requires:       yast2-add-on = %{version}
-
-%description devel-doc
-This package contains development documentation for using the API
-provided by yast2-add-on package.
-
 %prep
 %setup -q
 
@@ -60,7 +51,6 @@ provided by yast2-add-on package.
 rake test:unit
 
 %build
-yardoc
 
 %install
 rake install DESTDIR=%{buildroot}
@@ -80,9 +70,5 @@ rake install DESTDIR=%{buildroot}
 %doc %{yast_docdir}/COPYING
 %doc %{yast_docdir}/CONTRIBUTING.md
 %doc %{yast_docdir}/README.md
-
-%files devel-doc
-%defattr(-,root,root)
-%doc %{yast_docdir}/autodocs
 
 %changelog
