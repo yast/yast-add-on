@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue May 31 07:43:57 UTC 2016 - igonzalezsosa@suse.com
+
+- Drop yast2-add-on-devel-doc package (fate#320356).
+- 3.1.15
+
+-------------------------------------------------------------------
 Wed Apr 27 16:52:55 CEST 2016 - schubi@suse.de
 
 - AutoYaST: Do not reset add-on signature handling by the general
