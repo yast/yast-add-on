@@ -1156,7 +1156,7 @@ module Yast
           # bugzilla #305788
           # Use new wizard window for adding new Add-On.
           # Do not use "Steps" dialog.
-          Wizard.OpenNextBackDialog
+          Wizard.OpenLeftTitleNextBackDialog
           Wizard.SetTitleIcon("yast-addon")
           ret2 = RunWizard()
           Wizard.CloseDialog
