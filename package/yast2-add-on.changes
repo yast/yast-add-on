@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jul 14 14:20:17 UTC 2016 - cwh@suse.com
+
+- Fix layout of Add-On screen (bsc#951720)
+- 3.1.16
+
+-------------------------------------------------------------------
 Tue May 31 07:43:57 UTC 2016 - igonzalezsosa@suse.com
 
 - Drop yast2-add-on-devel-doc package (fate#320356).
