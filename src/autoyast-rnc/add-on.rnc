@@ -12,6 +12,7 @@ listentry =
      alias? &
      product_dir? &
      ask_on_error? &
+     confirm_license? &
      priority? &
      element signature-handling {
         element accept_unsigned_file { BOOLEAN }? &
@@ -46,6 +47,7 @@ name = element name { text }
 alias = element alias { text }
 product_dir = element product_dir { text }
 ask_on_error = element ask_on_error { BOOLEAN }
+confirm_license = element confirm_license { BOOLEAN }
 priority = element priority { INTEGER }
 add_on_products =
   element add_on_products {
