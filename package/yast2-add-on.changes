@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Aug 11 15:59:06 CEST 2016 - schubi@suse.de
+
+- Added "confirm_license" to the RNC file.
+  (bnc#992535)
+- 3.1.17
+
+-------------------------------------------------------------------
 Thu Jul 14 14:20:17 UTC 2016 - cwh@suse.com
 
 - Fix layout of Add-On screen (bsc#951720)
