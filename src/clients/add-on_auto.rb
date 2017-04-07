@@ -172,7 +172,8 @@ module Yast
           srcid = -1
           begin
             url = AddOnProduct.SetRepoUrlAlias(
-              media,
+              # Expanding URL in order to "translate" tags like $releasever
+              Pkg.ExpandedUrl(media),
               Ops.get_string(prod, "alias", ""),
               Ops.get_string(prod, "name", "")
             )
@@ -180,6 +181,10 @@ module Yast
             srcid = Pkg.SourceCreate(url, pth)
 
             if (srcid == -1 || srcid == nil)
+              # revert back to the unexpanded URL to have the original URL
+              # in the saved /etc/zypp/repos.d file
+              Pkg.SourceChangeUrl(srcid, media)
+
               if Ops.get_boolean(prod, "ask_on_error", false)
                 prod["ask_on_error"] = Popup.ContinueCancel(
                   Builtins.sformat(
@@ -234,7 +239,7 @@ module Yast
                 Builtins.y2milestone("Preferred name: %1", name)
                 # Or use the one returned by Pkg::RepositoryScan
               else
-                repos_at_url = Pkg.RepositoryScan(media)
+                repos_at_url = Pkg.RepositoryScan(Pkg.ExpandedUrl(media))
                 # [ ["Product Name", "Path" ] ]
                 Builtins.foreach(repos_at_url) do |one_repo|
                   if Ops.get(one_repo, 1, "") == pth
