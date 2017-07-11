@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jul 10 15:20:52 UTC 2017 - lslezak@suse.cz
+
+- Do not skip the boot command line addons ("addon=...") when
+  using the default online repositories (bsc#1047239)
+- 3.2.1
+
+-------------------------------------------------------------------
 Mon Apr  3 11:20:57 UTC 2017 - schubi@suse.de
 
 - AutoYaST: Expanding URL in order to handle tags like $releasever.
