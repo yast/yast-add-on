@@ -6,6 +6,68 @@ Thu Jul 27 08:44:31 UTC 2017 - jreidinger@suse.com
 - 3.3.0
 
 -------------------------------------------------------------------
+Mon Jul 10 15:20:52 UTC 2017 - lslezak@suse.cz
+
+- Do not skip the boot command line addons ("addon=...") when
+  using the default online repositories (bsc#1047239)
+- 3.2.1
+
+-------------------------------------------------------------------
+Mon Apr  3 11:20:57 UTC 2017 - schubi@suse.de
+
+- AutoYaST: Expanding URL in order to handle tags like $releasever.
+  (bnc#972046)
+- 3.2.0
+
+-------------------------------------------------------------------
+
+Thu Aug 11 15:59:06 CEST 2016 - schubi@suse.de
+
+- Added "confirm_license" to the RNC file.
+  (bnc#992535)
+- 3.1.17
+
+-------------------------------------------------------------------
+Thu Jul 14 14:20:17 UTC 2016 - cwh@suse.com
+
+- Fix layout of Add-On screen (bsc#951720)
+- 3.1.16
+
+-------------------------------------------------------------------
+Tue May 31 07:43:57 UTC 2016 - igonzalezsosa@suse.com
+
+- Drop yast2-add-on-devel-doc package (fate#320356).
+- 3.1.15
+
+-------------------------------------------------------------------
+Wed Apr 27 16:52:55 CEST 2016 - schubi@suse.de
+
+- AutoYaST: Do not reset add-on signature handling by the general
+  signature handling. (bnc#976859)
+- 3.1.14
+
+-------------------------------------------------------------------
+Fri Apr 22 11:49:43 UTC 2016 - lslezak@suse.cz
+
+- Added missing "priority" tag in the AutoYaST schema (bsc#976457)
+- 3.1.13
+
+-------------------------------------------------------------------
+Thu Feb 11 15:15:24 CET 2016 - schubi@suse.de
+
+- Confirming add-on product licenses while AutoYaST installation.
+  (Fate#318945)
+- 3.1.12
+
+-------------------------------------------------------------------
+Wed Oct  7 19:22:13 UTC 2015 - lslezak@suse.cz
+
+- restart the installation workflow to activate the new
+  installation steps added by an add-on via installation.xml
+  (bsc#949185)
+- 3.1.11
+
+-------------------------------------------------------------------
 Thu Dec  4 09:49:06 UTC 2014 - jreidinger@suse.com
 
 - remove X-KDE-Library from desktop file (bnc#899104)

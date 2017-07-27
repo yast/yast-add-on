@@ -27,7 +27,7 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "Progress"
       Yast.import "AutoinstSoftware"
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "Label"
       Yast.import "AutoinstGeneral"
       Yast.import "PackageLock"
@@ -94,7 +94,7 @@ module Yast
       elsif @func == "Change"
         Wizard.CreateDialog
         AutoinstSoftware.pmInit
-        PackageCallbacksInit.InitPackageCallbacks
+        PackageCallbacks.InitPackageCallbacks
         @ret = RunAddOnMainDialog(
           false,
           true,
@@ -172,30 +172,38 @@ module Yast
           srcid = -1
           begin
             url = AddOnProduct.SetRepoUrlAlias(
-              media,
+              # Expanding URL in order to "translate" tags like $releasever
+              Pkg.ExpandedUrl(media),
               Ops.get_string(prod, "alias", ""),
               Ops.get_string(prod, "name", "")
             )
 
             srcid = Pkg.SourceCreate(url, pth)
 
-            if (srcid == -1 || srcid == nil) &&
-                !Ops.get_boolean(prod, "ask_on_error", false)
-              # error report
-              Report.Error(_("Failed to add add-on product."))
-            elsif (srcid == -1 || srcid == nil) &&
-                Ops.get_boolean(prod, "ask_on_error", false)
-              Ops.set(
-                prod,
-                "ask_on_error",
-                Popup.ContinueCancel(
+            if (srcid == -1 || srcid == nil)
+              # revert back to the unexpanded URL to have the original URL
+              # in the saved /etc/zypp/repos.d file
+              Pkg.SourceChangeUrl(srcid, media)
+
+              if Ops.get_boolean(prod, "ask_on_error", false)
+                prod["ask_on_error"] = Popup.ContinueCancel(
                   Builtins.sformat(
                     _("Make the add-on \"%1\" available via \"%2\"."),
                     Ops.get_string(prod, "product", ""),
                     media
                   )
                 )
-              )
+              else
+                # just report error
+                Report.Error(_("Failed to add add-on product."))
+              end
+            elsif Ops.get_boolean(prod, "confirm_license", false)
+              accepted = AddOnProduct.AcceptedLicenseAndInfoFile( srcid )
+              if accepted == false
+                Builtins.y2warning("License not accepted, delete the repository and halt the system")
+                Pkg.SourceDelete(srcid)
+                SCR.Execute(path(".target.bash"), "/sbin/halt -f -n -p")
+              end
             end
 
             Ops.set(@sources, [media, pth], srcid)
@@ -204,8 +212,6 @@ module Yast
             # bugzilla #260613
             AddOnProduct.Integrate(srcid) if srcid != -1
 
-            # reset to global sig-handling
-            AutoinstGeneral.SetSignatureHandling
           end while Ops.get(@sources, [media, pth], -1) == -1 &&
             Ops.get_boolean(prod, "ask_on_error", false) == true
           Ops.set(prod, "media", Ops.get(@sources, [media, pth], -1))
@@ -233,7 +239,7 @@ module Yast
                 Builtins.y2milestone("Preferred name: %1", name)
                 # Or use the one returned by Pkg::RepositoryScan
               else
-                repos_at_url = Pkg.RepositoryScan(media)
+                repos_at_url = Pkg.RepositoryScan(Pkg.ExpandedUrl(media))
                 # [ ["Product Name", "Path" ] ]
                 Builtins.foreach(repos_at_url) do |one_repo|
                   if Ops.get(one_repo, 1, "") == pth

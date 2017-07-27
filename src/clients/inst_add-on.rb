@@ -5,8 +5,17 @@
 # Summary:	Select add-on products for installation
 # Authors:	Jiri Srain <jsrain@suse.de>
 #
+
+require "tempfile"
+
 module Yast
+  # @note This client should not be called from other clients directly
+  #  via WFM.call (only from the control.xml file), it can restart the workflow
+  #  from the next step and return to the caller AFTER the complete workflow
+  #  is finished (or aborted)
   class InstAddOnClient < Client
+    include Yast::Logger
+
     def main
       Yast.import "UI"
       Yast.import "Pkg"
@@ -15,7 +24,7 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "GetInstArgs"
       Yast.import "Packages"
-      Yast.import "PackageCallbacksInit"
+      Yast.import "PackageCallbacks"
       Yast.import "Popup"
       Yast.import "ProductControl"
       Yast.import "Report"
@@ -24,6 +33,7 @@ module Yast
       Yast.import "Installation"
       Yast.import "Linuxrc"
       Yast.import "String"
+      Yast.import "URL"
 
       Yast.include self, "add-on/add-on-workflow.rb"
 
@@ -36,39 +46,41 @@ module Yast
 
       Packages.SelectProduct
 
-      PackageCallbacksInit.SetMediaCallbacks
+      PackageCallbacks.SetMediaCallbacks
 
       # add add-ons specified on the kernel command line
-      @addon_opt = Linuxrc.InstallInf("addon")
+      addon_opt = Linuxrc.InstallInf("addon")
 
-      # add the add-ons just once, skip adding if any add-on is
-      # already present (handle going back and forth properly)
-      if @addon_opt != nil && AddOnProduct.add_on_products == []
-        Builtins.y2milestone("Specified extra add-ons via kernel cmdline")
+      # the "addon" boot option is present
+      if addon_opt != nil
+        missing_addons = addon_opt.split(",") - current_addons
 
-        # store the add-ons list into a temporary file
-        @tmp_dir = Convert.to_string(SCR.Read(path(".target.tmpdir")))
-        @tmp_file = Ops.add(@tmp_dir, "/tmp_addon_list")
-        # each add-on on a separate line
-        @addons = String.Replace(@addon_opt, ",", "\n")
+        # add the add-ons just once, skip adding if all add-ons are
+        # already present (handle going back and forth properly)
+        if missing_addons.empty?
+          log.info("All kernel cmdline addons already present")
+        else
+          # do not reveal the URL passwords in the log
+          missing_addons_log = missing_addons.map { |a| URL.HidePassword(a) }
+          log.info("Adding extra add-ons from kernel cmdline: #{missing_addons_log}")
 
-        # network setup is needed for local media installation (e.g. DVD) with remote Add-ons
-        @ret2 = NetworkSetupForAddons(Builtins.splitstring(@addons, "\n"))
+          # network setup is needed when installing from a local medium (DVD) with remote Add-ons
+          ret = NetworkSetupForAddons(missing_addons)
+          return ret if Builtins.contains([:back, :abort], ret)
 
-        return @ret2 if Builtins.contains([:back, :abort], @ret2)
-
-        SCR.Write(path(".target.string"), @tmp_file, @addons)
-
-        # import the add-ons from the temporary file
-        AddOnProduct.AddPreselectedAddOnProducts(
-          [{ "file" => @tmp_file, "type" => "plain" }]
-        )
-
-        # remove the temporary file
-        SCR.Execute(
-          path(".target.bash"),
-          Builtins.sformat("/bin/rm -rf '%1'", String.Quote(@tmp_file))
-        )
+          begin
+            tmp = Tempfile.new("cmdline-addons-")
+            # each add-on on a separate line
+            File.write(tmp.path, missing_addons.join("\n"))
+            # import the add-ons from the temporary file
+            AddOnProduct.AddPreselectedAddOnProducts(
+              [{ "file" => tmp.path, "type" => "plain" }]
+            )
+          ensure
+            tmp.close
+            tmp.unlink
+          end
+        end
       end
 
       # the module was started because of the kernel command line option
@@ -85,7 +97,18 @@ module Yast
         true
       )
 
-      @ret 
+      if @ret == :next
+        # be careful when calling this client from other modules, this will
+        # start the workflow from the next step and THEN return back
+        # to the caller
+        @ret = ProductControl.RunFrom(
+          Ops.add(ProductControl.CurrentStep, 1),
+          true
+        )
+        @ret = :finish if @ret == :next
+      end
+
+      @ret
 
       # EOF
     end
@@ -117,7 +140,7 @@ module Yast
             network_needed = true
             raise Break
           end
-        end 
+        end
 
 
         if network_needed
@@ -130,6 +153,14 @@ module Yast
       end
 
       :next
+    end
+
+    # get the URLs of the all present add-ons
+    # @return [Array<String>] list of URLs (empty list if no add-on defined)
+    def current_addons
+      AddOnProduct.add_on_products.map do |addon|
+        Pkg.SourceURL(addon["media"])
+      end
     end
   end
 end
