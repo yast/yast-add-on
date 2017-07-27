@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jul 27 08:44:31 UTC 2017 - jreidinger@suse.com
+
+- drop inst_lang_addon client because openSUSE Lang Addon is also
+  dropped, this drops also all read of /content file (FATE#322386)
+- 3.3.0
+
+-------------------------------------------------------------------
 Mon Jul 10 15:20:52 UTC 2017 - lslezak@suse.cz
 
 - Do not skip the boot command line addons ("addon=...") when
