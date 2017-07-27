@@ -65,7 +65,6 @@ rake install DESTDIR=%{buildroot}
 %{yast_clientdir}/add-on.rb
 %{yast_clientdir}/add-on_*.rb
 %{yast_clientdir}/inst_add-on*.rb
-%{yast_clientdir}/inst_*_add-on*.rb
 %{yast_clientdir}/vendor.rb
 %{yast_desktopdir}/*.desktop
 %{yast_schemadir}/autoyast/rnc/add-on.rnc
