@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Aug 16 08:59:30 UTC 2017 - ancor@suse.com
+
+- Removed support for floppy (fate#319096)
+- 3.3.1
+
+-------------------------------------------------------------------
 Thu Jul 27 08:44:31 UTC 2017 - jreidinger@suse.com
 
 - drop inst_lang_addon client because openSUSE Lang Addon is also
