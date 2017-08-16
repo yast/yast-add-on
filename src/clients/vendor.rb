@@ -17,7 +17,6 @@ module Yast
       Yast.import "Installation"
       Yast.import "Label"
       Yast.import "Popup"
-      Yast.import "StorageDevices"
       Yast.import "Wizard"
       Yast.import "GetInstArgs"
       Yast.import "Mode"
@@ -45,7 +44,6 @@ module Yast
       @arg_n = Ops.subtract(Builtins.size(WFM.Args), 1)
 
       @default_device = "/dev/cdrom"
-      @alternate_device = StorageDevices.FloppyDevice
 
       while Ops.greater_or_equal(@arg_n, 0)
         if Builtins.substring(Convert.to_string(WFM.Args(@arg_n)), 0, 1) == "/"
@@ -73,13 +71,6 @@ module Yast
           path(".target.mount"),
           [@default_device, Installation.sourcedir]
         ) == false
-        if @alternate_device != @default_device &&
-            SCR.Execute(
-              path(".target.mount"),
-              [@alternate_device, Installation.sourcedir]
-            ) == true
-          break
-        end
         # VENDOR: cant mount /dev/cdrom popup
         if !Popup.ContinueCancel(_("Please insert the vendor CD-ROM"))
           UI.CloseDialog

@@ -36,8 +36,6 @@ Requires:       yast2-installation
 # SourceDialogs.display_addon_checkbox
 Requires:       yast2-packager >= 3.1.14
 Requires:       yast2-ruby-bindings >= 1.0.0
-# bugzilla #335582, new API for StorageDevices
-Requires:       yast2-storage >= 2.16.1
 
 Obsoletes:      yast2-add-on-devel-doc
 
