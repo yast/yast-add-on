@@ -1390,11 +1390,13 @@ module Yast
         end
         source_data = Pkg.SourceGeneralData(one_repo)
         if source_data != nil && Builtins.haskey(source_data, "base_urls")
-          Ops.set(
-            info.value,
-            "URLs",
-            Ops.get_list(source_data, "base_urls", [])
-          )
+          urls = source_data["base_urls"]
+          # Add the product directory if it is present
+          if ![nil, "", "/"].include?(source_data["product_dir"])
+            urls.map! { |u| "#{u} (#{source_data["product_dir"]})" }
+          end
+
+          Ops.set(info.value, "URLs", urls)
         else
           Builtins.y2error("No URLs for repo ID %1", one_repo)
         end
@@ -1612,34 +1614,13 @@ module Yast
     end
 
     def RedrawAddOnsOverviewTable
-      products = []
+      product_infos = GetProductInfos() || {}
+      log.info("Currently used add-ons: #{product_infos}")
 
-      product_infos = Convert.convert(
-        GetProductInfos(),
-        :from => "map",
-        :to   => "map <string, map>"
-      )
-
-      product_infos = {} if product_infos == nil
-
-      Builtins.y2milestone("Currently used add-ons: %1", product_infos)
-
-      Builtins.foreach(product_infos) do |index, product_desc|
-        products = Builtins.add(
-          products,
-          Item(
-            Id(Builtins.sformat("product_%1", index)),
-            Ops.get_locale(
-              product_desc,
-              ["product", "display_name"],
-              Ops.get_locale(
-                product_desc,
-                ["product", "name"],
-                _("Unknown product")
-              )
-            ),
-            Ops.get_locale(product_desc, ["info", "URLs", 0], _("Unknown URL"))
-          )
+      products = product_infos.map do |index, product_desc|
+        Item(Id("product_#{index}"),
+          product_desc["product"]["display_name"] || product_desc["product"]["name"] || _("Unknown product"),
+          product_desc["info"]["URLs"].first || _("Unknown URL")
         )
       end
 
@@ -1647,13 +1628,7 @@ module Yast
       AdjustInfoWidget()
 
       # Nothing to do delete when there are no product listed
-      UI.ChangeWidget(
-        Id(:delete),
-        :Enabled,
-        Ops.greater_than(Builtins.size(products), 0)
-      )
-
-      nil
+      UI.ChangeWidget(Id(:delete), :Enabled, !products.empty?)
     end
 
     def RunPackageSelector
