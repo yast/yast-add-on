@@ -174,7 +174,10 @@ module Yast
     def MediaSelect
       aliases = {
         "type"  => lambda do
-          ret = TypeDialog()
+          # use the preselected type or the same type as for the previous add-on,
+          # if not set it will use the default (the code actually runs
+          # SourceDialogs.SetURL(SourceDialogs.GetURL) internally)
+          ret = TypeDialogOpts(true, SourceDialogs.GetURL)
           log.debug "SourceDialogs.addon_enabled: #{SourceDialogs.addon_enabled}"
           # explicitly check for false (nil means the checkbox was not displayed)
           ret = :skip if ret == :next && SourceDialogs.addon_enabled == false
@@ -1143,10 +1146,14 @@ module Yast
 
           # adding new add-on
         elsif ret == :add || ret == :skip_to_add
-          # show checkbox only first time in installation when there is no
-          # other addons, so allow to quickly skip adding addons, otherwise
-          # it make no sense as user explicitelly want add addon
-          SourceDialogs.display_addon_checkbox = ret == :skip_to_add
+          # Show the checkbox only the first time in installation when there is no
+          # other addon present, allow to quickly skip adding addons. In the
+          # following runs it makes no sense as user explicitly wants to add an addon.
+          # Change the state only if it has the default value (nil),
+          # if the check box state has been already set then keep it unchanged.
+          if SourceDialogs.display_addon_checkbox.nil?
+            SourceDialogs.display_addon_checkbox = (ret == :skip_to_add)
+          end
 
           # bugzilla #293428
           # Release all sources before adding a new one

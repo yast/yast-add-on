@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 19 11:14:52 UTC 2017 - lslezak@suse.cz
+
+- Allow preselecting the add-on URL schema and hiding the "I would
+  like to install an additional Add On Product" check box from
+  the external code (FATE#323163)
+- 4.0.1
+
+-------------------------------------------------------------------
 Wed Sep 20 16:46:37 UTC 2017 - lslezak@suse.cz
 
 - Display also the repository path in the URL column if it is
