@@ -255,14 +255,21 @@ module Yast
         # Refresh and load the added source, this is needed since the unified
         # functions from packager are used.
         Pkg.SourceRefreshNow(AddOnProduct.src_id)
-        Pkg.SourceLoad
 
-        # BNC #468449
-        # It may happen that the add-on control file contains some code that
-        # would drop the changes made, so it's better to save the soruces now
-        if Mode.normal
-          Builtins.y2milestone("Saving all sources")
-          Pkg.SourceSaveAll
+        if !SourceManager.check_repo_signature(AddOnProduct.src_id)
+          log.info("Aborting the workflow, the repository is not signed")
+          AddOnProduct.src_id = nil
+          ret = :abort
+        else
+          Pkg.SourceLoad
+
+          # BNC #468449
+          # It may happen that the add-on control file contains some code that
+          # would drop the changes made, so it's better to save the soruces now
+          if Mode.normal
+            Builtins.y2milestone("Saving all sources")
+            Pkg.SourceSaveAll
+          end
         end
       end
 
