@@ -1151,8 +1151,11 @@ module Yast
           # following runs it makes no sense as user explicitly wants to add an addon.
           # Change the state only if it has the default value (nil),
           # if the check box state has been already set then keep it unchanged.
-          if SourceDialogs.display_addon_checkbox.nil?
-            SourceDialogs.display_addon_checkbox = (ret == :skip_to_add)
+          if SourceDialogs.display_addon_checkbox.nil? && ret == :skip_to_add
+            SourceDialogs.display_addon_checkbox = true
+          # never display the checkbox after pressing [Add]
+          elsif SourceDialogs.display_addon_checkbox && ret == :add
+            SourceDialogs.display_addon_checkbox = false
           end
 
           # bugzilla #293428

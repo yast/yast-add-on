@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Oct 31 12:41:46 UTC 2017 - lslezak@suse.cz
+
+- Hide the "I would like to install an additional Add On Product"
+  check box after pressing "Add" button (fix up for the previous
+  change) (bsc#1065843)
+- 4.0.2
+
+-------------------------------------------------------------------
 Thu Oct 19 11:14:52 UTC 2017 - lslezak@suse.cz
 
 - Allow preselecting the add-on URL schema and hiding the "I would
