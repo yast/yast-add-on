@@ -141,8 +141,8 @@ module Yast
 
       # BNC #450274
       # Prevent from adding one product twice
-      matching_product = AddOnProduct.add_on_products.find do |one_product|
-        one_product["media"] == src_id
+      matching_product = AddOnProduct.add_on_products.find do |product|
+        product["media"] == src_id
       end
 
       if matching_product
@@ -213,45 +213,8 @@ module Yast
       ret = Sequencer.Run(aliases, sequence)
       log.info "Repository sequence result: #{ret}"
 
-      if ret == :next
-        sources_after = Pkg.SourceGetCurrent(false)
-        Builtins.y2milestone("Sources with new one added: %1", sources_after)
-
-        @added_repos = []
-
-        sources_after.each do |source|
-          next if sources_before.include?(source)
-
-          @added_repos << source
-          log.info("Added source ID: #{source}")
-        end
-
-        if !@added_repos.empty?
-          @added_repos.each do |src_id|
-            # BNC #481828: Using LABEL from content file as a repository name
-            Packages.AdjustSourcePropertiesAccordingToProduct(src_id)
-            # used add-ons are stored in a special list
-            AddAddOnToStore(src_id)
-          end
-        else
-          @added_repos << sources_after.last
-          log.warn("Fallback src_id: #{sources_after.last}")
-        end
-
-        # BNC #441380
-        # Refresh and load the added sources, this is needed since the unified
-        # functions from packager are used.
-        @added_repos.each { |src_id| Pkg.SourceRefreshNow(src_id) }
-        Pkg.SourceLoad
-
-        # BNC #468449
-        # It may happen that the add-on control file contains some code that
-        # would drop the changes made, so it's better to save the soruces now
-        if Mode.normal
-          Builtins.y2milestone("Saving all sources")
-          Pkg.SourceSaveAll
-        end
-      end
+      # activate the changes
+      activate_addon_changes(sources_before) if ret == :next
 
       AddOnProduct.last_ret = ret
       Builtins.y2milestone("MediaSelect Dialog ret: %1", ret)
@@ -444,6 +407,7 @@ module Yast
 
     # BNC #474745
     # Installs all the products from just added add-on media
+    # @return [Symbol] always returns the :next symbol
     def InstallProduct
       log.info("Installing products from #{@added_repos.inspect}")
 
@@ -457,7 +421,11 @@ module Yast
         # Product doesn't match the new source ID
         next unless @added_repos.include?(product["source"])
         # Product is not available (either `installed or `selected or ...)
-        next if product["status"] != :available
+        if product["status"] != :available
+          log.info("Skipping product #{product["name"].inspect} with status " \
+            "#{product["status"].inspect}")
+          next
+        end
 
         success = Pkg.ResolvableInstall(product["name"], :product)
 
@@ -1120,27 +1088,24 @@ module Yast
           log.info "Subworkflow result: ret2: #{ret2}"
 
           if ret2 == :next
+            # FIXME: can be these two iterations joined?
             # Add-On product has been added, integrate it (change workflow, use y2update)
             @added_repos.each { |src_id| AddOnProduct.Integrate(src_id) }
-
             # check whether it requests registration (FATE #301312)
             @added_repos.each { |src_id| AddOnProduct.PrepareForRegistration(src_id) }
+
             some_addon_changed = true
             # do not keep first_time, otherwise summary won't be shown during installation
             ret = nil if ret == :skip_to_add
           elsif ret2 == :abort || ret2 == :cancel
-            Builtins.y2milestone("Add-on sequence aborted")
+            log.info("Aborted, removing add-on repositories: #{@added_repos.inspect}")
 
-            if !@added_repos.empty?
-              log.info("Removing add-on repositories: #{@added_repos.inspect}")
+            # remove the repository
+            @added_repos.each do |src_id|
+              Pkg.SourceDelete(src_id)
 
-              # remove the repository
-              @added_repos.each do |src_id|
-                Pkg.SourceDelete(src_id)
-
-                AddOnProduct.add_on_products.reject! do |add_on_product|
-                    add_on_product["media"] == src_id
-                end
+              AddOnProduct.add_on_products.reject! do |add_on_product|
+                  add_on_product["media"] == src_id
               end
             end
 
@@ -1936,6 +1901,47 @@ module Yast
       Wizard.RestoreBackButton
 
       ret
+    end
+
+    def activate_addon_changes(sources_before)
+      sources_after = Pkg.SourceGetCurrent(false)
+      Builtins.y2milestone("Sources with new one added: %1", sources_after)
+
+      # collect the newly added repositories
+      @added_repos = []
+      sources_after.each do |source|
+        next if sources_before.include?(source)
+
+        @added_repos << source
+        log.info("Added source ID: #{source}")
+      end
+
+      if !@added_repos.empty?
+        @added_repos.each do |src_id|
+          # BNC #481828: Using LABEL from content file as a repository name
+          Packages.AdjustSourcePropertiesAccordingToProduct(src_id)
+          # used add-ons are stored in a special list
+          AddAddOnToStore(src_id)
+        end
+      else
+        # TODO: can this situation actually happen?
+        @added_repos << sources_after.last
+        log.warn("Fallback src_id: #{sources_after.last}")
+      end
+
+      # BNC #441380
+      # Refresh and load the added sources, this is needed since the unified
+      # functions from packager are used.
+      @added_repos.each { |src_id| Pkg.SourceRefreshNow(src_id) }
+      Pkg.SourceLoad
+
+      # BNC #468449
+      # It may happen that the add-on control file contains some code that
+      # would drop the changes made, so it's better to save the soruces now
+      if Mode.normal
+        Builtins.y2milestone("Saving all sources")
+        Pkg.SourceSaveAll
+      end
     end
   end
 end
