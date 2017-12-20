@@ -195,9 +195,9 @@ module Yast
                 )
               else
                 # just report an error
-                error_string = format(_("Failed to add product \"%s\" via\n%s\n"),
+                # TRANSLATORS: The placeholders are for the product name and the URL.
+                error_string = format(_("Failed to add product \"%s\" via\n%s"),
                   prod["product"], media)
-                error_string << _("Please check logfiles for more information.")
                 Report.Error(error_string)
               end
             elsif Ops.get_boolean(prod, "confirm_license", false)
