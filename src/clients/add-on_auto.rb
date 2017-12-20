@@ -194,8 +194,11 @@ module Yast
                   )
                 )
               else
-                # just report error
-                Report.Error(_("Failed to add add-on product."))
+                # just report an error
+                # TRANSLATORS: The placeholders are for the product name and the URL.
+                error_string = format(_("Failed to add product \"%s\" via\n%s."),
+                  prod["product"], media)
+                Report.Error(error_string)
               end
             elsif Ops.get_boolean(prod, "confirm_license", false)
               accepted = AddOnProduct.AcceptedLicenseAndInfoFile( srcid )
