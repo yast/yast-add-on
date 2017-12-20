@@ -196,7 +196,7 @@ module Yast
               else
                 # just report an error
                 # TRANSLATORS: The placeholders are for the product name and the URL.
-                error_string = format(_("Failed to add product \"%s\" via\n%s"),
+                error_string = format(_("Failed to add product \"%s\" via\n%s."),
                   prod["product"], media)
                 Report.Error(error_string)
               end
