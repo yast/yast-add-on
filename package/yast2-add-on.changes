@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Dec 20 16:08:43 CET 2017 - schubi@suse.de
+
+- Improved error message for adding a product. (bnc#1071173)
+- 4.0.4
+
+-------------------------------------------------------------------
 Mon Dec  4 13:16:40 UTC 2017 - lslezak@suse.cz
 
 - Fixed adding multiple products from a multi-product medium
