@@ -1765,7 +1765,7 @@ module Yast
         AddOnProduct.src_id = repo
         # just handle each repository separately, select the packages but do not
         # install them yet
-        AddOnProduct.DoInstall(false)
+        AddOnProduct.DoInstall(install_packages: false)
       end
 
       # install all packages at once

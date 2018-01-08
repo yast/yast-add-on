@@ -116,7 +116,7 @@ describe "Yast::AddOnWorkflowInclude" do
 
     it "installs the selected products at once" do
       expect(Yast::WorkflowManager).to receive(:GetCachedWorkflowFilename).and_return(nil).twice
-      expect(Yast::AddOnProduct).to receive(:DoInstall).with(false).twice
+      expect(Yast::AddOnProduct).to receive(:DoInstall).with(install_packages: false).twice
       expect(Yast::AddOnProduct).to receive(:DoInstall_NoControlFile)
       AddonIncludeTester.RunAddProductWorkflow
     end
