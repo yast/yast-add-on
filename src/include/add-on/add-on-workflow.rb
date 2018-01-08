@@ -1751,7 +1751,32 @@ module Yast
 
     def RunAddProductWorkflow
       WFM.CallFunction("inst_addon_update_sources", [])
-      AddOnProduct.DoInstall
+
+      # partition the addons into two groups:
+      # - plain addons (no installation.xml)
+      # - addons with installation.xml
+      # handle each group separately
+      plain_addons, workflow_addons = @added_repos.partition do |repo|
+        WorkflowManager.GetCachedWorkflowFilename(:addon, repo, "").nil?
+      end
+
+      plain_addons.each do |repo|
+        # the src_id value must be set before calling DoInstall
+        AddOnProduct.src_id = repo
+        # just handle each repository separately, select the packages but do not
+        # install them yet
+        AddOnProduct.DoInstall(false)
+      end
+
+      # install all packages at once
+      AddOnProduct.DoInstall_NoControlFile unless plain_addons.empty?
+
+      workflow_addons.each do |repo|
+        AddOnProduct.src_id = repo
+        # run the installation.xml
+        AddOnProduct.DoInstall
+      end
+
       # Write only when there are some changes
       Write()
 

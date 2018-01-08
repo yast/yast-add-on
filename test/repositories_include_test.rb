@@ -105,4 +105,27 @@ describe "Yast::AddOnWorkflowInclude" do
       end
     end
   end
+
+  describe "#RunAddProductWorkflow" do
+    before do
+      allow(Yast::WFM).to receive(:CallFunction).with("inst_addon_update_sources", [])
+      allow(Yast::Pkg).to receive(:SourceReleaseAll)
+      allow(AddonIncludeTester).to receive(:Write)
+      AddonIncludeTester.instance_variable_set("@added_repos", [1, 2])
+    end
+
+    it "installs the selected products at once" do
+      expect(Yast::WorkflowManager).to receive(:GetCachedWorkflowFilename).and_return(nil).twice
+      expect(Yast::AddOnProduct).to receive(:DoInstall).with(false).twice
+      expect(Yast::AddOnProduct).to receive(:DoInstall_NoControlFile)
+      AddonIncludeTester.RunAddProductWorkflow
+    end
+
+    it "handles addons with installation.xml" do
+      expect(Yast::WorkflowManager).to receive(:GetCachedWorkflowFilename).and_return("foo").twice
+      expect(Yast::AddOnProduct).to receive(:DoInstall).twice
+      expect(Yast::AddOnProduct).to_not receive(:DoInstall_NoControlFile)
+      AddonIncludeTester.RunAddProductWorkflow
+    end
+  end
 end
