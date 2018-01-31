@@ -36,6 +36,7 @@ module Yast
       Yast.import "URL"
 
       Yast.include self, "add-on/add-on-workflow.rb"
+      Yast.include self, "packager/repositories_include.rb"
 
       if AddOnProduct.skip_add_ons
         Builtins.y2milestone("Skipping add-ons (as requested before)")
@@ -68,18 +69,16 @@ module Yast
           ret = NetworkSetupForAddons(missing_addons)
           return ret if Builtins.contains([:back, :abort], ret)
 
-          begin
-            tmp = Tempfile.new("cmdline-addons-")
-            # each add-on on a separate line
-            File.write(tmp.path, missing_addons.join("\n"))
-            # import the add-ons from the temporary file
-            AddOnProduct.AddPreselectedAddOnProducts(
-              [{ "file" => tmp.path, "type" => "plain" }]
-            )
-          ensure
-            tmp.close
-            tmp.unlink
+          plaindir, download, name, alias_ = false, true, "", ""
+          missing_addons.each do |url|
+            sources_before = Pkg.SourceGetCurrent(false)
+            Builtins.y2milestone("Sources before adding new one: %1", sources_before)
+
+            createSourceImpl(url, plaindir, download, name, alias_)
+
+            activate_addon_changes(sources_before)
           end
+          InstallProduct()
         end
       end
 
