@@ -73,64 +73,6 @@ module Yast
       :next
     end
 
-    # Checks whether some network is available in the current moment,
-    # see the bug #170147 for more information.
-    def IsAnyNetworkAvailable
-      ret = false
-
-      command = "TERM=dumb /sbin/ip -o address show | grep inet | grep -v scope.host"
-      Builtins.y2milestone("Running %1", command)
-      cmd_run = Convert.to_map(
-        SCR.Execute(path(".target.bash_output"), command)
-      )
-      Builtins.y2milestone("Command returned: %1", cmd_run)
-
-      # command failed
-      if Ops.get_integer(cmd_run, "exit", -1) != 0
-        # some errors were there, we don't know the status, rather return that it's available
-        # `grep` also returns non zero exit code when there is nothing to do...
-        if Ops.get_string(cmd_run, "stdout", "") != ""
-          Builtins.y2error("Checking the network failed")
-          ret = true
-        end
-        # some devices are listed
-      elsif Ops.get_string(cmd_run, "stdout", "") != nil &&
-          Ops.get_string(cmd_run, "stdout", "") != "" &&
-          Ops.get_string(cmd_run, "stdout", "") != "\n"
-        ret = true
-      end
-
-      ret
-    end
-
-    # Returns begining string for source type
-    #
-    # @param [Symbol] source_type
-    # @return [String] url begins with...
-    def GetURLBeginsWith(source_type)
-      url = ""
-
-      if source_type == :ftp
-        url = "ftp://"
-      elsif source_type == :http
-        url = "http://"
-      elsif source_type == :https
-        url = "https://"
-      elsif source_type == :samba
-        url = "smb://"
-      elsif source_type == :nfs
-        url = "nfs://"
-      elsif source_type == :cd
-        url = "cd:///"
-      elsif source_type == :dvd
-        url = "dvd:///"
-      elsif source_type == :local_dir
-        url = "dir://"
-      end
-
-      url
-    end
-
     # used Add-Ons are stored in AddOnProduct::add_on_products
     # bnc #393620
     def AddAddOnToStore(src_id)
@@ -1282,15 +1224,6 @@ module Yast
       UI.ChangeWidget(Id("product_details"), :Value, rt_description)
 
       nil
-    end
-
-    # Logs wrong product with 'log_this' error and returns 'return_this'.
-    # Added because of bnc #459461
-    def LogWrongProduct(one_product, log_this, return_this)
-      one_product = deep_copy(one_product)
-      Builtins.y2error("Erroneous product: %1: %2", log_this, one_product)
-
-      return_this
     end
 
     # Modifies repository info (adds some missing pieces).
