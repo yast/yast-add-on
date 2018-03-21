@@ -56,9 +56,24 @@ module Yast
       Builtins.y2debug("param=%1", @param)
 
       if @func == "Import"
-        @ret = AddOnProduct.Import(
-          Convert.convert(@param, :from => "map", :to => "map <string, any>")
-        )
+        add_on_products = @param["add_on_products"] || []
+        count = 0
+        # Checking needed values
+        add_on_products.reject! do |product|
+          count += 1
+          unless product.has_key?("media_url")
+            # Report missing media_url entry in the AutoYaST configuration file
+            # TRANSLATORS: The placeholder points to the location in the AutoYaST configuration file.
+            error_string = format(_("Error in the AutoYaST <add_on> section.\n" \
+              "Missing mandatory <media_url> value in the %d. product definition."),
+              count)
+            @ret = Popup.ContinueCancel(error_string)
+            true
+          else
+            false
+          end
+        end
+        @ret = AddOnProduct.Import("add_on_products"=>add_on_products)
       # Create a summary
       # return string
       elsif @func == "Summary"
@@ -197,7 +212,7 @@ module Yast
                 # just report an error
                 # TRANSLATORS: The placeholders are for the product name and the URL.
                 error_string = format(_("Failed to add product \"%s\" via\n%s."),
-                  prod["product"], media)
+                  prod["product"] || "<not_defined_name>", media)
                 Report.Error(error_string)
               end
             elsif Ops.get_boolean(prod, "confirm_license", false)
