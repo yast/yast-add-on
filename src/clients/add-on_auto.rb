@@ -67,7 +67,8 @@ module Yast
             error_string = format(_("Error in the AutoYaST <add_on> section.\n" \
               "Missing mandatory <media_url> value in the %d. product definition."),
               count)
-            @ret = Popup.ContinueCancel(error_string)
+            log.error "Missing <media_url> value in the #{count}. add-on-product definition"
+            return false unless Popup.ContinueCancel(error_string) # user abort
             true
           else
             false
