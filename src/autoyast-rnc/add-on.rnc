@@ -6,7 +6,7 @@ add-on =
   element add-on { add_on_products* }
 listentry =
   element listentry {
-     media_url? &
+     media_url & # here it is mandatory
      product? &
      name? &
      alias? &
