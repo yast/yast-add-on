@@ -61,11 +61,12 @@ module Yast
         # Checking needed values
         add_on_products.reject! do |product|
           count += 1
-          unless product.has_key?("media_url")
+          if product["media_url"].nil? || product["media_url"] == ""
             # Report missing media_url entry in the AutoYaST configuration file
             # TRANSLATORS: The placeholder points to the location in the AutoYaST configuration file.
             error_string = format(_("Error in the AutoYaST <add_on> section.\n" \
-              "Missing mandatory <media_url> value in the %d. product definition."),
+              "Missing mandatory <media_url> value at index %d in the <add_on_products> definition.\n" \
+              "Skip the invalid product definition and continue with the installation?"),
               count)
             log.error "Missing <media_url> value in the #{count}. add-on-product definition"
             return false unless Popup.ContinueCancel(error_string) # user abort
@@ -213,7 +214,8 @@ module Yast
                 # just report an error
                 # TRANSLATORS: The placeholders are for the product name and the URL.
                 error_string = format(_("Failed to add product \"%s\" via\n%s."),
-                  prod["product"] || "<not_defined_name>", media)
+                  # TRANSLATORS: a fallback string for undefined product name
+                  prod["product"] || _("<not_defined_name>"), media)
                 Report.Error(error_string)
               end
             elsif Ops.get_boolean(prod, "confirm_license", false)
