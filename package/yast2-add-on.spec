@@ -62,6 +62,8 @@ rake install DESTDIR=%{buildroot}
 %defattr(-,root,root)
 %dir %{yast_yncludedir}/add-on
 %{yast_yncludedir}/add-on/*
+%dir %{yast_libdir}/add-on
+%{yast_libdir}/add-on/clients/*.rb
 %{yast_clientdir}/add-on.rb
 %{yast_clientdir}/add-on_*.rb
 %{yast_clientdir}/inst_add-on*.rb
