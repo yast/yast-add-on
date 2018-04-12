@@ -42,12 +42,12 @@ describe Yast::InstAddOnClient do
 
     context "when an add-on is given" do
       let(:addons) { "dvd:///?devices=/dev/sr0" }
-      let(:realpath) { "/dev/sr0" }
+      let(:instsys_realpath) { "/dev/sr0" }
 
       before do
         allow(File).to receive(:realpath).with("/dev/sr0").and_return("/dev/sr0")
         allow(File).to receive(:realpath).with("/dev/disk/by-id/ata-QEMU_DVD-ROM_QM00001")
-          .and_return(realpath)
+          .and_return(instsys_realpath)
         allow(subject).to receive(:createSourceImpl)
       end
 
@@ -80,7 +80,7 @@ describe Yast::InstAddOnClient do
       end
 
       context "and it is using a different CD/DVD than instsys" do
-        let(:realpath) { "/dev/sr1" }
+        let(:instsys_realpath) { "/dev/sr1" }
 
         it "does not ask the user to change the media" do
           expect(Yast::AddOnProduct).to_not receive(:AskForCD)
@@ -129,6 +129,32 @@ describe Yast::InstAddOnClient do
         it "adds the given add-on" do
           expect(subject).to receive(:createSourceImpl).with(addons, *any_args)
           subject.main
+        end
+      end
+
+      context "when a list of devices is given for an add-on" do
+        let(:addons) { "dvd:///?devices=/dev/sr0%2C/dev/sr1" }
+        let(:instsys_realpath) { "/dev/sr1" }
+
+        before do
+          allow(File).to receive(:realpath).with("/dev/sr1").and_return("/dev/sr1")
+        end
+
+        context "and some device matches the instsys media" do
+          it "asks the user to change the media" do
+            expect(Yast::AddOnProduct).to receive(:AskForCD).with(addons, "")
+              .and_return(true)
+            subject.main
+          end
+        end
+
+        context "and none of the device matches the instsys media" do
+          let(:instsys_realpath) { "/dev/sr2" }
+
+          it "does not ask the user to change the media" do
+            expect(Yast::AddOnProduct).to_not receive(:AskForCD)
+            subject.main
+          end
         end
       end
     end

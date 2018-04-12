@@ -174,8 +174,8 @@ module Yast
       scheme = URL.Parse(url)["scheme"]
       return false unless DVD_SCHEMES.include?(scheme.downcase)
 
-      addon_device = device_from_url(url)
-      instsys_device && addon_device && addon_device == instsys_device
+      addon_devices = devices_from_url(url)
+      addon_devices.include?(instsys_device)
     end
 
     # instsys device
@@ -183,26 +183,28 @@ module Yast
     # @return [String] instsys device; nil if the device could not be
     #   determined (for instance, when using a network based installation media)
     def instsys_device
-      @instsys_device ||= device_from_url(InstURL.installInf2Url)
+      return @instsys_device if @instsys_device
+      @instsys_device = devices_from_url(InstURL.installInf2Url).first
     end
 
     # Real device from an URL
     #
-    # If the device points to a symbolic link, it will be resolved and the real
-    # device will be returned.
+    # Symbolic links are resolved, so real devices are returned.
     #
     # @param url [String] URL
-    # @return [String,nil] Path to the device; nil if no device is specified
-    #   or the device does not exist.
-    def device_from_url(url)
+    # @return [Array<String>] Paths to the devices. If no valid devices are found,
+    #   it will return an empty array.
+    def devices_from_url(url)
       parsed = URL.Parse(url)
       params = URL.MakeMapFromParams(parsed["query"])
-      return nil unless params["devices"]
+      return [] unless params["devices"]
+      devices = params["devices"].split(",") # MakeMapFromParams escapes %2C
 
-      begin
-        File.realpath(params["devices"])
-      rescue Errno::ENOENT
-        nil
+      devices.each_with_object([]) do |device, all|
+        begin
+          all << File.realpath(device)
+        rescue Errno::ENOENT
+        end
       end
     end
   end
