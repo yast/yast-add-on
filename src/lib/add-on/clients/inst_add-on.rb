@@ -74,7 +74,7 @@ module Yast
             sources_before = Pkg.SourceGetCurrent(false)
             Builtins.y2milestone("Sources before adding new one: %1", sources_before)
 
-            next if instsys_dvd?(url) && !AddOnProduct.AskForCD(url, "")
+            next if instsys_dvd?(url) && !AddOnProduct.AskForCD(url, name)
             createSourceImpl(url, plaindir, download, name, alias_)
 
             activate_addon_changes(sources_before)
