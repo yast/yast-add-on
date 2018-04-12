@@ -172,7 +172,7 @@ module Yast
     # @return [Boolean] true if it points to the installation CD/DVD
     def instsys_dvd?(url)
       scheme = URL.Parse(url)["scheme"]
-      return false unless DVD_SCHEMES.include?(scheme)
+      return false unless DVD_SCHEMES.include?(scheme.downcase)
 
       addon_device = device_from_url(url)
       instsys_device && addon_device && addon_device == instsys_device
@@ -187,6 +187,9 @@ module Yast
     end
 
     # Real device from an URL
+    #
+    # If the device points to a symbolic link, it will be resolved and the real
+    # device will be returned.
     #
     # @param url [String] URL
     # @return [String,nil] Path to the device; nil if no device is specified
