@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        4.0.7
+Version:        4.0.8
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0
@@ -62,6 +62,9 @@ rake install DESTDIR=%{buildroot}
 %defattr(-,root,root)
 %dir %{yast_yncludedir}/add-on
 %{yast_yncludedir}/add-on/*
+%dir %{yast_libdir}/add-on
+%dir %{yast_libdir}/add-on/clients
+%{yast_libdir}/add-on/clients/*.rb
 %{yast_clientdir}/add-on.rb
 %{yast_clientdir}/add-on_*.rb
 %{yast_clientdir}/inst_add-on*.rb
