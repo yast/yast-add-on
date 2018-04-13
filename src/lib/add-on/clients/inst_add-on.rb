@@ -198,10 +198,11 @@ module Yast
       parsed = URL.Parse(url)
       params = URL.MakeMapFromParams(parsed["query"])
       return [] unless params["devices"]
-      devices = params["devices"].split(",") # MakeMapFromParams escapes %2C
+      devices = params["devices"].split(",") # MakeMapFromParams unescapes %2C
 
       devices.each_with_object([]) do |device, all|
         begin
+          # File.realpath resolves symlinks (e.g. /dev/by-* to real devices like /dev/srX)
           all << File.realpath(device)
         rescue Errno::ENOENT
         end
