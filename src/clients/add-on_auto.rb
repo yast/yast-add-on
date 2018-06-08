@@ -272,6 +272,7 @@ module Yast
               end
 
               Ops.set(repos, [found_at, "name"], name)
+              Ops.set(repos, [found_at, "priority"], prod["priority"]) if prod.key?("priority")
               Pkg.SourceEditSet(repos)
             end
           end
