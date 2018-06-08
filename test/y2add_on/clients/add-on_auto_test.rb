@@ -1,9 +1,9 @@
 #!/usr/bin/env rspec
 
-require_relative "test_helper"
+require_relative "../../test_helper"
+require "add-on/clients/add-on_auto"
 
-require "yast"
-require_relative "../src/clients/add-on_auto"
+Yast.import "Packages"
 
 describe Yast::AddOnAutoClient do
   describe "#main" do
