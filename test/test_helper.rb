@@ -17,6 +17,7 @@ end
 
 # Stub classes from other modules to speed up a build
 stub_module("AutoinstGeneral")
+stub_module("AutoinstSoftware")
 
 if ENV["COVERAGE"]
   require "simplecov"
