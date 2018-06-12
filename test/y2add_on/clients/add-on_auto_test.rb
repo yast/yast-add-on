@@ -6,7 +6,7 @@ require "add-on/clients/add-on_auto"
 Yast.import "Packages"
 
 describe Yast::AddOnAutoClient do
-  describe "#main" do
+  describe "#run" do
     before do
       allow(Yast::WFM).to receive(:Args).with(no_args).and_return([func])
       allow(Yast::WFM).to receive(:Args).with(0).and_return(func)
@@ -39,7 +39,7 @@ describe Yast::AddOnAutoClient do
         it "imports all add-on products given" do
           expect(Yast::AddOnProduct).to receive(:Import).with(params)
 
-          subject.main
+          subject.run
         end
       end
 
@@ -79,7 +79,7 @@ describe Yast::AddOnAutoClient do
         it "asks to user about reject them" do
           expect(Yast::Popup).to receive(:ContinueCancel).with(missed_media_url_error)
 
-          subject.main
+          subject.run
         end
 
         it "rejects them if user decides to continue" do
@@ -87,7 +87,7 @@ describe Yast::AddOnAutoClient do
 
           expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => valid_add_on_products)
 
-          subject.main
+          subject.run
         end
 
         it "returns false (does nothing) if user decides to abort" do
@@ -95,7 +95,7 @@ describe Yast::AddOnAutoClient do
 
           expect(Yast::AddOnProduct).to_not receive(:Import)
 
-          # expect(subject.main).to be_falsey
+          # expect(subject.run).to be_falsey
         end
       end
 
@@ -106,7 +106,7 @@ describe Yast::AddOnAutoClient do
         it "sets 'add_on_products' to empty array" do
           expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => [])
 
-          subject.main
+          subject.run
         end
       end
     end
@@ -142,7 +142,7 @@ describe Yast::AddOnAutoClient do
 
       it "returns an unordered list sumarizing current add_on_product" do
         allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
-        expect(subject.main).to eq(expected_output)
+        expect(subject.run).to eq(expected_output)
       end
     end
 
@@ -155,7 +155,7 @@ describe Yast::AddOnAutoClient do
         end
 
         it "returns true" do
-          expect(subject.main).to be_truthy
+          expect(subject.run).to be_truthy
         end
       end
 
@@ -165,18 +165,18 @@ describe Yast::AddOnAutoClient do
         end
 
         it "returns true" do
-          expect(subject.main).to be_falsey
+          expect(subject.run).to be_falsey
         end
       end
     end
 
     context "when 'func' is 'SetModified'" do
-      let(:func) { "SettModified" }
+      let(:func) { "SetModified" }
 
       it "sets configuration as changed" do
         allow(Yast::AddOnProduct).to receive(:modified=).with(true)
 
-        subject.main
+        subject.run
       end
     end
 
@@ -186,7 +186,7 @@ describe Yast::AddOnAutoClient do
       it "resets configuration" do
         allow(Yast::AddOnProduct).to receive(:add_on_products=).with([])
 
-        subject.main
+        subject.run
       end
     end
 
@@ -201,24 +201,24 @@ describe Yast::AddOnAutoClient do
       it "runs add-on main dialog" do
         expect(subject).to receive(:RunAddOnMainDialog)
 
-        subject.main
+        subject.run
       end
 
       it "returns chosen action" do
         allow(subject).to receive(:RunAddOnMainDialog).and_return(:next)
 
-        expect(subject.main).to be(:next)
+        expect(subject.run).to be(:next)
       end
     end
 
     context "when 'func' is 'Export'" do
       let(:func) { "Export" }
 
-      # FIXME: use a more reallistinc configuration data example
+      # FIXME: use a more reallistic configuration data example
       it "returns configuration data" do
         allow(Yast::AddOnProduct).to receive(:Export).and_return("configuration data")
 
-        expect(subject.main).to eq("configuration data")
+        expect(subject.run).to eq("configuration data")
       end
     end
 
@@ -248,10 +248,12 @@ describe Yast::AddOnAutoClient do
       end
 
       context "and there are add-ons products" do
+        let(:ask_on_error) { true }
         let(:add_on_products) do
           [
             {
               "alias"       => "produc_alias",
+              "ask_on_error"=> ask_on_error,
               "media_url"   => "http://product.url",
               "name"        => "updated_repo",
               "priority"    => 20,
@@ -282,6 +284,7 @@ describe Yast::AddOnAutoClient do
           ]
         end
 
+
         before do
           allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
           allow(Yast::Pkg).to receive(:SourceEditSet)
@@ -289,10 +292,42 @@ describe Yast::AddOnAutoClient do
           allow(Yast::Pkg).to receive(:SourceEditGet).and_return(repos)
         end
 
+        # FIXME: improve that WIP scenarios/contexts
+        context "and product creation fails" do
+          before do
+            allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
+          end
+
+          context "ask_on_error=true" do
+            let(:ask_on_error) { true }
+
+            it "ask to make it available" do
+              expect(Yast::Popup).to receive(:ContinueCancel)
+
+              subject.run
+            end
+          end
+
+
+          context "ask_on_error=false" do
+            before do
+              allow(Yast::Popup).to receive(:ContinueCancel).and_return(false)
+            end
+
+            let(:ask_on_error) { false }
+
+            it "report error" do
+              expect(Yast::Report).to receive(:Error)
+
+              subject.run
+            end
+          end
+        end
+
         it "stores repos according to information given" do
           expect(Yast::Pkg).to receive(:SourceEditSet).with(repos_to_store)
 
-          subject.main
+          subject.run
         end
       end
     end
@@ -306,7 +341,7 @@ describe Yast::AddOnAutoClient do
         end
 
         it "returns false" do
-          expect(subject.main).to be_falsey
+          expect(subject.run).to be_falsey
         end
       end
 
@@ -319,22 +354,8 @@ describe Yast::AddOnAutoClient do
         it "reads add-ons configuration from the current system" do
           expect(subject).to receive(:ReadFromSystem)
 
-          subject.main
+          subject.run
         end
-      end
-    end
-
-    context "when 'fucn' is not valid" do
-      let(:func) { "Whatever" }
-
-      it "logs an `unknow function` error" do
-        allow(Yast::Builtins).to receive(:y2error).with("unknown function: %1", "Whatever")
-
-        subject.main
-      end
-
-      it "returns false" do
-        expect(subject.main).to be_falsey
       end
     end
   end
