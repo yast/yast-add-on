@@ -99,25 +99,43 @@ describe Yast::AddOnAutoClient do
       [
         {
           "alias"       => "valid_add_on",
+          "media_url"   => "dvd:///product",
+          "name"        => "updated_repo",
+          "priority"    => 20,
+          "product_dir" => "",
+        },
+        {
+          "alias"       => "valid_add_on",
           "media_url"   => "http://product.url",
           "name"        => "updated_repo",
           "priority"    => 20,
-          "product_dir" => "/"
+          "product_dir" => "/",
+          "product"     => "Example product"
         },
         {
           "alias"       => "not_valid_add_on",
-          "media_url"   => "http://media.url",
+          "media_url"   => "http://product.url",
           "name"        => "updated_repo",
           "priority"    => 20,
-          "product_dir" => "/"
+          "product_dir" => "/path/to/product"
+        },
+        {
+          "alias"       => "not_valid_add_on",
+          "media_url"   => "http://product.url",
+          "name"        => "updated_repo",
+          "priority"    => 20,
+          "product_dir" => "/path/to/product",
+          "product"     => "<strong>Example</strong> product"
         }
       ]
     end
     let(:expected_output) do
       [
         "<ul>",
-        "<li>Media: http://product.url, Path: /, Product: </li>",
-        "<li>Media: http://media.url, Path: /, Product: </li>",
+        "<li>URL: dvd:///product</li>",
+        "<li>URL: http://product.url, Product: Example product</li>",
+        "<li>URL: http://product.url, Path: /path/to/product</li>",
+        "<li>URL: http://product.url, Path: /path/to/product, Product: &lt;strong&gt;Example&lt;/strong&gt; product</li>",
         "</ul>"
       ].join("\n")
     end

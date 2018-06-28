@@ -36,16 +36,45 @@ module Yast
       AddOnProduct.Import("add_on_products" => valid_add_on_products)
     end
 
+    # Returns an unordered HTML list summarizing the Add-on products
+    #
+    # Each item will contain information about
+    #
+    #   * URL, the "media_url" property
+    #   * Path, the "product_dir" property which will be omitted wether is not present or is the default
+    #           path ("/")
+    #   * Product, the "product" property, unless it is not present
+    #
+    # @example
+    #   <ul>
+    #     <li>URL: dvd:///</li>
+    #     <li>URL: http://product.url, Product: Product name</li>
+    #   </ul>
+    #
+    # @return [String] an unordered HTML list
     def summary
-      formatted_add_on = AddOnProduct.add_on_products.map do |add_on|
-        "<li>" \
-          "Media: #{add_on["media_url"]}, " \
-          "Path: #{add_on["product_dir"]}, " \
-          "Product: #{add_on["product"]}" \
-        "</li>"
+      formatted_add_ons = AddOnProduct.add_on_products.map do |add_on|
+        product = add_on["product"]
+        product_dir = add_on["product_dir"]
+
+        add_on_summary = []
+        # TRANSLATORS: %s is an add-on URL
+        add_on_summary << _("URL: %s") % CGI.escapeHTML(add_on["media_url"])
+
+        if [nil, "", "/"].none?(product_dir)
+          # TRANSLATORS: %s is a product path
+          add_on_summary << _("Path: %s") % CGI.escapeHTML(product_dir)
+        end
+
+        if !(product.nil? || product.empty?)
+          # TRANSLATORS: %s is the product
+          add_on_summary << _("Product: %s") % CGI.escapeHTML(product)
+        end
+
+        "<li>#{add_on_summary.join(", ")}</li>"
       end
 
-      ["<ul>", formatted_add_on, "</ul>"].join("\n")
+      ["<ul>", formatted_add_ons, "</ul>"].join("\n")
     end
 
     def modified?
