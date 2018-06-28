@@ -13,6 +13,7 @@ X-SuSE-YaST-AutoInst=
 X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=
+X-SuSE-YaST-Keywords=vendor,cd,driver,update,packages,repositories,software
 
 Icon=yast-vendor
 Exec=xdg-su -c "/sbin/yast2 vendor"
