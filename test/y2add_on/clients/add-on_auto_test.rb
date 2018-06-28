@@ -244,7 +244,7 @@ describe Yast::AddOnAutoClient do
           {
             "alias"        => "produc_alias",
             "ask_on_error" => ask_on_error,
-            "media_url"    => "http://product.url",
+            "media_url"    => "RELURL://product.url",
             "name"         => "updated_repo",
             "priority"     => 20,
             "product_dir"  => "/"

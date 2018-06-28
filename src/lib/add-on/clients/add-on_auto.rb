@@ -25,7 +25,7 @@ module Yast
       valid_add_on_products = add_on_products.reject.with_index(1) do |add_on, index|
         next false unless add_on.fetch("media_url", "").empty?
 
-        log.error "Missing <media_url> value in the #{index}. add-on-product definition"
+        log.error("Missing <media_url> value in the #{index}. add-on-product definition")
 
         # abort import/installation
         return false unless skip_add_on_and_continue?(index)
@@ -193,7 +193,6 @@ module Yast
 
           return :report_error unless retry_on_error
         elsif !accepted_license?(add_on, source_id)
-          # Lic
           Pkg.SourceDelete(source_id)
 
           return :halt_system
@@ -218,9 +217,9 @@ module Yast
       media_url = add_on.fetch("media_url", "")
 
       if media_url.start_with?("relurl://")
-        media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.getBaseProductURL, media_url)
+        media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.GetBaseProductURL, media_url)
 
-        log.info("relurl changed to #{media_url}", media_url)
+        log.info("relurl changed to #{media_url}")
       end
 
       media_url
