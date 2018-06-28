@@ -319,7 +319,8 @@ module Yast
     def preferred_name_for(add_on, repo)
       add_on_name = add_on.fetch("name", nil)
 
-      return add_on_name unless add_on_name.nil? || add_on_name.empty? # name in control file, bnc#433981
+      # name in control file, bnc#433981
+      return add_on_name unless add_on_name.nil? || add_on_name.empty?
 
       media = add_on.fetch("media")
       product_dir = add_on.fetch("product_dir")
