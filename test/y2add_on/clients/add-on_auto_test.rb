@@ -39,7 +39,7 @@ describe Yast::AddOnAutoClient do
       end
     end
 
-    context "when there are missed medie_url values in given 'add_on_products'" do
+    context "when there are missed media_url values in given 'add_on_products'" do
       let(:add_on_products) do
         [
           {
@@ -321,7 +321,7 @@ describe Yast::AddOnAutoClient do
   end
 
   describe "#read" do
-    context "when cannot lock package" do
+    context "when package manager cannot be locked" do
       before do
         allow(Yast::PackageLock).to receive(:Check).and_return(false)
       end
@@ -331,7 +331,7 @@ describe Yast::AddOnAutoClient do
       end
     end
 
-    context "when can lock package" do
+    context "when package manager can be locked" do
       before do
         allow(Yast::PackageLock).to receive(:Check).and_return(true)
         allow(Yast::Pkg).to receive(:SourceStartManager)
