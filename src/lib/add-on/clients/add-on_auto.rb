@@ -347,14 +347,14 @@ module Yast
     end
 
     def skip_add_on_and_continue?(index)
-      error_message = [
-        "Error in the AutoYaST <add_on> section.",
-        "Missing mandatory <media_url> value at index %d in the <add_on_products> definition.",
+      # TRANSLATORS: The placeholder points to the location in the AutoYaST configuration file.
+      error_message = _(
+        "Error in the AutoYaST <add_on> section.\n" \
+        "Missing mandatory <media_url> value at index %d in the <add_on_products> definition.\n" \
         "Skip the invalid product definition and continue with the installation?"
-      ]
-      popup_prompt = format(_(error_message.join("\n")), index)
+      ) % index
 
-      Popup.ContinueCancel(popup_prompt)
+      Popup.ContinueCancel(error_message)
     end
 
     def halt_system
