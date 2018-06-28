@@ -292,11 +292,10 @@ module Yast
     # @param [Integer|Nil] source_id
     def adjust_source_attributes(add_on, source_id)
       sources = Pkg.SourceEditGet
-      index = sources.find_index { |source| source["SrcId"] == source_id }
+      repo = sources.find { |source| source["SrcId"] == source_id }
 
-      return if index.nil?
+      return if repo.nil?
 
-      repo = sources[index]
       repo["name"] = preferred_name_for(add_on, repo)
       repo["priority"] = add_on["priority"] if add_on.key?("priority")
 
