@@ -16,6 +16,7 @@ X-SuSE-YaST-AutoInstResource=
 X-SuSE-YaST-AutoInstPath=install
 X-SuSE-YaST-AutoInstSchema=add-on.rnc
 X-SuSE-YaST-AutoInstClonable=true
+X-SuSE-YaST-Keywords=update,packages,repositories,software
 
 Icon=yast-addon
 Exec=xdg-su -c "/sbin/yast2 add-on"
