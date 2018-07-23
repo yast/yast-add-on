@@ -1,328 +1,366 @@
-# encoding: utf-8
+require "yast"
+require "installation/auto_client"
 
-# File:
-#      add-on_auto.ycp
-#
-# Module:
-#      Add-On autoinstallation and configuration
-#
-# Summary:
-#      Add-On autoinstallation preparation
-#
-# Authors:
-#      Jiri Srain <jsrain@suse.cz>
-#
-# $Id$
-#
+Yast.import "AutoInstall"
+Yast.import "AddOnProduct"
+Yast.import "Progress"
+
 module Yast
-  class AddOnAutoClient < Client
-    def main
-      Yast.import "Pkg"
-      Yast.import "UI"
+  class AddOnAutoClient < ::Installation::AutoClient
+    def run
       textdomain "add-on"
-
-      Builtins.y2milestone("----------------------------------------")
-      Builtins.y2milestone("add-on auto started")
-
-      Yast.import "AddOnProduct"
-      Yast.import "Progress"
-      Yast.import "AutoinstSoftware"
-      Yast.import "PackageCallbacks"
-      Yast.import "Label"
-      Yast.import "AutoinstGeneral"
-      Yast.import "PackageLock"
-      Yast.import "Installation"
-      Yast.import "String"
 
       Yast.include self, "add-on/add-on-workflow.rb"
 
-      @progress_orig = Progress.set(false)
+      progress_orig = Yast::Progress.set(false)
+      ret = super
+      Yast::Progress.set(progress_orig)
 
+      ret
+    end
 
-      @ret = nil
-      @func = ""
-      @param = {}
+    def import(data)
+      add_on_products = data.fetch("add_on_products", [])
 
-      # Check arguments
-      if Ops.greater_than(Builtins.size(WFM.Args), 0) &&
-          Ops.is_string?(WFM.Args(0))
-        @func = Convert.to_string(WFM.Args(0))
-        if Ops.greater_than(Builtins.size(WFM.Args), 1) &&
-            Ops.is_map?(WFM.Args(1))
-          @param = Convert.to_map(WFM.Args(1))
+      valid_add_on_products = add_on_products.reject.with_index(1) do |add_on, index|
+        next false unless add_on.fetch("media_url", "").empty?
+
+        log.error("Missing <media_url> value in the #{index}. add-on-product definition")
+
+        # abort import/installation
+        return false unless skip_add_on_and_continue?(index)
+
+        true
+      end
+
+      AddOnProduct.Import("add_on_products" => valid_add_on_products)
+    end
+
+    # Returns an unordered HTML list summarizing the Add-on products
+    #
+    # Each item will contain information about
+    #
+    #   * URL, the "media_url" property
+    #   * Path, the "product_dir" property which will be omitted wether is not present or is the default
+    #           path ("/")
+    #   * Product, the "product" property, unless it is not present
+    #
+    # @example
+    #   <ul>
+    #     <li>URL: dvd:///</li>
+    #     <li>URL: http://product.url, Product: Product name</li>
+    #   </ul>
+    #
+    # @return [String] an unordered HTML list
+    def summary
+      formatted_add_ons = AddOnProduct.add_on_products.map do |add_on|
+        product = add_on["product"]
+        product_dir = add_on["product_dir"]
+
+        add_on_summary = []
+        # TRANSLATORS: %s is an add-on URL
+        add_on_summary << _("URL: %s") % CGI.escapeHTML(add_on["media_url"])
+
+        if [nil, "", "/"].none?(product_dir)
+          # TRANSLATORS: %s is a product path
+          add_on_summary << _("Path: %s") % CGI.escapeHTML(product_dir)
+        end
+
+        if !(product.nil? || product.empty?)
+          # TRANSLATORS: %s is the product
+          add_on_summary << _("Product: %s") % CGI.escapeHTML(product)
+        end
+
+        "<li>#{add_on_summary.join(", ")}</li>"
+      end
+
+      ["<ul>", formatted_add_ons, "</ul>"].join("\n")
+    end
+
+    def modified?
+      AddOnProduct.modified
+    end
+
+    def modified
+      AddOnProduct.modified = true
+    end
+
+    def reset
+      AddOnProduct.add_on_products = []
+    end
+
+    def change
+      Wizard.CreateDialog
+      AutoinstSoftware.pmInit
+      PackageCallbacks.InitPackageCallbacks
+
+      ret = RunAddOnMainDialog(
+        false,
+        true,
+        true,
+        Label.BackButton,
+        Label.OKButton,
+        Label.CancelButton,
+        false
+      )
+
+      Wizard.CloseDialog
+
+      ret
+    end
+
+    def export
+      AddOnProduct.Export
+    end
+
+    # Creates sources from add on products
+    #
+    # This method always will return `true`. However, there are two scenarios that could happen and it is
+    # worth to take in mind:
+    #
+    #   * system will be halted immediately as soon a required license will be rejected
+    #   * a source could be omitted if there is an error adding it and no retries are performed
+    #
+    # @see {create_source}
+    #
+    # @return [true]
+    def write
+      AddOnProduct.add_on_products.each do |add_on|
+        product = add_on.fetch("product", "")
+        media_url = media_url_for(add_on)
+        action = create_source(add_on, product, media_url)
+
+        case action
+        when :report_error
+          report_error_for(product, media_url)
+        when :halt_system
+          halt_system
         end
       end
-      Builtins.y2debug("func=%1", @func)
-      Builtins.y2debug("param=%1", @param)
 
-      if @func == "Import"
-        add_on_products = @param["add_on_products"] || []
-        count = 0
-        # Checking needed values
-        add_on_products.reject! do |product|
-          count += 1
-          if product["media_url"].nil? || product["media_url"] == ""
-            # Report missing media_url entry in the AutoYaST configuration file
-            # TRANSLATORS: The placeholder points to the location in the AutoYaST configuration file.
-            error_string = format(_("Error in the AutoYaST <add_on> section.\n" \
-              "Missing mandatory <media_url> value at index %d in the <add_on_products> definition.\n" \
-              "Skip the invalid product definition and continue with the installation?"),
-              count)
-            log.error "Missing <media_url> value in the #{count}. add-on-product definition"
-            return false unless Popup.ContinueCancel(error_string) # user abort
-            true
-          else
-            false
-          end
+      # reread agents, redraw wizard steps, etc.
+      AddOnProduct.ReIntegrateFromScratch
+
+      true
+    end
+
+    def read
+      if !PackageLock.Check
+        log.error("Cannot get package lock")
+
+        return false
+      end
+
+      log.info("Reseting Pkg")
+
+      Pkg.PkgApplReset
+      Pkg.PkgReset
+      Pkg.TargetInitialize(Installation.destdir)
+      Pkg.TargetLoad
+      Pkg.SourceStartManager(true)
+      Pkg.PkgSolve(true)
+
+      ReadFromSystem()
+    end
+
+  private
+
+    # Create repo and install product (if given)
+    #
+    # @param [Hash] add_on
+    # @param [String] product
+    # @param [String] media_url
+    #
+    # @return [Symbol] a symbol that represent an action
+    #   :report_error if source could not be created
+    #   :halt_system if a required license was not accepted
+    #   :continue if source was created successfully
+    def create_source(add_on, product, media_url)
+      url = expand_url_for(add_on, media_url)
+      product_dir = add_on.fetch("product_dir", "/")
+      retry_on_error = add_on.fetch("ask_on_error", false)
+
+      # Set addon specific sig-handling
+      AddOnProduct.SetSignatureCallbacks(product)
+
+      loop do
+        source_id = Pkg.SourceCreate(url, product_dir)
+
+        log.info("New source ID: #{source_id}")
+
+        if [nil, -1].include?(source_id)
+          retry_on_error &&= retry_again?(product, media_url)
+
+          return :report_error unless retry_on_error
+        elsif !accepted_license?(add_on, source_id)
+          Pkg.SourceDelete(source_id)
+
+          return :halt_system
+        else
+          # bugzilla #260613
+          AddOnProduct.Integrate(source_id)
+
+          adjust_source_attributes(add_on, source_id)
+          install_product(product)
+
+          return :continue
         end
-        @ret = AddOnProduct.Import("add_on_products"=>add_on_products)
-      # Create a summary
-      # return string
-      elsif @func == "Summary"
-        @ret = "<ul>\n"
-        Builtins.foreach(AddOnProduct.add_on_products) do |prod|
-          @ret = Ops.add(
-            Convert.to_string(@ret),
-            Builtins.sformat(
-              _("<li>Media: %1, Path: %2, Product: %3</li>\n"),
-              Ops.get_string(prod, "media_url", ""),
-              Ops.get_string(prod, "product_dir", "/"),
-              Ops.get_string(prod, "product", "")
-            )
-          )
-        end
-        @ret = Ops.add(Convert.to_string(@ret), "</ul>")
-      # did configuration changed
-      # return boolean
-      elsif @func == "GetModified"
-        @ret = AddOnProduct.modified
-      # set configuration as changed
-      # return boolean
-      elsif @func == "SetModified"
-        AddOnProduct.modified = true
-        @ret = true
-      # Reset configuration
-      # return map or list
-      elsif @func == "Reset"
-        AddOnProduct.add_on_products = []
-        @ret = {}
-      # Change configuration
-      # return symbol (i.e. `finish || `accept || `next || `cancel || `abort)
-      elsif @func == "Change"
-        Wizard.CreateDialog
-        AutoinstSoftware.pmInit
-        PackageCallbacks.InitPackageCallbacks
-        @ret = RunAddOnMainDialog(
-          false,
-          true,
-          true,
-          Label.BackButton,
-          Label.OKButton,
-          Label.CancelButton,
-          false
-        )
-        UI.CloseDialog
-        return deep_copy(@ret)
-      # Return configuration data
-      # return map or list
-      elsif @func == "Export"
-        @ret = AddOnProduct.Export
-      # Write configuration data
-      # return boolean
-      #
-      #
-      # **Structure:**
-      #
-      #
-      #      <add-on>
-      #     	<add_on_products config:type="list">
-      #     		<listentry>
-      #     			<media_url>http://software.opensuse.org/download/server:/dns/SLE_10/</media_url>
-      #     			<product>buildservice</product>
-      #     			<product_dir>/</product_dir>
-      #     			<!-- (optional) -->
-      #     			<name>User-Defined Product Name</name>
-      #     			<signature-handling>
-      #     				<accept_unsigned_file config:type="boolean">true</accept_unsigned_file>
-      #     				<accept_file_without_checksum config:type="boolean">true</accept_file_without_checksum>
-      #     				<accept_verification_failed config:type="boolean">true</accept_verification_failed>
-      #     				<accept_unknown_gpg_key>
-      #     					<all config:type="boolean">true</all>
-      #     					<keys config:type="list">
-      #     						<keyid>...</keyid>
-      #     						<keyid>3B3011B76B9D6523</keyid>
-      #     					</keys>
-      #     				</accept_unknown_gpg_key>
-      #     				<accept_non_trusted_gpg_key>
-      #     				<all config:type="boolean">true</all>
-      #     					<keys config:type="list">
-      #     						<keyid>...</keyid>
-      #     					</keys>
-      #     				</accept_non_trusted_gpg_key>
-      #     				<import_gpg_key>
-      #     					<all config:type="boolean">true</all>
-      #     					<keys config:type="list">
-      #     						<keyid>...</keyid>
-      #     					</keys>
-      #     				</import_gpg_key>
-      #     			</signature-handling>
-      #     		</listentry>
-      #     	</add_on_products>
-      #      </add-on>
-      #
-      elsif @func == "Write"
-        @sources = {}
+      end
+    end
 
-        AddOnProduct.add_on_products.each do |prod|
-          media = Ops.get_string(prod, "media_url", "")
-          pth = Ops.get_string(prod, "product_dir", "/")
-          if String.StartsWith(media, "relurl://")
-            base = AddOnProduct.GetBaseProductURL
-            media = AddOnProduct.GetAbsoluteURL(base, media)
-            Builtins.y2milestone("relurl changed to %1", media)
-          end
-          Ops.set(@sources, media, Ops.get(@sources, media, {}))
-          # set addon specific sig-handling
-          AddOnProduct.SetSignatureCallbacks(
-            Ops.get_string(prod, "product", "")
-          )
-          srcid = -1
-          begin
-            url = AddOnProduct.SetRepoUrlAlias(
-              # Expanding URL in order to "translate" tags like $releasever
-              Pkg.ExpandedUrl(media),
-              Ops.get_string(prod, "alias", ""),
-              Ops.get_string(prod, "name", "")
-            )
+    # Returns absolute media url for given add on
+    #
+    # @param [Hash] add_on
+    #
+    # @return [String] absolute media url or empty string
+    def media_url_for(add_on)
+      media_url = add_on.fetch("media_url", "")
 
-            srcid = Pkg.SourceCreate(url, pth)
+      if media_url.downcase.start_with?("relurl://")
+        media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.GetBaseProductURL, media_url)
 
-            if (srcid == -1 || srcid == nil)
-              # revert back to the unexpanded URL to have the original URL
-              # in the saved /etc/zypp/repos.d file
-              Pkg.SourceChangeUrl(srcid, media)
+        log.info("relurl changed to #{media_url}")
+      end
 
-              if Ops.get_boolean(prod, "ask_on_error", false)
-                prod["ask_on_error"] = Popup.ContinueCancel(
-                  Builtins.sformat(
-                    _("Make the add-on \"%1\" available via \"%2\"."),
-                    Ops.get_string(prod, "product", ""),
-                    media
-                  )
-                )
-              else
-                # just report an error
-                # TRANSLATORS: The placeholders are for the product name and the URL.
-                error_string = format(_("Failed to add product \"%s\" via\n%s."),
-                  # TRANSLATORS: a fallback string for undefined product name
-                  prod["product"] || _("<not_defined_name>"), media)
-                Report.Error(error_string)
-              end
-            elsif Ops.get_boolean(prod, "confirm_license", false)
-              accepted = AddOnProduct.AcceptedLicenseAndInfoFile( srcid )
-              if accepted == false
-                Builtins.y2warning("License not accepted, delete the repository and halt the system")
-                Pkg.SourceDelete(srcid)
-                SCR.Execute(path(".target.bash"), "/sbin/halt -f -n -p")
-              end
-            end
+      media_url
+    end
 
-            Ops.set(@sources, [media, pth], srcid)
-            Builtins.y2milestone("New source ID: %1", srcid)
+    # Expand url for given add_on
+    #
+    # @param [Hash] add_on
+    # @param [String] media_url
+    #
+    # @return [String] expanded url
+    def expand_url_for(add_on, media_url)
+      AddOnProduct.SetRepoUrlAlias(
+        Pkg.ExpandedUrl(media_url),
+        add_on.fetch("alias", ""),
+        add_on.fetch("name", "")
+      )
+    end
 
-            # bugzilla #260613
-            AddOnProduct.Integrate(srcid) if srcid != -1
+    # Checks if should be retried to look for the source at given url
+    #
+    # @param [String] product
+    # @param [String] media_url
+    #
+    # @return [Boolean]
+    def retry_again?(product, media_url)
+      Popup.ContinueCancel(
+        # TRANSLATORS: The placeholders are for the product name and the URL.
+        _("Make the add-on \"%{name}\" available via \"%{url}\".") % { name: product, url: media_url }
+      )
+    end
 
-          end while Ops.get(@sources, [media, pth], -1) == -1 &&
-            Ops.get_boolean(prod, "ask_on_error", false) == true
-          Ops.set(prod, "media", Ops.get(@sources, [media, pth], -1))
-          # Adjust "name", bnc #434708
-          if srcid != nil && srcid != -1
-            repos = Pkg.SourceEditGet
-
-            found_at = -1
-            counter = -1
-
-            Builtins.foreach(repos) do |one_repo|
-              counter = Ops.add(counter, 1)
-              if Ops.get_integer(one_repo, "SrcId", -1) == srcid
-                found_at = counter
-                raise Break
-              end
-            end
-
-            if found_at != -1
-              name = Ops.get_string(repos, [found_at, "name"], "")
-
-              # Possibility to set name in control file, bnc #433981
-              if Builtins.haskey(prod, "name")
-                name = Ops.get_string(prod, "name", "")
-                Builtins.y2milestone("Preferred name: %1", name)
-                # Or use the one returned by Pkg::RepositoryScan
-              else
-                repos_at_url = Pkg.RepositoryScan(Pkg.ExpandedUrl(media))
-                # [ ["Product Name", "Path" ] ]
-                Builtins.foreach(repos_at_url) do |one_repo|
-                  if Ops.get(one_repo, 1, "") == pth
-                    name = Ops.get(one_repo, 0, "")
-                    raise Break
-                  end
-                end
-                Builtins.y2milestone("Preferred name: %1", name)
-              end
-
-              Ops.set(repos, [found_at, "name"], name)
-              Ops.set(repos, [found_at, "priority"], prod["priority"]) if prod.key?("priority")
-              Pkg.SourceEditSet(repos)
-            end
-          end
-          if Ops.get_string(prod, "product", "") != ""
-            Builtins.y2milestone(
-              "Installing product: %1",
-              Ops.get_string(prod, "product", "")
-            )
-            Pkg.ResolvableInstall(Ops.get_string(prod, "product", ""), :product)
-          else
-            Builtins.y2warning("No product to install")
-          end
+    # Report an error about fail adding a product
+    #
+    # @param [String] product
+    # @param [String] media_url
+    def report_error_for(product, media_url)
+      error_msg =
+        if product.nil? || product.empty?
+          # TRANSLATORS: The placeholder is for the URL.
+          _("Failed to add product from \n%{url}") % { url: media_url }
+        else
+          # TRANSLATORS: The placeholders are for the product name and the URL.
+          _("Failed to add product \"%{name}\" from \n%{url}") % { name: product, url: media_url }
         end
 
-        # reread agents, redraw wizard steps, etc.
-        AddOnProduct.ReIntegrateFromScratch
+      Report.Error(error_msg)
+    end
 
-        @ret = true
-      # Reads configuration of add-ons from the current system
-      # to memory. To get that configuration, use Export() functionality.
-      #
-      # @return [Boolean]
-      elsif @func == "Read"
-        if !PackageLock.Check
-          Builtins.y2error("Cannot get package lock")
-          return false
-        end
-        Builtins.y2milestone("Reseting Pkg")
-        Pkg.PkgApplReset
-        Pkg.PkgReset
+    # Tries to confirm license if needed
+    #
+    # @param [Hash] add_on
+    # @param [Integer] source_id
+    #
+    # @return [Boolean] true if is not needed to confirm license or ir accepted; false otherwise
+    def accepted_license?(add_on, source_id)
+      return true unless add_on.fetch("confirm_license", false)
 
-        Pkg.TargetInitialize(Installation.destdir)
-        Pkg.TargetLoad
-        Pkg.SourceStartManager(true)
-        Pkg.PkgSolve(true)
+      AddOnProduct.AcceptedLicenseAndInfoFile(source_id)
+    end
 
-        @ret = ReadFromSystem()
+    # Adjusts source attributes for given id
+    #
+    # At the moment to create source/repo through `Pkg.SourceCreate` is not possible to set attributes
+    # directly. In consequence, the creation must be completed making use of `Pkg.SourceEditSet`
+    #
+    # @see {https://github.com/yast/yast-pkg-bindings YaST Package Bindings}
+    #
+    # @param [Hash] add_on
+    # @param [Integer|Nil] source_id
+    def adjust_source_attributes(add_on, source_id)
+      sources = Pkg.SourceEditGet
+      repo = sources.find { |source| source["SrcId"] == source_id }
+
+      return if repo.nil?
+
+      repo["name"] = preferred_name_for(add_on, repo)
+      repo["priority"] = add_on["priority"] if add_on.key?("priority")
+
+      log.info("Preferred name: #{repo["name"]}")
+
+      Pkg.SourceEditSet(sources)
+    end
+
+    # Returns preferred name for add-on/repo
+    #
+    # Following below precedence
+    #
+    #   * name in the add_on/control file, if given
+    #   * name of repo that matches with given media and product path, if any
+    #   * name of given repo
+    #
+    # @param [Hash] addon
+    # @param [Array] repo
+    #
+    # @return [String] preferred name for add-on/repo
+    def preferred_name_for(add_on, repo)
+      add_on_name = add_on.fetch("name", nil)
+
+      # name in control file, bnc#433981
+      return add_on_name unless add_on_name.nil? || add_on_name.empty?
+
+      media = add_on.fetch("media")
+      product_dir = add_on.fetch("product_dir")
+      expanded_url = Pkg.ExpandedUrl(media)
+      repos_at_url = Pkg.RepositoryScan(expanded_url)
+
+      # {Pkg.RepositoryScan} output: [["Product Name", "Path"], ...]
+      found_repo = repos_at_url.find { |r| r[1] == product_dir }
+      return found_repo[0] if found_repo
+
+      repo["name"]
+    end
+
+    # Installs given product
+    #
+    # @param [String] product
+    def install_product(product)
+      if product.empty?
+        log.warn("No product to install")
       else
-        Builtins.y2error("unknown function: %1", @func)
-        @ret = false
+        log.info("Installing product: #{product}")
+        Pkg.ResolvableInstall(product, :product)
       end
-      Progress.set(@progress_orig)
+    end
 
-      Builtins.y2debug("ret=%1", @ret)
-      Builtins.y2milestone("add-on_auto finished")
-      Builtins.y2milestone("----------------------------------------")
+    def skip_add_on_and_continue?(index)
+      # TRANSLATORS: The placeholder points to the location in the AutoYaST configuration file.
+      error_message = _(
+        "Error in the AutoYaST <add_on> section.\n" \
+        "Missing mandatory <media_url> value at index %d in the <add_on_products> definition.\n" \
+        "Skip the invalid product definition and continue with the installation?"
+      ) % index
 
-      deep_copy(@ret)
+      Popup.ContinueCancel(error_message)
+    end
 
-      # EOF
+    def halt_system
+      log.warn("License not accepted, delete the repository and halt the system")
+
+      SCR.Execute(path(".target.bash"), "/sbin/halt -f -n -p")
     end
   end
 end
