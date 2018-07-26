@@ -1071,20 +1071,22 @@ module Yast
 
       # FATE #301928 - Saving one click
       # Bugzilla #893103 be consistent, so always when there is no add-on skip
+      # Bugzilla #1102705 Do not redraw when skipping
       if no_addons
         Builtins.y2milestone("Skipping to media_select")
         ret = :skip_to_add
+      else
+        # Show Add-Ons table
+        Redraw(
+          enable_back,
+          enable_next,
+          enable_abort,
+          back_button,
+          next_button,
+          abort_button
+        )
       end
 
-      # Show Add-Ons table
-      Redraw(
-        enable_back,
-        enable_next,
-        enable_abort,
-        back_button,
-        next_button,
-        abort_button
-      )
 
       # store the initial settings, only once
       WorkflowManager.SetBaseWorkflow(false)
