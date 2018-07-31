@@ -1174,6 +1174,19 @@ module Yast
             some_addon_changed = true
             # do not keep first_time, otherwise summary won't be shown during installation
             ret = nil if ret == :skip_to_add
+
+            Redraw(
+              enable_back,
+              enable_next,
+              enable_abort,
+              back_button,
+              next_button,
+              abort_button
+            )
+            # bugzilla #293428
+            # Release all sources after adding a new one
+            # because of CD/DVD + url cd://
+            Pkg.SourceReleaseAll
           elsif ret2 == :abort || ret2 == :cancel
             Builtins.y2milestone("Add-on sequence aborted")
 
@@ -1200,20 +1213,6 @@ module Yast
             ret = :back if ret2 == :back
             ret = :next if ret2 == :skip
           end
-
-          Redraw(
-            enable_back,
-            enable_next,
-            enable_abort,
-            back_button,
-            next_button,
-            abort_button
-          )
-
-          # bugzilla #293428
-          # Release all sources after adding a new one
-          # because of CD/DVD + url cd://
-          Pkg.SourceReleaseAll
         end
       end until [:next, :back, :abort].include?(ret)
 
