@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        4.1.3
+Version:        4.1.4
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
@@ -30,7 +30,6 @@ BuildRequires:  update-desktop-files
 BuildRequires:  yast2 >= 3.0.1
 BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:  yast2-packager
-BuildRequires:  autoyast2-installation
 Requires:       autoyast2-installation
 # ProductProfile
 Requires:       yast2 >= 3.0.1
