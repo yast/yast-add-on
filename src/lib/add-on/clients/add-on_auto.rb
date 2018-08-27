@@ -1,8 +1,8 @@
 require "yast"
 require "installation/auto_client"
 
-Yast.import "AutoInstall"
 Yast.import "AddOnProduct"
+Yast.import "AutoinstSoftware"
 Yast.import "Progress"
 
 module Yast
