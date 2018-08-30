@@ -1,3 +1,3 @@
 require "add-on/clients/add-on_auto"
 
-Yast::AddOnAutoClient.new.main
+Yast::AddOnAutoClient.new.run
