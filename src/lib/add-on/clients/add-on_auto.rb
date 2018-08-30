@@ -3,6 +3,10 @@ require "installation/auto_client"
 
 Yast.import "AddOnProduct"
 Yast.import "AutoinstSoftware"
+Yast.import "Installation"
+Yast.import "Label"
+Yast.import "PackageCallbacks"
+Yast.import "PackageLock"
 Yast.import "Progress"
 
 module Yast
@@ -12,9 +16,9 @@ module Yast
 
       Yast.include self, "add-on/add-on-workflow.rb"
 
-      progress_orig = Yast::Progress.set(false)
+      progress_orig = Progress.set(false)
       ret = super
-      Yast::Progress.set(progress_orig)
+      Progress.set(progress_orig)
 
       ret
     end
