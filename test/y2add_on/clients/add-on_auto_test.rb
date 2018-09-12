@@ -245,7 +245,6 @@ describe Yast::AddOnAutoClient do
             "alias"        => "produc_alias",
             "ask_on_error" => ask_on_error,
             "media_url"    => "RELURL://product.url",
-            "name"         => "updated_repo",
             "priority"     => 20,
             "product_dir"  => "/"
           }
@@ -258,7 +257,7 @@ describe Yast::AddOnAutoClient do
             "autorefresh"  => true,
             "enabled"      => true,
             "keeppackaged" => false,
-            "name"         => "updated_repo",
+            "name"         => "Updated repo",
             "priority"     => 20,
             "service"      => ""
           },
@@ -279,9 +278,13 @@ describe Yast::AddOnAutoClient do
         allow(Yast::Pkg).to receive(:SourceEditSet)
         allow(Yast::Pkg).to receive(:SourceCreate).and_return(1)
         allow(Yast::Pkg).to receive(:SourceEditGet).and_return(repos)
+        allow(Yast::Pkg).to receive(:ExpandedUrl)
+        # To test indirectly the "preferred_name_for" method
+        allow(Yast::Pkg).to receive(:RepositoryScan)
+          .with(anything)
+          .and_return([["Updated repo", "/"]])
       end
 
-      # FIXME: improve that WIP scenarios/contexts
       context "and product creation fails" do
         before do
           allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
