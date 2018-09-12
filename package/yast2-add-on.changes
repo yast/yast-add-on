@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Sep 12 15:50:58 UTC 2018 - dgonzalez@suse.com
+
+- Fix and improve the repo name selection in the AddOn auto client
+  (bsc#1108139)
+- 4.1.6
+
+-------------------------------------------------------------------
 Thu Aug 30 08:50:09 UTC 2018 - dgonzalez@suse.com
 
 - Fix the run of AddOn auto client (bsc#1106536).
