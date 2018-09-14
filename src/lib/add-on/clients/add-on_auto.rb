@@ -324,12 +324,12 @@ module Yast
       add_on_name = add_on.fetch("name", nil)
 
       # name in control file, bnc#433981
-      return add_on_name unless add_on_name.nil? || add_on_name.empty?
+      return add_on_name unless add_on_name.to_s.empty?
 
-      media = add_on.fetch("media")
-      product_dir = add_on.fetch("product_dir")
-      expanded_url = Pkg.ExpandedUrl(media)
-      repos_at_url = Pkg.RepositoryScan(expanded_url)
+      media_url = add_on.fetch("media_url", "")
+      product_dir = add_on.fetch("product_dir", "/")
+      expanded_url = Pkg.ExpandedUrl(media_url)
+      repos_at_url = Pkg.RepositoryScan(expanded_url) || []
 
       # {Pkg.RepositoryScan} output: [["Product Name", "Path"], ...]
       found_repo = repos_at_url.find { |r| r[1] == product_dir }
