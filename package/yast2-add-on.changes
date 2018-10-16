@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 16 13:17:31 CEST 2018 - schubi@suse.de
+
+- Fixed path to license file. . Build error in bsc#1108139.
+- 4.1.7
+
+-------------------------------------------------------------------
 Wed Sep 12 15:50:58 UTC 2018 - dgonzalez@suse.com
 
 - Fix and improve the repo name selection in the AddOn auto client
