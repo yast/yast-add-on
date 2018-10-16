@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        4.1.6
+Version:        4.1.7
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
@@ -72,7 +72,7 @@ rake install DESTDIR=%{buildroot}
 %{yast_desktopdir}/*.desktop
 %{yast_schemadir}/autoyast/rnc/add-on.rnc
 %dir %{yast_docdir}
-%license %{yast_docdir}/COPYING
+%license COPYING
 %doc %{yast_docdir}/CONTRIBUTING.md
 %doc %{yast_docdir}/README.md
 
