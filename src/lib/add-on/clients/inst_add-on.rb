@@ -45,8 +45,6 @@ module Yast
 
       @argmap = GetInstArgs.argmap
 
-      Packages.SelectProduct
-
       PackageCallbacks.SetMediaCallbacks
 
       # add add-ons specified on the kernel command line

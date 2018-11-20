@@ -14,7 +14,6 @@ describe Yast::InstAddOnClient do
     let(:add_on_selected) { false }
 
     before do
-      allow(Yast::Packages).to receive(:SelectProduct)
       allow(Yast::Linuxrc).to receive(:InstallInf).with("addon").and_return(addons)
       allow(subject).to receive(:NetworkSetupForAddons).and_return(:next)
       allow(subject).to receive(:InstallProduct)
