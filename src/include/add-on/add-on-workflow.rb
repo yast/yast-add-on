@@ -847,7 +847,7 @@ module Yast
       Wizard.HideBackButton if !enable_back
       Wizard.HideAbortButton if !enable_abort
 
-      Wizard.SetTitleIcon("yast-addon")
+      Wizard.SetDesktopIcon("add-on")
 
       # disable delete button if no items listed
       # bug #203809
