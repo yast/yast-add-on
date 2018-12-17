@@ -1021,13 +1021,8 @@ module Yast
           # because of CD/DVD + url cd://
           Pkg.SourceReleaseAll
 
-          # bugzilla #305788
-          # Use new wizard window for adding new Add-On.
-          # Do not use "Steps" dialog.
-          Wizard.OpenLeftTitleNextBackDialog
           Wizard.SetTitleIcon("yast-addon")
           ret2 = RunWizard()
-          Wizard.CloseDialog
 
           log.info "Subworkflow result: ret2: #{ret2}"
 
