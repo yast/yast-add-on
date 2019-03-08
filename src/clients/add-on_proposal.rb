@@ -21,38 +21,48 @@ module Yast
 
       Yast.include self, "add-on/add-on-workflow.rb"
 
-      @func = Convert.to_string(WFM.Args(0))
-      @param = Convert.to_map(WFM.Args(1))
-      @ret = {}
+      func = Convert.to_string(WFM.Args(0))
+      ret = {}
 
-      if @func == "MakeProposal"
-        @force_reset = Ops.get_boolean(@param, "force_reset", false)
-        @language_changed = Ops.get_boolean(@param, "language_changed", false)
-
-        @items = Builtins.maplist(AddOnProduct.add_on_products) do |product|
+      if func == "MakeProposal"
+        items = Builtins.maplist(AddOnProduct.add_on_products) do |product|
           data = Pkg.SourceGeneralData(Ops.get_integer(product, "media", -1))
-          # placeholder for unknown path
-          dir = Ops.get_locale(data, "product_dir", _("Unknown"))
-          dir = "/" if dir == ""
-          # summary item, %1 is product name, %2 media URL, %3 directory on media
-          Builtins.sformat(
-            "%1 (Media %2, directory %3)",
-            Ops.get_string(product, "product", ""),
-            Ops.get_locale(data, "url", _("Unknown")),
-            dir
-          )
+          dir = data["product_dir"]
+
+          # no subdirectory used, do not print it
+          if dir.nil? || dir.empty? || dir == "/"
+            # TRANSLATORS: add on product summary item,
+            #   %{name} is the product name,
+            #   %{url} is the repository URL
+            _("%{name} (%{url})") % {
+              name: product["product"],
+              url: data["url"] || _("Unknown")
+            }
+          else
+            # TRANSLATORS: add on product summary item,
+            #   special case when a subdirectory is defined
+            #   %{name} is the product name,
+            #   %{url} is the repository URL,
+            #   %{dir}
+            _("%{name} (%{url}, directory %{dir})") % {
+              dir: dir,
+              name: product["product"],
+              url: data["url"] || _("Unknown")
+            }
+          end
         end
-        if Builtins.size(@items) == 0
+
+        if items.empty?
           # summary string
-          @items = [_("No add-on product selected for installation")]
+          items << _("No add-on product selected for installation")
         end
 
         WorkflowManager.RedrawWizardSteps
 
-        @ret = { "raw_proposal" => @items }
-      elsif @func == "AskUser"
+        ret = { "raw_proposal" => items }
+      elsif func == "AskUser"
         Wizard.CreateDialog
-        @result = RunAddOnMainDialog(
+        result = RunAddOnMainDialog(
           false,
           true,
           true,
@@ -64,23 +74,33 @@ module Yast
         UI.CloseDialog
 
         # Fill return map
-
-        @ret = { "workflow_sequence" => @result, "mode_changed" => false }
-      elsif @func == "Description"
+        ret = { "workflow_sequence" => result, "mode_changed" => false }
+      elsif func == "Description"
         # Fill return map.
-        #
-        # Static values do just nicely here, no need to call a function.
-
-        @ret = {
+        ret = {
           # this is a heading
-          "rich_text_title" => _("Add-On Products"),
+          "rich_text_title" => link_title,
           # this is a menu entry
           "menu_title"      => _("Add-&on Products"),
           "id"              => "add_on"
         }
       end
 
-      deep_copy(@ret)
+      ret
+    end
+
+  private
+
+    # Build the dialog title (depending on the current UI)
+    # @return [String] the translated title
+    def link_title
+      if UI.TextMode
+        # TRANSLATORS: dialog title (short form for text mode)
+        _("Add-On Products")
+      else
+        # TRANSLATORS: dialog title (long form for GUI, but still keep as short as possible)
+        _("Add-On Products (Products, Extensions, Modules, Other Repositories)")
+      end
     end
   end
 end

@@ -762,8 +762,6 @@ module Yast
 
     def Redraw(enable_back, enable_next, enable_abort, back_button, next_button, abort_button)
       Builtins.y2milestone("Called Redraw()")
-      # main screen heading
-      title = _("Add-On Product Installation")
 
       # Help for add-on products
       help = _(
@@ -820,10 +818,10 @@ module Yast
         Table(
           Id(:summary),
           Header(
-            # table header
-            _("Product"),
-            # table header
-            _("Media")
+            # TRANSLATORS: table header, column "Name of the repository"
+            _("Name"),
+            # TRANSLATORS: table header
+            _("URL")
           ),
           items
         ),
@@ -836,7 +834,7 @@ module Yast
         )
       )
 
-      Wizard.SetContentsButtons(title, contents, help, back_button, next_button)
+      Wizard.SetContentsButtons(dialog_title, contents, help, back_button, next_button)
       Wizard.SetAbortButton(:abort, abort_button)
 
       # Disable next button according to settings
@@ -1895,6 +1893,18 @@ module Yast
       if Mode.normal
         Builtins.y2milestone("Saving all sources")
         Pkg.SourceSaveAll
+      end
+    end
+
+    # Build the dialog title (depending on the current UI)
+    # @return [String] the translated title
+    def dialog_title
+      if UI.TextMode
+        # TRANSLATORS: dialog title (short form for text mode)
+        _("Add-On Product Installation")
+      else
+        # TRANSLATORS: dialog title (long form for GUI, but still keep as short as possible)
+        _("Add-On Product Installation (Products, Extensions, Modules, Other Repositories)")
       end
     end
   end
