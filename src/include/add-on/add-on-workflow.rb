@@ -878,6 +878,9 @@ module Yast
         Pkg.SourceDelete(media)
       end
 
+      # Deselect product from libzypp
+      Pkg.ResolvableNeutral(AddOnProduct.add_on_products[selected]["product"], :product, true)
+
       # remove the selected record
       Ops.set(AddOnProduct.add_on_products, selected, nil)
       AddOnProduct.add_on_products = Builtins.filter(
