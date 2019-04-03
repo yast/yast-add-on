@@ -879,7 +879,7 @@ module Yast
       end
 
       # Deselect product from libzypp
-      Pkg.ResolvableNeutral(AddOnProduct.add_on_products[selected]["product"], :product, true)
+      Pkg.ResolvableNeutral(AddOnProduct.add_on_products[selected]["product"], :product, false)
 
       # remove the selected record
       Ops.set(AddOnProduct.add_on_products, selected, nil)
