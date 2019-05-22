@@ -1864,7 +1864,8 @@ module Yast
 
       # Add additional update repos. This must be done
       # after the product has been installed in order to
-      # evalute the regarding update repositories.
+      # read the product update repositories from the
+      # installed /etc/products.d/*.prod file.
       WFM.CallFunction("inst_addon_update_sources", [])
 
       Pkg.SourceReleaseAll
