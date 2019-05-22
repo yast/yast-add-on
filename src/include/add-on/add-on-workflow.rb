@@ -1862,7 +1862,9 @@ module Yast
       # Write only when there are some changes
       Write()
 
-      # Add additional update repos
+      # Add additional update repos. This must be done
+      # after the product has been installed in order to
+      # evalute the regarding update repositories.
       WFM.CallFunction("inst_addon_update_sources", [])
 
       Pkg.SourceReleaseAll
