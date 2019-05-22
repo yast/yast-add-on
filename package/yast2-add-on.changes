@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed May 22 16:20:22 CEST 2019 - schubi@suse.de
+
+- Fix: Update repository will be registered while installing
+  an add-on on a running system (bsc#1055126).
+- 3.2.3
+
+-------------------------------------------------------------------
 Thu Jul 26 10:22:03 UTC 2018 - knut.anderssen@suse.com
 
 - Do not show the main dialog when it is immediately skipped
