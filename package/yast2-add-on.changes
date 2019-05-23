@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed May 22 16:20:22 CEST 2019 - schubi@suse.de
+
+- Fix: Update repository will be registered while installing
+  an add-on on a running system (bsc#1055126).
+- 4.1.12
+
+-------------------------------------------------------------------
 Wed Apr  3 09:56:32 CEST 2019 - schubi@suse.de
 
 - Removing add-on repo: Deselecting product in solver too.
