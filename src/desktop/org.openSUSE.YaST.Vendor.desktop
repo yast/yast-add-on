@@ -18,6 +18,7 @@ X-SuSE-YaST-Keywords=vendor,cd,driver,update,packages,repositories,software
 Icon=yast-vendor
 Exec=xdg-su -c "/sbin/yast2 vendor"
 
-Name=Vendor Driver CD
-GenericName=Install a driver from a vendor-specific CD-ROM
+Name=YaST Vendor Driver
+GenericName=Vendor Driver
+Comment=Install a driver from a vendor-specific medium
 StartupNotify=true
