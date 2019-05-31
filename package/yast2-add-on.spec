@@ -12,7 +12,7 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
@@ -22,14 +22,17 @@ Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
 Group:          System/YaST
-Url:            http://github.com/yast/yast-add-on
+Url:            https://github.com/yast/yast-add-on
+
 Source0:        %{name}-%{version}.tar.bz2
+
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:yast-rake)
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 BuildRequires:  update-desktop-files
 BuildRequires:  yast2 >= 3.0.1
 BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:  yast2-packager
+
 Requires:       autoyast2-installation
 # ProductProfile
 Requires:       yast2 >= 3.0.1
@@ -41,7 +44,6 @@ Requires:       yast2-ruby-bindings >= 1.0.0
 
 Obsoletes:      yast2-add-on-devel-doc
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArch:      noarch
 
 %description
@@ -51,30 +53,23 @@ This package contains YaST Add-On media installation code.
 %setup -q
 
 %check
-rake test:unit
+%yast_check
 
 %build
 
 %install
-rake install DESTDIR=%{buildroot}
+%yast_install
+%yast_metainfo
 
 %files
-%defattr(-,root,root)
-%dir %{yast_yncludedir}/add-on
-%{yast_yncludedir}/add-on/*
-%dir %{yast_libdir}/add-on
-%dir %{yast_libdir}/add-on/clients
-%{yast_libdir}/add-on/clients/*.rb
-%{yast_clientdir}/add-on.rb
-%{yast_clientdir}/add-on_*.rb
-%{yast_clientdir}/inst_add-on*.rb
-%{yast_clientdir}/vendor.rb
-%{yast_desktopdir}/*.desktop
-%{yast_schemadir}/autoyast/rnc/add-on.rnc
-%{_datadir}/icons/*
-%dir %{yast_docdir}
+%{yast_yncludedir}
+%{yast_libdir}
+%{yast_clientdir}
+%{yast_desktopdir}
+%{yast_metainfodir}
+%{yast_schemadir}
+%{yast_icondir}
+%doc %{yast_docdir}
 %license COPYING
-%doc %{yast_docdir}/CONTRIBUTING.md
-%doc %{yast_docdir}/README.md
 
 %changelog
