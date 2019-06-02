@@ -55,7 +55,7 @@ module Yast
       @result = nil
 
       Wizard.CreateDialog
-      Wizard.SetDesktopTitleAndIcon("org.openSUSE.YaST.Vendor")
+      Wizard.SetDesktopTitleAndIcon("org.opensuse.yast.Vendor")
       Wizard.HideAbortButton
 
       # VENDOR: main screen heading

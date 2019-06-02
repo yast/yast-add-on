@@ -111,7 +111,7 @@ module Yast
         false
       )
 
-      Wizard.SetDesktopTitleAndIcon("org.openSUSE.YaST.AddOn")
+      Wizard.SetDesktopTitleAndIcon("org.opensuse.yast.AddOn")
 
       Wizard.DisableBackButton
       Wizard.DisableAbortButton

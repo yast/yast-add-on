@@ -847,7 +847,7 @@ module Yast
       Wizard.HideBackButton if !enable_back
       Wizard.HideAbortButton if !enable_abort
 
-      Wizard.SetDesktopIcon("org.openSUSE.YaST.AddOn")
+      Wizard.SetDesktopIcon("org.opensuse.yast.AddOn")
 
       # disable delete button if no items listed
       # bug #203809
