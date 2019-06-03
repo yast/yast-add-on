@@ -21,6 +21,7 @@ X-SuSE-YaST-Keywords=update,packages,repositories,software
 Icon=yast-addon
 Exec=xdg-su -c "/sbin/yast2 add-on"
 
-Name=Add-On Products
-GenericName=Install or remove add-on products
+Name=YaST Add-On Products
+GenericName=Add-On Products
+Comment=Install or remove add-on products
 StartupNotify=true
