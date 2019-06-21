@@ -1027,6 +1027,9 @@ module Yast
           Wizard.SetTitleIcon("yast-addon")
           ret2 = RunWizard()
 
+          break if ret2 == :back
+          return ret2 if ret2 == :abort
+
           log.info "Subworkflow result: ret2: #{ret2}"
 
           if ret2 == :next
@@ -1052,7 +1055,7 @@ module Yast
             # Release all sources after adding a new one
             # because of CD/DVD + url cd://
             Pkg.SourceReleaseAll
-          elsif ret2 == :abort || ret2 == :cancel
+          elsif ret2 == :cancel
             log.info("Aborted, removing add-on repositories: #{@added_repos.inspect}")
 
             # remove the repository
