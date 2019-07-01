@@ -35,8 +35,8 @@ Requires:       autoyast2-installation
 Requires:       yast2 >= 3.0.1
 Requires:       yast2-country
 Requires:       yast2-installation
-# new AddOnProduct.DoInstall argument
-Requires:       yast2-packager >= 4.0.25
+# Packager ProductLicense#HandleLicenseDialogRet allowing "refuse" action
+Requires:       yast2-packager >= 4.1.47
 Requires:       yast2-ruby-bindings >= 1.0.0
 
 Obsoletes:      yast2-add-on-devel-doc
