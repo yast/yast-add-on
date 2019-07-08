@@ -8,7 +8,9 @@ Yast.import "Packages"
 describe Yast::AddOnAutoClient do
   describe "#import" do
     let(:params) do
-      { "add_on_products" => add_on_products }
+      { "add_on_products" => add_on_products
+#        ,"add_on_others" => add_on_others
+      }
     end
 
     context "when 'add_on_products' param is NOT given" do
@@ -18,6 +20,15 @@ describe Yast::AddOnAutoClient do
         subject.import(something: nil)
       end
     end
+=begin
+    context "when 'add_on_others' param is NOT given" do
+      it "sets 'add_on_others' to empty array" do
+        expect(Yast::AddOnOthers).to receive(:Import).with("add_on_others" => [])
+
+        subject.import(something: nil)
+      end
+    end
+=end
 
     context "when completly valid 'add_on_products' param is given" do
       let(:add_on_products) do
@@ -205,11 +216,23 @@ describe Yast::AddOnAutoClient do
   end
 
   describe "#export" do
-    # FIXME: use a more reallistic configuration data example
-    it "returns configuration data" do
-      allow(Yast::AddOnProduct).to receive(:Export).and_return("configuration data")
+    let(:add_on_products) do
+      {"add_on_products"=> [
+        { "product_dir"=>"/Module-Desktop-Applications",
+          "product"=>"sle-module-desktop-applications",
+          "media_url"=>"dvd:/?devices=/dev/sr1" },
+        { "product_dir"=>"/Module-Basesystem",
+          "product"=>"sle-module-basesystem",
+          "media_url"=>"dvd:/?devices=/dev/sr1" }
+      ]}
+    end
+    let(:add_on_others) { {"add_on_others"=>[]} }
 
-      expect(subject.export).to eq("configuration data")
+    it "returns add-on products and other user defined add-ons" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
+      expect(Yast::AddOnOthers).to receive(:Export).and_return(add_on_others)
+
+      expect(subject.export).to eq(add_on_products.merge(add_on_others))
     end
   end
 

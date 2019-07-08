@@ -2,6 +2,7 @@ require "yast"
 require "installation/auto_client"
 
 Yast.import "AddOnProduct"
+Yast.import "AddOnOthers"
 Yast.import "AutoinstSoftware"
 Yast.import "Installation"
 Yast.import "Label"
@@ -24,12 +25,15 @@ module Yast
     end
 
     def import(data)
-      add_on_products = data.fetch("add_on_products", [])
+      add_ons = data.fetch("add_on_products", [])
+      # add-on prducts have the same format as add-ons which have been
+      # added manually by the user. So we can take the same workflow here.
+      add_ons += data.fetch("add_on_others", [])
 
-      valid_add_on_products = add_on_products.reject.with_index(1) do |add_on, index|
+      valid_add_ons = add_ons.reject.with_index(1) do |add_on, index|
         next false unless add_on.fetch("media_url", "").empty?
 
-        log.error("Missing <media_url> value in the #{index}. add-on-product definition")
+        log.error("Missing <media_url> value in the #{index}. add-on definition")
 
         # abort import/installation
         return false unless skip_add_on_and_continue?(index)
@@ -37,13 +41,13 @@ module Yast
         true
       end
 
-      AddOnProduct.Import("add_on_products" => valid_add_on_products)
+      AddOnProduct.Import("add_on_products" => valid_add_ons)
     end
 
     # Returns an unordered HTML list summarizing the Add-on products
     #
     # Each item will contain information about
-    #
+    # 
     #   * URL, the "media_url" property
     #   * Path, the "product_dir" property which will be omitted wether is not present or is the default
     #           path ("/")
@@ -114,7 +118,7 @@ module Yast
     end
 
     def export
-      AddOnProduct.Export
+      AddOnProduct.Export.merge(AddOnOthers.Export())
     end
 
     # Creates sources from add on products
@@ -165,6 +169,9 @@ module Yast
       Pkg.PkgSolve(true)
 
       ReadFromSystem()
+
+      # reading none product repos
+      AddOnOthers.Read()
     end
 
   private

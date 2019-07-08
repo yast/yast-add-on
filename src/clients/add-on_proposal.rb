@@ -32,13 +32,13 @@ module Yast
         @items = Builtins.maplist(AddOnProduct.add_on_products) do |product|
           data = Pkg.SourceGeneralData(Ops.get_integer(product, "media", -1))
           # placeholder for unknown path
-          dir = Ops.get_locale(data, "product_dir", _("Unknown"))
+          dir = Ops.get_locale(data, "product_dir", product.fetch( "product_dir", _("Unknown")))
           dir = "/" if dir == ""
           # summary item, %1 is product name, %2 media URL, %3 directory on media
           Builtins.sformat(
             "%1 (Media %2, directory %3)",
             Ops.get_string(product, "product", ""),
-            Ops.get_locale(data, "url", _("Unknown")),
+            Ops.get_locale(data, "url", product.fetch( "media_url", _("Unknown"))),
             dir
           )
         end
