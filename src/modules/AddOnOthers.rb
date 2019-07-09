@@ -29,13 +29,13 @@ module Yast
     
 
     def Read
-      @add_on_others = []
-      
       # Removing all repos which have installed based
       # and add-on products.
-      installed_products = Pkg.ResolvableProperties("", :product, "").select do |p|
+      all_products = Pkg.ResolvableProperties("", :product, "")
+      installed_products = all_products.select do |p|
         p["status"] == :available &&
-        Pkg.ResolvableProperties(p["name"], :product, "").any? { |s| s["status"] == :installed }              end
+        all_products.any? { |s| s["name"] == p["name"] && s["status"] == :installed }
+      end
       installed_src_ids = installed_products.map{ |p| p["source"] }.uniq
       other_repo_ids = Pkg.SourceGetCurrent(true) - installed_src_ids
       @add_on_others = other_repo_ids.map{ |id| Pkg.SourceGeneralData(id) }
