@@ -26,7 +26,6 @@ module Yast
 
       @add_on_others = []
     end
-    
 
     def Read
       # Removing all repos which have installed based
@@ -75,6 +74,5 @@ module Yast
 
   AddOnOthers = AddOnOthersClass.new
   AddOnOthers.main
-
 end
 
