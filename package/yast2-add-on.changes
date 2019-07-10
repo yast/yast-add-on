@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Tue Jul  9 17:42:52 CEST 2019 - schubi@suse.de
 
-- AY Export/Import: Support user defined repos (bsc#1125441)
+- AY Export/Import: Support of user defined repos (bsc#1125441).
 - 4.2.2
 
 -------------------------------------------------------------------

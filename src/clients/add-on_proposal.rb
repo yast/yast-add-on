@@ -37,7 +37,7 @@ module Yast
           # summary item, %1 is product name, %2 media URL, %3 directory on media
           Builtins.sformat(
             "%1 (Media %2, directory %3)",
-            Ops.get_string(product, "product", ""),
+            Ops.get_string(product, "product", _("No name defined")),
             Ops.get_locale(data, "url", product.fetch( "media_url", _("Unknown"))),
             dir
           )

@@ -26,7 +26,7 @@ module Yast
 
     def import(data)
       add_ons = data.fetch("add_on_products", [])
-      # add-on prducts have the same format as add-ons which have been
+      # Add-on products have the same format as add-ons which have been
       # added manually by the user. So we can take the same workflow here.
       add_ons += data.fetch("add_on_others", [])
 
@@ -47,7 +47,7 @@ module Yast
     # Returns an unordered HTML list summarizing the Add-on products
     #
     # Each item will contain information about
-    # 
+    #
     #   * URL, the "media_url" property
     #   * Path, the "product_dir" property which will be omitted wether is not present or is the default
     #           path ("/")
@@ -170,7 +170,7 @@ module Yast
 
       ReadFromSystem()
 
-      # reading none product repos
+      # Reading user defined repos
       AddOnOthers.Read()
     end
 

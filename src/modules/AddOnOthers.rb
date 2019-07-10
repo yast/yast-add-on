@@ -28,7 +28,7 @@ module Yast
     end
 
     def Read
-      # Removing all repos which have installed based
+      # Removing all repos which have installed based products
       # and add-on products.
       all_products = Pkg.ResolvableProperties("", :product, "")
       installed_products = all_products.select do |p|
@@ -40,9 +40,9 @@ module Yast
       @add_on_others = other_repo_ids.map{ |id| Pkg.SourceGeneralData(id) }
     end
 
-    # Returns has describing all used added repos which are not base products or add-ons
+    # Returns all enabled user added repos which are not base products or add-on products.
     #
-    # @return [Hash]
+    # @return [Hash] User defined repos.
     #
     # @example This is an XML file created from exported map:
     #      <add-on>
