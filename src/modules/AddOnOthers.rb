@@ -31,9 +31,10 @@ module Yast
     def Read
       # Removing all repos which have installed based products
       # and add-on products.
-      all_products = Y2Packager::Resolvable.find(kind: :product, status: :available)
+      all_products = Y2Packager::Resolvable.find(kind: :product)
       installed_products = all_products.select do |p|
-        Y2Packager::Resolvable.any?(kind: :product, status: :installed, name: p.name)
+        p.status == :available &&
+        all_products.any? { |s| s.name == p.name && s.status == :installed }
       end
       installed_src_ids = installed_products.map{ |p| p.source }.uniq
       other_repo_ids = Pkg.SourceGetCurrent(true) - installed_src_ids

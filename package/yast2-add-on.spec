@@ -31,7 +31,8 @@ BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 BuildRequires:  update-desktop-files
 BuildRequires:  yast2 >= 3.0.1
 BuildRequires:  yast2-devtools >= 3.1.10
-BuildRequires:  yast2-packager
+# Y2packager::Resolvables
+BuildRequires:  yast2-packager >= 4.2.11
 
 Requires:       autoyast2-installation
 # ProductProfile

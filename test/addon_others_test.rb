@@ -50,7 +50,7 @@ describe Yast::AddOnOthers do
   end
 
   before do
-    allow(Yast::Pkg).to receive(:ResolvableProperties).with("", :product, "")
+    allow(Y2Packager::Resolvable).to receive(:find)with(kind: :product)
       .and_return(products)
     allow(Yast::Pkg).to receive(:SourceGetCurrent).with(true)
       .and_return([0,1,2,3,4])
