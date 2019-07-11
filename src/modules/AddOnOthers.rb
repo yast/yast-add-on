@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "yast"
+require "y2packager/resolvable"
 
 # Yast namespace
 module Yast
@@ -30,12 +31,11 @@ module Yast
     def Read
       # Removing all repos which have installed based products
       # and add-on products.
-      all_products = Pkg.ResolvableProperties("", :product, "")
+      all_products = Y2Packager::Resolvable.find(kind: :product, status: :available)
       installed_products = all_products.select do |p|
-        p["status"] == :available &&
-        all_products.any? { |s| s["name"] == p["name"] && s["status"] == :installed }
+        Y2Packager::Resolvable.any?(kind: :product, status: :installed, name: p.name)
       end
-      installed_src_ids = installed_products.map{ |p| p["source"] }.uniq
+      installed_src_ids = installed_products.map{ |p| p.source }.uniq
       other_repo_ids = Pkg.SourceGetCurrent(true) - installed_src_ids
       @add_on_others = other_repo_ids.map{ |id| Pkg.SourceGeneralData(id) }
     end
