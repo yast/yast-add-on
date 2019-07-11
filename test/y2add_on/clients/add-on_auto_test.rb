@@ -8,7 +8,9 @@ Yast.import "Packages"
 describe Yast::AddOnAutoClient do
   describe "#import" do
     let(:params) do
-      { "add_on_products" => add_on_products }
+      { "add_on_products" => add_on_products,
+        "add_on_others" => add_on_others
+      }
     end
 
     context "when 'add_on_products' param is NOT given" do
@@ -32,8 +34,21 @@ describe Yast::AddOnAutoClient do
         ]
       end
 
+      let(:add_on_others) do
+        [
+          {
+            "alias"       => "user defined",
+            "media_url"   => "http://xxx.url",
+            "name"        => "user_defined",
+            "priority"    => 19,
+            "product_dir" => "/"
+          }
+        ]
+      end
+
       it "imports all add-on products given" do
-        expect(Yast::AddOnProduct).to receive(:Import).with(params)
+        expect(Yast::AddOnProduct).to receive(:Import).with(
+          { "add_on_products" => add_on_products + add_on_others})
 
         subject.import(params)
       end
@@ -68,6 +83,7 @@ describe Yast::AddOnAutoClient do
           }
         ]
       end
+      let(:add_on_others) { [] }
 
       let(:rejected_package_error) { "Missing <media_url> value in the 2. add-on-product definition" }
       let(:missed_media_url_error) { /Missing mandatory <media_url> value at index 2/ }
@@ -205,11 +221,23 @@ describe Yast::AddOnAutoClient do
   end
 
   describe "#export" do
-    # FIXME: use a more reallistic configuration data example
-    it "returns configuration data" do
-      allow(Yast::AddOnProduct).to receive(:Export).and_return("configuration data")
+    let(:add_on_products) do
+      {"add_on_products"=> [
+        { "product_dir"=>"/Module-Desktop-Applications",
+          "product"=>"sle-module-desktop-applications",
+          "media_url"=>"dvd:/?devices=/dev/sr1" },
+        { "product_dir"=>"/Module-Basesystem",
+          "product"=>"sle-module-basesystem",
+          "media_url"=>"dvd:/?devices=/dev/sr1" }
+      ]}
+    end
+    let(:add_on_others) { {"add_on_others"=>[]} }
 
-      expect(subject.export).to eq("configuration data")
+    it "returns add-on products and other user defined add-ons" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
+      expect(Yast::AddOnOthers).to receive(:Export).and_return(add_on_others)
+
+      expect(subject.export).to eq(add_on_products.merge(add_on_others))
     end
   end
 

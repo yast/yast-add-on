@@ -3,7 +3,10 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace config = "http://www.suse.com/1.0/configns"
 
 add-on =
-  element add-on { add_on_products* }
+  element add-on {
+      add_on_products* &
+      add_on_others*
+  }
 listentry =
   element listentry {
      media_url & # here it is mandatory
@@ -54,3 +57,8 @@ add_on_products =
      attribute config:type { text }?,
      listentry*
   }
+add_on_others =
+  element add_on_others {
+     attribute config:type { text }?,
+     listentry*
+  }  

@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        4.2.1
+Version:        4.2.2
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
@@ -31,7 +31,8 @@ BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 BuildRequires:  update-desktop-files
 BuildRequires:  yast2 >= 3.0.1
 BuildRequires:  yast2-devtools >= 3.1.10
-BuildRequires:  yast2-packager
+# Y2packager::Resolvables
+BuildRequires:  yast2-packager >= 4.2.11
 
 Requires:       autoyast2-installation
 # ProductProfile
@@ -65,6 +66,7 @@ This package contains YaST Add-On media installation code.
 %{yast_yncludedir}
 %{yast_libdir}
 %{yast_clientdir}
+%{yast_moduledir}
 %{yast_desktopdir}
 %{yast_metainfodir}
 %{yast_schemadir}
