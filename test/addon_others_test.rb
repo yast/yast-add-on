@@ -6,7 +6,7 @@ Yast.import "AddOnOthers"
 describe Yast::AddOnOthers do
   subject { Yast::AddOnOthers }
   
-  let(:products) do
+  let(:available_products) do
     [ Y2Packager::Resolvable.new(kind: :product,
         name: "SLE_RT", status: :available, source: 2 ),
       Y2Packager::Resolvable.new(kind: :product,
@@ -22,15 +22,9 @@ describe Yast::AddOnOthers do
       Y2Packager::Resolvable.new(kind: :product,
         name: "SUSE-Manager-Proxy", status: :available, source: 2 ),
       Y2Packager::Resolvable.new(kind: :product,
-        name: "sle-module-desktop-applications", status: :installed, source: -1 ),
-      Y2Packager::Resolvable.new(kind: :product,
         name: "sle-module-desktop-applications", status: :available, source: 1 ),
       Y2Packager::Resolvable.new(kind: :product,
-        name: "sle-module-basesystem", status: :installed, source: -1 ),
-      Y2Packager::Resolvable.new(kind: :product,
         name: "sle-module-basesystem", status: :available, source: 0 ),
-      Y2Packager::Resolvable.new(kind: :product,
-        name: "SLES", status: :installed, source: -1 ),
       Y2Packager::Resolvable.new(kind: :product,
         name: "SLES", status: :available, source: 3 ),
       Y2Packager::Resolvable.new(kind: :product,
@@ -39,6 +33,17 @@ describe Yast::AddOnOthers do
         name: "SUSE-Manager-Retail-Branch-Server", status: :available, source: 2 )
     ]
   end
+
+  let(:installed_products) do
+    [ Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-desktop-applications", status: :installed, source: -1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-basesystem", status: :installed, source: -1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SLES", status: :installed, source: -1 ),
+    ]
+  end
+
   let(:repo_hash) do
     { "alias"       => "user defined",
       "url"         => "http://xxx.url",
@@ -49,8 +54,10 @@ describe Yast::AddOnOthers do
   end
 
   before do
-    allow(Y2Packager::Resolvable).to receive(:find).with(kind: :product)
-      .and_return(products)
+    allow(Y2Packager::Resolvable).to receive(:find).with(kind: :product, status: :available)
+      .and_return(available_products)
+    allow(Y2Packager::Resolvable).to receive(:find).with(kind: :product, status: :installed)
+      .and_return(installed_products)
     allow(Yast::Pkg).to receive(:SourceGetCurrent).with(true)
       .and_return([0,1,2,3,4])
   end

@@ -23,7 +23,7 @@ module Yast
 
     def main
       Yast.import "Pkg"
-      textdomain "packager"      
+      textdomain "add-on"
 
       @add_on_others = []
     end
@@ -31,12 +31,12 @@ module Yast
     def Read
       # Removing all repos which have installed based products
       # and add-on products.
-      all_products = Y2Packager::Resolvable.find(kind: :product)
-      installed_products = all_products.select do |p|
-        p.status == :available &&
-        all_products.any? { |s| s.name == p.name && s.status == :installed }
+      installed_product_names = Y2Packager::Resolvable.find(kind: :product, status: :installed).map(&:name)
+      installed_available_products = Y2Packager::Resolvable.find(kind: :product, status: :available).select do |p|
+        installed_product_names.include?(p.name)
       end
-      installed_src_ids = installed_products.map{ |p| p.source }.uniq
+
+      installed_src_ids = installed_available_products.map(&:source).uniq
       other_repo_ids = Pkg.SourceGetCurrent(true) - installed_src_ids
       @add_on_others = other_repo_ids.map{ |id| Pkg.SourceGeneralData(id) }
     end
