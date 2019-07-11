@@ -7,37 +7,36 @@ describe Yast::AddOnOthers do
   subject { Yast::AddOnOthers }
   
   let(:products) do
-    [
-      { "name" => "SLE_RT",
-        "status" => :available, "source" => 2 },
-      { "name" => "SLE_HPC",
-        "status" => :available, "source" => 2 },
-      { "name" => "SLE_SAP",
-        "status" => :available, "source" => 2 },
-      { "name" => "SLE_BCL",
-        "status" => :available, "source" => 2 },
-      { "name" => "SLED",
-        "status" => :available, "source" => 2 },
-      { "name" => "SUSE-Manager-Server",
-        "status" => :available, "source" => 2 },
-      { "name" => "SUSE-Manager-Proxy",
-        "status" => :available, "source" => 2 },
-      { "name" => "sle-module-desktop-applications",
-        "status" => :installed, "source" => -1 },
-      { "name" => "sle-module-desktop-applications",
-        "status" => :available, "source" => 1 },
-      { "name" => "sle-module-basesystem",
-        "status" => :installed, "source" => -1 },
-      { "name" => "sle-module-basesystem",
-        "status" => :available, "source" => 0 },
-      { "name" => "SLES",
-        "status" => :installed, "source" => -1 },
-      { "name" => "SLES",
-        "status" => :available, "source" => 3 },
-      { "name" => "SLES",
-        "status" => :available, "source" => 2 },
-      { "name" => "SUSE-Manager-Retail-Branch-Server",
-        "status" => :available, "source" => 2 }
+    [ Y2Packager::Resolvable.new(kind: :product,
+        name: "SLE_RT", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SLE_HPC", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,                  
+        name: "SLE_SAP", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,                  
+        name: "SLE_BCL", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,                  
+        name: "SLED", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,                     
+        name: "SUSE-Manager-Server", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SUSE-Manager-Proxy", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-desktop-applications", status: :installed, source: -1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-desktop-applications", status: :available, source: 1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-basesystem", status: :installed, source: -1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "sle-module-basesystem", status: :available, source: 0 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SLES", status: :installed, source: -1 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SLES", status: :available, source: 3 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SLES", status: :available, source: 2 ),
+      Y2Packager::Resolvable.new(kind: :product,
+        name: "SUSE-Manager-Retail-Branch-Server", status: :available, source: 2 )
     ]
   end
   let(:repo_hash) do
@@ -50,7 +49,7 @@ describe Yast::AddOnOthers do
   end
 
   before do
-    allow(Y2Packager::Resolvable).to receive(:find)with(kind: :product)
+    allow(Y2Packager::Resolvable).to receive(:find).with(kind: :product)
       .and_return(products)
     allow(Yast::Pkg).to receive(:SourceGetCurrent).with(true)
       .and_return([0,1,2,3,4])
