@@ -196,6 +196,7 @@ module Yast
 
       loop do
         source_id = Pkg.SourceCreate(url, product_dir)
+        Pkg.SourceReleaseAll
 
         log.info("New source ID: #{source_id}")
 
@@ -210,6 +211,7 @@ module Yast
         else
           # bugzilla #260613
           AddOnProduct.Integrate(source_id)
+          Pkg.SourceReleaseAll
 
           adjust_source_attributes(add_on, source_id)
           install_product(product)

@@ -304,6 +304,7 @@ describe Yast::AddOnAutoClient do
       before do
         allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
         allow(Yast::Pkg).to receive(:SourceEditSet)
+        allow(Yast::Pkg).to receive(:SourceReleaseAll)
         allow(Yast::Pkg).to receive(:SourceCreate).and_return(1)
         allow(Yast::Pkg).to receive(:SourceEditGet).and_return(repos)
         allow(Yast::Pkg).to receive(:ExpandedUrl)
@@ -345,6 +346,12 @@ describe Yast::AddOnAutoClient do
 
       it "stores repos according to information given" do
         expect(Yast::Pkg).to receive(:SourceEditSet).with(repos_to_store)
+
+        subject.write
+      end
+
+      it "releases the media accessors" do
+        expect(Yast::Pkg).to receive(:SourceReleaseAll)
 
         subject.write
       end
