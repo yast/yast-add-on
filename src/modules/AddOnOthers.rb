@@ -4,7 +4,8 @@ require "y2packager/resolvable"
 
 # Yast namespace
 module Yast
-  # This module provides integration of the add-on products
+  # Describes all Add-Ons which are not Add-Products or Base-Products.
+  # Usually custom or 3rd party repositories.
 
   class AddOnOthersClass < Module
            
