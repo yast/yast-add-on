@@ -62,7 +62,7 @@ add_on_products =
      listentry*
   }
 #
-# Describes all Add-Ons which are not Add-Products or Base-Products.
+# Describes all Add-Ons which are not Add-On-Products or Base-Products.
 # Usually custom or 3rd party repositories.
 #
 # Add-On products and other user defined repos will be split in order to
