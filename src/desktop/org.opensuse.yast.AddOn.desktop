@@ -14,6 +14,7 @@ X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=
 X-SuSE-YaST-AutoInstPath=install
+X-SuSE-YaST-AutoInstResource=add-on
 X-SuSE-YaST-AutoInstSchema=add-on.rnc
 X-SuSE-YaST-AutoInstClonable=true
 X-SuSE-YaST-Keywords=update,packages,repositories,software
