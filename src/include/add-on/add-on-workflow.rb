@@ -14,6 +14,9 @@
 #	Lukas Ocilka <locilka@suse.cz>
 #
 #
+
+require "y2packager/medium_type"
+
 module Yast
   module AddOnAddOnWorkflowInclude
     include Yast::Logger
@@ -27,10 +30,12 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "WorkflowManager"
       Yast.import "Linuxrc"
+      Yast.import "InstURL"
       Yast.import "Mode"
       Yast.import "Popup"
       Yast.import "Report"
       Yast.import "Sequencer"
+      Yast.import "SourceDialogs"
       Yast.import "SourceManager"
       Yast.import "PackageSystem"
       Yast.import "ProductProfile"
@@ -109,6 +114,12 @@ module Yast
     def MediaSelect
       aliases = {
         "type"  => lambda do
+          if AddOnProduct.add_on_products.empty? && Y2Packager::MediumType.offline?
+            # preselect the installation repository without asking the user
+            # for the URL when adding an add-on first time on the offline medium
+            SourceDialogs.SetURL(InstURL.installInf2Url(""))
+            return :finish
+          end
           # use the preselected type or the same type as for the previous add-on,
           # if not set it will use the default (the code actually runs
           # SourceDialogs.SetURL(SourceDialogs.GetURL) internally)
