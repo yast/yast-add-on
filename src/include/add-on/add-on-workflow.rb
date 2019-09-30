@@ -14,6 +14,9 @@
 #	Lukas Ocilka <locilka@suse.cz>
 #
 #
+
+require "y2packager/medium_type"
+
 module Yast
   module AddOnAddOnWorkflowInclude
     include Yast::Logger
@@ -27,10 +30,12 @@ module Yast
       Yast.import "AddOnProduct"
       Yast.import "WorkflowManager"
       Yast.import "Linuxrc"
+      Yast.import "InstURL"
       Yast.import "Mode"
       Yast.import "Popup"
       Yast.import "Report"
       Yast.import "Sequencer"
+      Yast.import "SourceDialogs"
       Yast.import "SourceManager"
       Yast.import "PackageSystem"
       Yast.import "ProductProfile"
@@ -108,17 +113,7 @@ module Yast
     # @return [Symbol] for wizard sequencer
     def MediaSelect
       aliases = {
-        "type"  => lambda do
-          # use the preselected type or the same type as for the previous add-on,
-          # if not set it will use the default (the code actually runs
-          # SourceDialogs.SetURL(SourceDialogs.GetURL) internally)
-          ret = TypeDialogOpts(true, SourceDialogs.GetURL)
-          log.debug "SourceDialogs.addon_enabled: #{SourceDialogs.addon_enabled}"
-          # explicitly check for false (nil means the checkbox was not displayed)
-          ret = :skip if ret == :next && SourceDialogs.addon_enabled == false
-          log.debug "TypeDialog result: #{ret}"
-          ret
-        end,
+        "type"  => lambda { media_type_selection },
         "edit"  => lambda { EditDialog() },
         "store" => lambda do
           StoreSource()
@@ -1906,6 +1901,28 @@ module Yast
         Builtins.y2milestone("Saving all sources")
         Pkg.SourceSaveAll
       end
+    end
+
+    # Display the media type selection dialog, in the offline mode it is skipped
+    # when no addon is selected.
+    #
+    # @return [Symbol] the workflow symbol (:next, :back, ...)
+    def media_type_selection
+      if AddOnProduct.add_on_products.empty? && Y2Packager::MediumType.offline?
+        # preselect the installation repository without asking the user
+        # for the URL when adding an add-on first time on the offline medium
+        SourceDialogs.SetURL(InstURL.installInf2Url(""))
+        return :finish
+      end
+      # use the preselected type or the same type as for the previous add-on,
+      # if not set it will use the default (the code actually runs
+      # SourceDialogs.SetURL(SourceDialogs.GetURL) internally)
+      ret = TypeDialogOpts(true, SourceDialogs.GetURL)
+      log.debug "SourceDialogs.addon_enabled: #{SourceDialogs.addon_enabled}"
+      # explicitly check for false (nil means the checkbox was not displayed)
+      ret = :skip if ret == :next && SourceDialogs.addon_enabled == false
+      log.debug "TypeDialog result: #{ret}"
+      ret
     end
   end
 end
