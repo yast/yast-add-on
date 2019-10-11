@@ -16,6 +16,7 @@
 #
 
 require "y2packager/medium_type"
+require "y2packager/resolvable"
 
 module Yast
   module AddOnAddOnWorkflowInclude
@@ -801,12 +802,7 @@ module Yast
         )
         Item(
           Id(index),
-          Ops.get_string(
-            # sformat (_("Product %1"), product["product"]:"")
-            product,
-            "product",
-            ""
-          ),
+          product_label(product["product"]),
           media
         )
       end
@@ -1923,6 +1919,19 @@ module Yast
       ret = :skip if ret == :next && SourceDialogs.addon_enabled == false
       log.debug "TypeDialog result: #{ret}"
       ret
+    end
+
+  private
+
+    # Find the human readable product name for the product ID
+    # @param product [String] the product name (ID)
+    # @return [String] a human readable product name or the original ID if not found
+    def product_label(product)
+      selected_product = Y2Packager::Resolvable.find(
+        kind: :product, status: :selected, name: product).first
+
+      # fallback to the internal product name
+      selected_product&.display_name || product
     end
   end
 end
