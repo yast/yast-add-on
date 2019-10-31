@@ -354,27 +354,31 @@ module Yast
         return :next
       end
 
-      all_products = Pkg.ResolvableProperties("", :product, "")
+      all_products = Y2Packager::Resolvable.find(kind: :product)
       all_products.each do |product|
         # Product doesn't match the new source ID
-        next unless @added_repos.include?(product["source"])
+        next unless @added_repos.include?(product.source)
         # Product is not available (either `installed or `selected or ...)
-        if product["status"] != :available
-          log.info("Skipping product #{product["name"].inspect} with status " \
-            "#{product["status"].inspect}")
+        if product.status != :available
+          log.info("Skipping product #{product.name.inspect} with status " \
+            "#{product.status}")
           next
         end
 
-        success = Pkg.ResolvableInstall(product["name"], :product)
+        success = Pkg.ResolvableInstall(product.name, :product)
 
-        log.info("Selecting product '#{product["name"]}' for installation -> #{success}")
+        log.info("Selecting product '#{product.name}' for installation -> #{success}")
       end
 
       :next
     end
 
     def ProductSelect
-      all_products = Pkg.ResolvableProperties("", :product, "")
+      # Do not use Y2Packager::Resolvable.find(kind: :product) because the
+      # returned Resolvables have not the variable "media".
+      # It ist not so important because this function will be called in an
+      # installed system with the command "/sbin/yast2 add-on URL" only
+      all_products = Y2Packager::Resolvable.find(kind: :product)
 
       already_used_urls = {}
       # getting all source urls and product_dirs
@@ -624,7 +628,7 @@ module Yast
           Builtins.foreach(prods) do |prod|
             product_found = false
             Builtins.foreach(all_products) do |p|
-              if Ops.get_string(p, "name", "") ==
+               if Ops.get_string(p, "name", "") ==
                   Ops.get_string(prod, "name", "") &&
                   Ops.get_string(p, "version", "") ==
                     Ops.get_string(prod, "version", "") &&
@@ -1188,11 +1192,11 @@ module Yast
         "<p>%1\n%2\n%3\n%4</p>",
         Builtins.sformat(
           _("<b>Vendor:</b> %1<br>"),
-          Ops.get_locale(pi, ["product", "vendor"], _("Unknown vendor"))
+          (pi["product"].vendor || _("Unknown vendor"))
         ),
         Builtins.sformat(
           _("<b>Version:</b> %1<br>"),
-          Ops.get_locale(pi, ["product", "version"], _("Unknown version"))
+          (pi["product"].version || _("Unknown version"))
         ),
         Builtins.sformat(
           _("<b>Repository URL:</b> %1<br>"),
@@ -1267,23 +1271,21 @@ module Yast
     def GetRepoInfo(this_product, all_products)
       ret = { "IDs" => [], "URLs" => [], "aliases" => [] }
 
-      product_arch = Ops.get_string(this_product.value, "arch", "")
-      product_name = Ops.get_string(this_product.value, "name", "")
-      product_version = Ops.get_string(this_product.value, "version", "")
+      product_arch = this_product.value.arch || ""
+      product_name = this_product.value.name || ""
+      product_version = this_product.value.version || ""
 
       Builtins.foreach(all_products.value) do |one_product|
-        # if (one_product["status"]:`unknown != `available)	return;
-        next if Ops.get_string(one_product, "arch", "") != product_arch
-        next if Ops.get_string(one_product, "name", "") != product_name
-        next if Ops.get_string(one_product, "version", "") != product_version
-        if Builtins.haskey(one_product, "source") &&
-            Ops.get_integer(one_product, "source", -1) != -1
+        next if one_product.arch != product_arch
+        next if one_product.name != product_name
+        next if one_product.version != product_version
+        if (one_product.source || -1) != -1
           Ops.set(
             ret,
             "IDs",
             Builtins.add(
               Ops.get(ret, "IDs", []),
-              Ops.get_integer(one_product, "source", -1)
+              (one_product.source || -1)
             )
           )
         end
@@ -1297,22 +1299,13 @@ module Yast
     end
 
     def GetAllProductsInfo
-      all_products = Pkg.ResolvableProperties("", :product, "")
+      all_products = Y2Packager::Resolvable.find(:product)
 
       all_products = Builtins.maplist(all_products) do |one_product|
         # otherwise it fills the log too much
-        Builtins.foreach(["license", "description"]) do |key|
-          if Builtins.haskey(one_product, key)
-            Ops.set(
-              one_product,
-              key,
-              Ops.add(
-                Builtins.substring(Ops.get_string(one_product, key, ""), 0, 40),
-                "..."
-              )
-            )
-          end
-        end
+        one_product.license = one_product.license[0..40] + "..."
+        one_product.description = one_product.description[0..40] + "..."
+
         deep_copy(one_product)
       end
 
@@ -1322,10 +1315,10 @@ module Yast
     def GetInstalledProducts
       installed_products = Builtins.filter(GetAllProductsInfo()) do |one_product|
         # Do not list the base product
-        next false if Ops.get_string(one_product, "category", "addon") == "base"
+        next false if (one_product.category || "addon") == "base"
         # BNC #475591: Only those `installed or `selected ones should be actually visible
-        Ops.get_symbol(one_product, "status", :unknown) == :installed ||
-          Ops.get_symbol(one_product, "status", :unknown) == :selected
+        (one_product.status || :unknown) == :installed ||
+        (one_product.status || :unknown) == :selected
       end
 
       deep_copy(installed_products)
@@ -1342,15 +1335,10 @@ module Yast
 
       Builtins.foreach(installed_products) do |one_product|
         # only add-on products should be listed
-        if Builtins.haskey(one_product, "type") &&
-            Ops.get_string(one_product, "type", "addon") != "addon"
+        if (one_product.type || "addon") != "addon"
           Builtins.y2milestone(
             "Skipping product: %1",
-            Ops.get_string(
-              one_product,
-              "display_name",
-              Ops.get_string(one_product, "name", "")
-            )
+            one_product.display_name || one_product.name || ""
           )
           next
         end
@@ -1435,8 +1423,7 @@ module Yast
               )
             ),
             "autoyast_product" => Ops.get_locale(
-              product_desc,
-              ["product", "name"],
+              product_desc["product"].name,
               Ops.get_locale(
                 repo_data,
                 "name",
@@ -1463,7 +1450,7 @@ module Yast
 
       products = product_infos.map do |index, product_desc|
         Item(Id("product_#{index}"),
-          product_desc["product"]["display_name"] || product_desc["product"]["name"] || _("Unknown product"),
+          product_desc["product"].display_name || product_desc["product"].name || _("Unknown product"),
           product_desc["info"]["URLs"].first || _("Unknown URL")
         )
       end
@@ -1504,11 +1491,8 @@ module Yast
         return nil
       end
 
-      product_name = Ops.get_locale(
-        pi,
-        ["product", "display_name"],
-        Ops.get_locale(pi, ["product", "name"], _("Unknown product"))
-      )
+      product_name =  pi["product"].display_name ||
+        pi["product"].name || _("Unknown product")
 
       if !Popup.AnyQuestion(
           Label.WarningMsg,
@@ -1551,13 +1535,13 @@ module Yast
       # y2milestone ("Installed packages: %1", installed_packages);
 
       # All packages from Add-On / Repository
-      packages_from_repo = Pkg.ResolvableProperties("", :package, "")
+      packages_from_repo = Y2Packager::Resolvable.find(kind: :package)
 
       packages_from_repo = Builtins.filter(packages_from_repo) do |one_package|
         # Package is not at the repositories to be deleted
         if !Builtins.contains(
             src_ids,
-            Ops.get_integer(one_package, "source", -1)
+            (one_package.source || -1)
           )
           next false
         end
@@ -1566,9 +1550,9 @@ module Yast
         # "name version-release arch", "version" already contains a release
         package_string = Builtins.sformat(
           "%1 %2 %3",
-          Ops.get_string(one_package, "name", ""),
-          Ops.get_string(one_package, "version", ""),
-          Ops.get_string(one_package, "arch", "")
+          one_package.name,
+          one_package.version,
+          one_package.arch,
         )
         # The very same package (which is avaliable at the source) is also installed
         Builtins.contains(installed_packages, package_string)
@@ -1581,15 +1565,15 @@ module Yast
 
       # Removing selected product, whatever it means
       # It might remove several products when they use the same name
-      if (Ops.get_symbol(pi, ["product", "status"], :unknown) == :installed ||
-          Ops.get_symbol(pi, ["product", "status"], :unknown) == :selected) &&
-          Ops.get_string(pi, ["product", "name"], "") != ""
+      if ((pi["product"].status || :unknown) == :installed ||
+          (pi["product"].status || :unknown) == :selected) &&
+          (pi["product"].name || "") != ""
         Builtins.y2milestone(
           "Removing product: '%1'",
-          Ops.get_string(pi, ["product", "name"], "")
+          pi["product"].name
         )
         Pkg.ResolvableRemove(
-          Ops.get_string(pi, ["product", "name"], ""),
+          pi["product"].name,
           :product
         )
       else
@@ -1635,9 +1619,9 @@ module Yast
         # "name version-release arch", "version" already contains a release
         package_string = Builtins.sformat(
           "%1 %2 %3",
-          Ops.get_string(one_package, "name", ""),
-          Ops.get_string(one_package, "version", ""),
-          Ops.get_string(one_package, "arch", "")
+          one_package.name,
+          one_package.version,
+          one_package.arch
         )
         # installed package is not available anymore
         if !Builtins.contains(available_packages, package_string)
@@ -1646,21 +1630,21 @@ module Yast
           # it must be removed
           Builtins.y2milestone("Removing: %1", package_string)
           Pkg.ResolvableRemove(
-            Ops.get_string(one_package, "name", "~~~"),
+            (one_package.name || "~~~"),
             :package
           )
 
           # but if another version is present, select if for installation
           if Builtins.contains(
               available_package_names,
-              Ops.get_string(one_package, "name", "~~~")
+              (one_package.name || "~~~")
             )
             Builtins.y2milestone(
               "Installing another version of %1",
-              Ops.get_string(one_package, "name", "")
+              one_package.name,
             )
             Pkg.ResolvableInstall(
-              Ops.get_string(one_package, "name", ""),
+              one_package.name,
               :package
             )
           end
