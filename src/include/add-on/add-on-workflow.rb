@@ -360,7 +360,7 @@ module Yast
         next unless @added_repos.include?(product.source)
         # Product is not available (either `installed or `selected or ...)
         if product.status != :available
-          log.info("Skipping product #{product.name.inspect} with status " \
+          log.info("Skipping product #{product.name} with status " \
             "#{product.status}")
           next
         end
@@ -628,7 +628,7 @@ module Yast
           Builtins.foreach(prods) do |prod|
             product_found = false
             Builtins.foreach(all_products) do |p|
-               if Ops.get_string(p, "name", "") ==
+              if Ops.get_string(p, "name", "") ==
                   Ops.get_string(prod, "name", "") &&
                   Ops.get_string(p, "version", "") ==
                     Ops.get_string(prod, "version", "") &&
