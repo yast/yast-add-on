@@ -376,9 +376,9 @@ module Yast
     def ProductSelect
       # Do not use Y2Packager::Resolvable.find(kind: :product) because the
       # returned Resolvables have not the variable "media".
-      # It ist not so important because this function will be called in an
+      # It is not so important because this function will be called in an
       # installed system with the command "/sbin/yast2 add-on URL" only
-      all_products = Y2Packager::Resolvable.find(kind: :product)
+      all_products = Pkg.ResolvableProperties("", :product, "")
 
       already_used_urls = {}
       # getting all source urls and product_dirs
@@ -1345,7 +1345,7 @@ module Yast
         counter = Ops.add(counter, 1)
         Builtins.y2milestone(
           "Product: %1, Info: %2",
-          one_product,
+          one_product.name,
           repository_info
         )
         if repository_info == nil
