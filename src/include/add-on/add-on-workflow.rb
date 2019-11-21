@@ -1571,7 +1571,7 @@ module Yast
       # Removing selected product, whatever it means
       # It might remove several products when they use the same name
       if (pi["product"].status == :installed ||
-          pi["product"].status == :selected &&
+          pi["product"].status == :selected) &&
           pi["product"].name != ""
         Builtins.y2milestone(
           "Removing product: '%1'",
