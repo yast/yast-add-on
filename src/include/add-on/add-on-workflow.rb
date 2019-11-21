@@ -1188,15 +1188,17 @@ module Yast
         return
       end
 
+      vendor = pi["product"].vendor.empty? ? _("Unknown vendor") : pi["product"].vendor
+      version = pi["product"].version.empty? ? _("Unknown version") : pi["product"].version
       rt_description = Builtins.sformat(
         "<p>%1\n%2\n%3\n%4</p>",
         Builtins.sformat(
           _("<b>Vendor:</b> %1<br>"),
-          (pi["product"].vendor || _("Unknown vendor"))
+          vendor
         ),
         Builtins.sformat(
           _("<b>Version:</b> %1<br>"),
-          (pi["product"].version || _("Unknown version"))
+          version
         ),
         Builtins.sformat(
           _("<b>Repository URL:</b> %1<br>"),
@@ -1334,10 +1336,10 @@ module Yast
 
       Builtins.foreach(installed_products) do |one_product|
         # only add-on products should be listed
-        if (one_product.type || "addon") != "addon"
+        if one_product.type != "addon"
           Builtins.y2milestone(
             "Skipping product: %1",
-            one_product.display_name || one_product.name
+            one_product.display_name.empty? ? one_product.name : one_product.display_name
           )
           next
         end
@@ -1544,7 +1546,7 @@ module Yast
         # Package is not at the repositories to be deleted
         if !Builtins.contains(
             src_ids,
-            (one_package.source || -1)
+            one_package.source
           )
           next false
         end
