@@ -105,8 +105,7 @@ module Yast
         @base = deep_copy(@products) if Builtins.size(@base) == 0
         @product = @base[0]
         if @product
-          @version = @product.version || ""
-          @version = Ops.get(Builtins.splitstring(@version, "-"), 0, "") # split off release
+          @version = @product.version_version
         end
 
         Builtins.y2milestone("Trying %1", @cdpath)

@@ -1271,21 +1271,21 @@ module Yast
     def GetRepoInfo(this_product, all_products)
       ret = { "IDs" => [], "URLs" => [], "aliases" => [] }
 
-      product_arch = this_product.value.arch || ""
-      product_name = this_product.value.name || ""
-      product_version = this_product.value.version || ""
+      product_arch = this_product.value.arch
+      product_name = this_product.value.name
+      product_version = this_product.value.version
 
       Builtins.foreach(all_products.value) do |one_product|
-        next if one_product.arch != product_arch
-        next if one_product.name != product_name
-        next if one_product.version != product_version
-        if (one_product.source || -1) != -1
+        next if one_product.arch != product_arch ||
+          one_product.name != product_name ||
+          one_product.version != product_version
+        if one_product.source != -1
           Ops.set(
             ret,
             "IDs",
             Builtins.add(
               Ops.get(ret, "IDs", []),
-              (one_product.source || -1)
+              one_product.source
             )
           )
         end
@@ -1315,10 +1315,9 @@ module Yast
     def GetInstalledProducts
       installed_products = Builtins.filter(GetAllProductsInfo()) do |one_product|
         # Do not list the base product
-        next false if (one_product.category || "addon") == "base"
+        next false if one_product.category == "base"
         # BNC #475591: Only those `installed or `selected ones should be actually visible
-        (one_product.status || :unknown) == :installed ||
-        (one_product.status || :unknown) == :selected
+        one_product.status == :installed || one_product.status == :selected
       end
 
       deep_copy(installed_products)
@@ -1338,7 +1337,7 @@ module Yast
         if (one_product.type || "addon") != "addon"
           Builtins.y2milestone(
             "Skipping product: %1",
-            one_product.display_name || one_product.name || ""
+            one_product.display_name || one_product.name
           )
           next
         end
@@ -1449,8 +1448,11 @@ module Yast
       log.info("Currently used add-ons: #{product_infos}")
 
       products = product_infos.map do |index, product_desc|
+        product_name = product_desc["product"].display_name
+        product_name = product_desc["product"].name if product_name.empty?
+        product_name = _("Unknown product") if product_name.empty?
         Item(Id("product_#{index}"),
-          product_desc["product"].display_name || product_desc["product"].name || _("Unknown product"),
+          product_name,
           product_desc["info"]["URLs"].first || _("Unknown URL")
         )
       end
@@ -1491,8 +1493,9 @@ module Yast
         return nil
       end
 
-      product_name =  pi["product"].display_name ||
-        pi["product"].name || _("Unknown product")
+      product_name = pi["product"].display_name
+      product_name = pi["product"].name if product_name.empty?
+      product_name = _("Unknown product") if product_name.empty?
 
       if !Popup.AnyQuestion(
           Label.WarningMsg,
@@ -1565,9 +1568,9 @@ module Yast
 
       # Removing selected product, whatever it means
       # It might remove several products when they use the same name
-      if ((pi["product"].status || :unknown) == :installed ||
-          (pi["product"].status || :unknown) == :selected) &&
-          (pi["product"].name || "") != ""
+      if (pi["product"].status == :installed ||
+          pi["product"].status == :selected &&
+          pi["product"].name != ""
         Builtins.y2milestone(
           "Removing product: '%1'",
           pi["product"].name
@@ -1630,14 +1633,14 @@ module Yast
           # it must be removed
           Builtins.y2milestone("Removing: %1", package_string)
           Pkg.ResolvableRemove(
-            (one_package.name || "~~~"),
+            one_package.name,
             :package
           )
 
           # but if another version is present, select if for installation
           if Builtins.contains(
               available_package_names,
-              (one_package.name || "~~~")
+              one_package.name
             )
             Builtins.y2milestone(
               "Installing another version of %1",
