@@ -1450,9 +1450,10 @@ module Yast
       log.info("Currently used add-ons: #{product_infos}")
 
       products = product_infos.map do |index, product_desc|
-        product_name = product_desc["product"].display_name
-        product_name = product_desc["product"].name if product_name.empty?
-        product_name = _("Unknown product") if product_name.empty?
+        product_name = [ product_desc["product"].display_name,
+          product_desc["product"].name,
+          _("Unknown product") ].reject(&:empty?).first
+
         Item(Id("product_#{index}"),
           product_name,
           product_desc["info"]["URLs"].first || _("Unknown URL")
@@ -1495,9 +1496,9 @@ module Yast
         return nil
       end
 
-      product_name = pi["product"].display_name
-      product_name = pi["product"].name if product_name.empty?
-      product_name = _("Unknown product") if product_name.empty?
+      product_name = [ pi["product"].display_name,
+        pi["product"].name,
+        _("Unknown product") ].reject(&:empty?).first
 
       if !Popup.AnyQuestion(
           Label.WarningMsg,
