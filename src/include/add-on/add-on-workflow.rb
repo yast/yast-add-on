@@ -1016,9 +1016,10 @@ module Yast
           Pkg.SourceReleaseAll
 
           Wizard.SetTitleIcon("yast-addon")
+
           ret2 = RunWizard()
 
-          break if ret2 == :back
+          ret = ret2 if ret2 == :back
           return :abort if ret2 == :abort
 
           log.info "Subworkflow result: ret2: #{ret2}"
