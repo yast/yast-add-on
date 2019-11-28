@@ -75,13 +75,14 @@ describe "Yast::AddOnWorkflowInclude" do
       end
 
       it "returns :next" do
-        allow(Yast::Pkg).to receive(:ResolvableProperties).and_return([])
+        allow(Y2Packager::Resolvable).to receive(:find).and_return([])
         allow(Yast::Pkg).to receive(:ResolvableInstall)
         expect(AddonIncludeTester.InstallProduct).to eq(:next)
       end
 
       it "selects the available products from the added repositories" do
-        expect(Yast::Pkg).to receive(:ResolvableProperties).and_return([p1, p2])
+        expect(Y2Packager::Resolvable).to receive(:find).and_return(
+          [Y2Packager::Resolvable.new(p1), Y2Packager::Resolvable.new(p2)])
         expect(Yast::Pkg).to receive(:ResolvableInstall).with("product1", :product)
         expect(Yast::Pkg).to receive(:ResolvableInstall).with("product2", :product)
 
@@ -89,16 +90,17 @@ describe "Yast::AddOnWorkflowInclude" do
       end
 
       it "ignores the products from other repositories" do
-        expect(Yast::Pkg).to receive(:ResolvableProperties).and_return(
-          [p1.merge("source" => 1), p2.merge("source" => 2)])
+        expect(Y2Packager::Resolvable).to receive(:find).and_return(
+          [Y2Packager::Resolvable.new(p1.merge("source" => 1)), Y2Packager::Resolvable.new(p2.merge("source" => 2))])
         expect(Yast::Pkg).to_not receive(:ResolvableInstall)
 
         AddonIncludeTester.InstallProduct
       end
 
       it "ignores the already selected repositories" do
-        expect(Yast::Pkg).to receive(:ResolvableProperties).and_return(
-          [p1.merge("status" => :selected), p2.merge("status" => :selected)])
+        expect(Y2Packager::Resolvable).to receive(:find).and_return(
+          [Y2Packager::Resolvable.new(p1.merge("status" => :selected)),
+           Y2Packager::Resolvable.new(p2.merge("status" => :selected))])
         expect(Yast::Pkg).to_not receive(:ResolvableInstall)
 
         AddonIncludeTester.InstallProduct

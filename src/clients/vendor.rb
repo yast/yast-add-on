@@ -98,18 +98,13 @@ module Yast
       else
         Pkg.TargetInit("/", false)
 
-        @products = Pkg.ResolvableProperties("", :product, "")
+        @products = Y2Packager::Resolvable.find(kind: :product,
+           status:    :installed,
+           category:  "base")
         @products = [] if @products == nil
-        @products = Builtins.filter(@products) do |p|
-          Ops.get(p, "status") == :installed
-        end
-        @base = Builtins.filter(@products) do |p|
-          Ops.get_string(p, "category", "") == "base"
-        end
         @base = deep_copy(@products) if Builtins.size(@base) == 0
-        @product = Ops.get(@base, 0, {})
-        @version = Ops.get_string(@product, "version", "")
-        @version = Ops.get(Builtins.splitstring(@version, "-"), 0, "") # split off release
+        @product = @base[0]
+        @version = @product ? @product.version_version : ""
 
         Builtins.y2milestone("Trying %1", @cdpath)
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
