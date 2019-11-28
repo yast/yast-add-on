@@ -1451,12 +1451,8 @@ module Yast
       log.info("Currently used add-ons: #{product_infos}")
 
       products = product_infos.map do |index, product_desc|
-        product_name = [ product_desc["product"].display_name,
-          product_desc["product"].name,
-          _("Unknown product") ].reject(&:empty?).first
-
         Item(Id("product_#{index}"),
-          product_name,
+          ui_product_name(product_desc["product"]),
           product_desc["info"]["URLs"].first || _("Unknown URL")
         )
       end
@@ -1497,10 +1493,7 @@ module Yast
         return nil
       end
 
-      product_name = [ pi["product"].display_name,
-        pi["product"].name,
-        _("Unknown product") ].reject(&:empty?).first
-
+      product_name = ui_product_name(pi["product"])
       if !Popup.AnyQuestion(
           Label.WarningMsg,
           Builtins.sformat(
@@ -1913,6 +1906,14 @@ module Yast
     end
 
   private
+
+    # Find the human readable product name from the product
+    # @param [Y2Packager::Resolvable] the product
+    # @return [String] a human readable product name
+    def ui_product_name(product)
+      return _("Unknown product") unless product
+      [product.display_name, product.name, _("Unknown product")].reject(&:empty?).first
+    end
 
     # Find the human readable product name for the product ID
     # @param product [String] the product name (ID)

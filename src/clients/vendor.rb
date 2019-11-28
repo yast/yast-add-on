@@ -104,9 +104,7 @@ module Yast
         @products = [] if @products == nil
         @base = deep_copy(@products) if Builtins.size(@base) == 0
         @product = @base[0]
-        if @product
-          @version = @product.version_version
-        end
+        @version = @product ? @product.version_version : ""
 
         Builtins.y2milestone("Trying %1", @cdpath)
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
