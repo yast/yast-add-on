@@ -1302,17 +1302,7 @@ module Yast
     end
 
     def GetAllProductsInfo
-      all_products = Y2Packager::Resolvable.find(:product)
-
-      all_products = Builtins.maplist(all_products) do |one_product|
-        # otherwise it fills the log too much
-        one_product.license = one_product.license[0..40] + "..."
-        one_product.description = one_product.description[0..40] + "..."
-
-        deep_copy(one_product)
-      end
-
-      deep_copy(all_products)
+      Y2Packager::Resolvable.find(kind: :product)
     end
 
     def GetInstalledProducts
