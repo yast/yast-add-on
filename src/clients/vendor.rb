@@ -6,6 +6,8 @@
 # Authors:	Klaus Kaempf <kkaempf@suse.de>
 #
 # $Id$
+
+require "y2packager/resolvable"
 module Yast
   class VendorClient < Client
     def main
@@ -98,13 +100,17 @@ module Yast
       else
         Pkg.TargetInit("/", false)
 
-        @products = Y2Packager::Resolvable.find(kind: :product,
-           status:    :installed,
-           category:  "base")
-        @products = [] if @products == nil
-        @base = deep_copy(@products) if Builtins.size(@base) == 0
-        @product = @base[0]
-        @version = @product ? @product.version_version : ""
+        base = Y2Packager::Resolvable.find(kind: :product,
+           status:   :installed,
+           category: "base")
+        if base.empty?
+          # fallback
+          base = Y2Packager::Resolvable.find(kind: :product,
+            status: :installed)
+        end
+
+        product = base[0]
+        version = product ? product.version_version : ""
 
         Builtins.y2milestone("Trying %1", @cdpath)
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
@@ -140,12 +146,12 @@ module Yast
             0
           )
           @vendordir = "/UnitedLinux/"
-          @version = "ul1"
+          version = "ul1"
         end
 
         @cdpath = Ops.add(
           Ops.add(Ops.add(Ops.add(@cdpath, @vendordir), Arch.architecture), "-"),
-          @version
+          version
         )
       end
 
