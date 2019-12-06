@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Dec  5 08:40:08 UTC 2019 - Ladislav Slezák <lslezak@suse.cz>
+
+- Do not offer add-ons on the Full medium when the system is
+  registered (jsc#SLE-7101)
+- 4.2.12
+
+-------------------------------------------------------------------
 Tue Dec  3 09:40:00 UTC 2019 - Ladislav Slezák <lslezak@suse.cz>
 
 - Fixed crash when cloning the system (bsc#1158247)

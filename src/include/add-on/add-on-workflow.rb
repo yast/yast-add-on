@@ -1878,7 +1878,7 @@ module Yast
     #
     # @return [Symbol] the workflow symbol (:next, :back, ...)
     def media_type_selection
-      if AddOnProduct.add_on_products.empty? && Y2Packager::MediumType.offline?
+      if offer_media_addons?
         # preselect the installation repository without asking the user
         # for the URL when adding an add-on first time on the offline medium
         SourceDialogs.SetURL(InstURL.installInf2Url(""))
@@ -1896,6 +1896,32 @@ module Yast
     end
 
   private
+
+    #
+    # Offer the add-ons from the installation medium automatically?
+    # The addons are only offered when:
+    #   - Running in the first stage
+    #   - Using the Full installation medium
+    #   - No other add-on has already beed added (do not offer them again when
+    #     going back and forth)
+    #   - The system is not registered (to not mix the add-ons from SCC and from DVD)
+    #
+    # @return [Boolean] `true` if the addons should be offered automatically
+    #
+    def offer_media_addons?
+      if !AddOnProduct.add_on_products.empty? || !Stage.initial || !Y2Packager::MediumType.offline?
+        return false
+      end
+
+      # check the registration status, be careful that the registration might be
+      # missing in the inst-sys (like on the openSUSE Leap media)
+      begin
+        require "registration/registration"
+        !Registration::Registration.is_registered?
+      rescue LoadError
+        return false
+      end
+    end
 
     # Find the human readable product name from the product
     # @param [Y2Packager::Resolvable] the product
