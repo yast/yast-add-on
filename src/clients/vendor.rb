@@ -128,8 +128,7 @@ module Yast
 
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
         if Ops.less_or_equal(Builtins.size(@dirlist2), 0) ||
-            !(Builtins.contains(@dirlist2, "suse") ||
-              Builtins.contains(@dirlist2, "unitedlinux"))
+            !(Builtins.contains(@dirlist2, "suse"))
           # VENDOR: vendor cd contains wrong data
           return wrong_cd(
             _("Could not find driver data on the CD-ROM.\nAborting now."),
@@ -137,22 +136,11 @@ module Yast
           )
         end
 
-        @vendordir = "/suse/"
-
-        if Ops.greater_than(
-            SCR.Read(path(".target.size"), "/etc/UnitedLinux-release"),
-            0
-          )
-          @vendordir = "/UnitedLinux/"
-          version = "ul1"
-        end
-
         @cdpath = Ops.add(
-          Ops.add(Ops.add(Ops.add(@cdpath, @vendordir), Arch.architecture), "-"),
+          Ops.add(Ops.add(Ops.add(@cdpath, "/suse/"), Arch.architecture), "-"),
           version
         )
       end
-
 
       Builtins.y2milestone("Trying %1", @cdpath)
 
