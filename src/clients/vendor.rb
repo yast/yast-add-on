@@ -108,9 +108,7 @@ module Yast
           base = Y2Packager::Resolvable.find(kind: :product,
             status: :installed)
         end
-
-        product = base[0]
-        version = product ? product.version_version : ""
+        version = base[0] ? base[0].version_version : ""
 
         Builtins.y2milestone("Trying %1", @cdpath)
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
