@@ -114,11 +114,11 @@ module Yast
     # @return [Symbol] for wizard sequencer
     def MediaSelect
       aliases = {
-        "type"  => lambda { media_type_selection },
+        # true: Skip "type" if it comes from :back and call registartion instead.
+        # bsc#1160501
+        "type"  => [lambda { media_type_selection }, true ],
         "edit"  => lambda { EditDialog() },
-        "store" => lambda do
-          StoreSource()
-        end
+        "store" => lambda { StoreSource() }
       }
 
       sources_before = Pkg.SourceGetCurrent(false)

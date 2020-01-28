@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jan 28 09:30:52 CET 2020 - schubi@suse.de
+
+- Fix in installation workflow: Can go back from
+  "Available Extensions and Modules" to registration (bsc#1160501).
+- 4.2.15
+
+-------------------------------------------------------------------
 Mon Jan 27 13:41:41 UTC 2020 - Josef Reidinger <jreidinger@suse.com>
 
 - Drop fake CLI that opens GUI and suggest to use zypper or
