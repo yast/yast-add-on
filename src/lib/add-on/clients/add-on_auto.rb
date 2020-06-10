@@ -266,7 +266,7 @@ module Yast
     def retry_again?(product, media_url)
       Popup.ContinueCancel(
         # TRANSLATORS: The placeholders are for the product name and the URL.
-        _("Make the add-on \"%{name}\" available via \"%{url}\".") % { name: product, url: media_url }
+        format(_("Make the add-on \"%{name}\" available via \"%{url}\"."), name: product, url: media_url)
       )
     end
 
@@ -278,10 +278,10 @@ module Yast
       error_msg =
         if product.nil? || product.empty?
           # TRANSLATORS: The placeholder is for the URL.
-          _("Failed to add product from \n%{url}") % { url: media_url }
+          format(_("Failed to add product from \n%{url}"), url: media_url)
         else
           # TRANSLATORS: The placeholders are for the product name and the URL.
-          _("Failed to add product \"%{name}\" from \n%{url}") % { name: product, url: media_url }
+          format(_("Failed to add product \"%{name}\" from \n%{url}"), name: product, url: media_url)
         end
 
       Report.Error(error_msg)

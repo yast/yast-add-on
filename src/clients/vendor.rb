@@ -1,9 +1,7 @@
-# encoding: utf-8
-
-# File:	clients/vendor.ycp
-# Package:	yast2-add-on
-# Summary:	Load vendor driver CD
-# Authors:	Klaus Kaempf <kkaempf@suse.de>
+# File:  clients/vendor.ycp
+# Package:  yast2-add-on
+# Summary:  Load vendor driver CD
+# Authors:  Klaus Kaempf <kkaempf@suse.de>
 #
 # $Id$
 
@@ -70,9 +68,9 @@ module Yast
       # try to mount device
 
       while SCR.Execute(
-          path(".target.mount"),
-          [@default_device, Installation.sourcedir]
-        ) == false
+        path(".target.mount"),
+        [@default_device, Installation.sourcedir]
+      ) == false
         # VENDOR: cant mount /dev/cdrom popup
         if !Popup.ContinueCancel(_("Please insert the vendor CD-ROM"))
           UI.CloseDialog
@@ -85,7 +83,6 @@ module Yast
       # CD is mounted. Check contents.
 
       @cdpath = Installation.sourcedir
-
 
       # get directory on update disk from installation (value from install.inf)
       #
@@ -100,13 +97,13 @@ module Yast
       else
         Pkg.TargetInit("/", false)
 
-        base = Y2Packager::Resolvable.find(kind: :product,
-           status:   :installed,
-           category: "base")
+        base = Y2Packager::Resolvable.find(kind:     :product,
+                                           status:   :installed,
+                                           category: "base")
         if base.empty?
           # fallback
-          base = Y2Packager::Resolvable.find(kind: :product,
-            status: :installed)
+          base = Y2Packager::Resolvable.find(kind:   :product,
+                                             status: :installed)
         end
         version = base[0] ? base[0].version_version : ""
 
@@ -128,7 +125,7 @@ module Yast
 
         @dirlist2 = Convert.to_list(SCR.Read(path(".target.dir"), @cdpath))
         if Ops.less_or_equal(Builtins.size(@dirlist2), 0) ||
-            !(Builtins.contains(@dirlist2, "suse"))
+            !Builtins.contains(@dirlist2, "suse")
           # VENDOR: vendor cd contains wrong data
           return wrong_cd(
             _("Could not find driver data on the CD-ROM.\nAborting now."),
@@ -146,8 +143,8 @@ module Yast
 
       @dirlist = Convert.convert(
         SCR.Read(path(".target.dir"), @cdpath),
-        :from => "any",
-        :to   => "list <string>"
+        from: "any",
+        to:   "list <string>"
       )
       if Ops.less_or_equal(Builtins.size(@dirlist), 0)
         # VENDOR: vendor cd doesn't contain data for current system and linux version
@@ -185,9 +182,7 @@ module Yast
       @inst_count = 0
 
       @short_lang = ""
-      if Ops.greater_than(Builtins.size(@language), 2)
-        @short_lang = Builtins.substring(@language, 0, 2)
-      end
+      @short_lang = Builtins.substring(@language, 0, 2) if Ops.greater_than(Builtins.size(@language), 2)
 
       # try to load .inst files, try with (xx_XX) ISO language first,
       # then with 2 char language code
@@ -259,15 +254,15 @@ module Yast
       end
 
       @result_message = ""
-      if Ops.greater_than(@inst_count, 0)
+      @result_message = if Ops.greater_than(@inst_count, 0)
         # VENDOR: message box with number of drivers installed
-        @result_message = Builtins.sformat(
+        Builtins.sformat(
           _("Installed %1 drivers from CD"),
           @inst_count
         )
       else
         # VENDOR: message box with error text
-        @result_message = _(
+        _(
           "No driver data found on the CD-ROM.\nAborting now."
         )
       end
@@ -278,7 +273,7 @@ module Yast
       SCR.Execute(path(".target.umount"), Installation.sourcedir)
 
       UI.CloseDialog
-      :ok 
+      :ok
 
       # EOF
     end

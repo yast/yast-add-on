@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # File:
 #      include/add-on/misc.ycp
 #
@@ -15,8 +13,7 @@
 #
 module Yast
   module AddOnMiscInclude
-    def initialize_add_on_misc(include_target)
-
+    def initialize_add_on_misc(_include_target)
       textdomain "add-on"
 
       Yast.import "AddOnProduct"
@@ -45,13 +42,13 @@ module Yast
       )
 
       # something is wrong
-      if totalmem == nil
+      if totalmem.nil?
         # using only RAM if possible
-        if Ops.get(meminfo, "memtotal") != nil
-          totalmem = Ops.get_integer(meminfo, "memtotal", 0) 
+        totalmem = if Ops.get(meminfo, "memtotal")
+          Ops.get_integer(meminfo, "memtotal", 0)
           # can't do anything, just assume we enough
         else
-          totalmem = enough_memory
+          enough_memory
         end
       end
 
@@ -68,17 +65,17 @@ module Yast
         AddOnProduct.low_memory_already_reported = true
 
         if Popup.YesNoHeadline(
-            # TRANSLATORS: pop-up headline
-            _("Warning: Not enough memory!"),
-            # TRANSLATORS: pop-up question
-            _(
-              "Your system does not seem to have enough memory to use add-on products\n" +
-                "during installation. You can enable add-on products later when the\n" +
-                "system is running.\n" +
-                "\n" +
-                "Do you want to skip using add-on products?"
-            )
+          # TRANSLATORS: pop-up headline
+          _("Warning: Not enough memory!"),
+          # TRANSLATORS: pop-up question
+          _(
+            "Your system does not seem to have enough memory to use add-on products\n" \
+              "during installation. You can enable add-on products later when the\n" \
+              "system is running.\n" \
+              "\n" \
+              "Do you want to skip using add-on products?"
           )
+        )
           Builtins.y2milestone("User decided to skip Add-Ons")
           AddOnProduct.skip_add_ons = true
 

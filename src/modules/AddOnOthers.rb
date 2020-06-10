@@ -1,4 +1,3 @@
-# encoding: utf-8
 require "yast"
 require "y2packager/resolvable"
 
@@ -8,7 +7,6 @@ module Yast
   # Usually custom or 3rd party repositories.
 
   class AddOnOthersClass < Module
-           
     include Yast::Logger
 
     #     add_on_others = [
@@ -39,7 +37,7 @@ module Yast
 
       installed_src_ids = installed_available_products.map(&:source).uniq
       other_repo_ids = Pkg.SourceGetCurrent(true) - installed_src_ids
-      @add_on_others = other_repo_ids.map{ |id| Pkg.SourceGeneralData(id) }
+      @add_on_others = other_repo_ids.map { |id| Pkg.SourceGeneralData(id) }
     end
 
     # Returns all enabled user added repos which are not base products or add-on products.
@@ -77,4 +75,3 @@ module Yast
   AddOnOthers = AddOnOthersClass.new
   AddOnOthers.main
 end
-
