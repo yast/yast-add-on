@@ -1,9 +1,7 @@
-# encoding: utf-8
-
-# File:	clients/inst_add-on.ycp
-# Package:	yast2-add-on
-# Summary:	Select add-on products for installation
-# Authors:	Jiri Srain <jsrain@suse.de>
+# File:  clients/inst_add-on.ycp
+# Package:  yast2-add-on
+# Summary:  Select add-on products for installation
+# Authors:  Jiri Srain <jsrain@suse.de>
 #
 
 require "tempfile"
@@ -51,7 +49,7 @@ module Yast
       addon_opt = Linuxrc.InstallInf("addon")
 
       # the "addon" boot option is present
-      if addon_opt != nil
+      if !addon_opt.nil?
         missing_addons = addon_opt.split(",") - current_addons
 
         # add the add-ons just once, skip adding if all add-ons are
@@ -67,12 +65,16 @@ module Yast
           ret = NetworkSetupForAddons(missing_addons)
           return ret if Builtins.contains([:back, :abort], ret)
 
-          plaindir, download, name, alias_ = false, true, "", ""
+          plaindir = false
+          download = true
+          name = ""
+          alias_ = ""
           missing_addons.each do |url|
             sources_before = Pkg.SourceGetCurrent(false)
             Builtins.y2milestone("Sources before adding new one: %1", sources_before)
 
             next if instsys_dvd?(url) && !AddOnProduct.AskForCD(url, name)
+
             createSourceImpl(url, plaindir, download, name, alias_)
 
             activate_addon_changes(sources_before)
@@ -124,22 +126,21 @@ module Yast
 
       # is this CD/DVD/HDD installation?
       if Builtins.contains(
-          local_protocols,
-          Builtins.tolower(Linuxrc.InstallInf("InstMode"))
-        )
+        local_protocols,
+        Builtins.tolower(Linuxrc.InstallInf("InstMode"))
+      )
         # is there any remote addon requiring network setup?
         network_needed = false
         Builtins.foreach(addon_urls) do |url|
           # is it a remote protocol?
           if !Builtins.contains(
-              local_protocols,
-              Builtins.tolower(Ops.get_string(URL.Parse(url), "scheme", ""))
-            )
+            local_protocols,
+            Builtins.tolower(Ops.get_string(URL.Parse(url), "scheme", ""))
+          )
             network_needed = true
             raise Break
           end
         end
-
 
         if network_needed
           # check and setup network
@@ -182,6 +183,7 @@ module Yast
     #   determined (for instance, when using a network based installation media)
     def instsys_device
       return @instsys_device if @instsys_device
+
       @instsys_device = devices_from_url(InstURL.installInf2Url).first
     end
 
@@ -196,14 +198,15 @@ module Yast
       parsed = URL.Parse(url)
       params = URL.MakeMapFromParams(parsed["query"])
       return [] unless params["devices"]
+
       devices = params["devices"].split(",") # MakeMapFromParams unescapes %2C
 
       devices.each_with_object([]) do |device, all|
-        begin
-          # File.realpath resolves symlinks (e.g. /dev/by-* to real devices like /dev/srX)
-          all << File.realpath(device)
-        rescue Errno::ENOENT
-        end
+
+        # File.realpath resolves symlinks (e.g. /dev/by-* to real devices like /dev/srX)
+        all << File.realpath(device)
+      rescue Errno::ENOENT => e
+        log.error "realpath failed with #{e}"
       end
     end
   end

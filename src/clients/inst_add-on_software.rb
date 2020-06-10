@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # File: inst_add-on_software.ycp
 #
 # Client providing the software overview/selection to be used
@@ -83,7 +81,7 @@ module Yast
 
       # Call the package selector
       # Since yast2 >= 2.17.58
-      @ret = PackagesUI.RunPackageSelector({ "mode" => @run_in_mode })
+      @ret = PackagesUI.RunPackageSelector("mode" => @run_in_mode)
       Builtins.y2milestone("RunPackageSelector returned %1", @ret)
 
       @dialog_ret = :next
@@ -96,9 +94,9 @@ module Yast
           Builtins.y2milestone("Selected resolvables will be installed now")
 
           if WFM.CallFunction(
-              "inst_rpmcopy",
-              [GetInstArgs.Buttons(false, false)]
-            ) == :abort
+            "inst_rpmcopy",
+            [GetInstArgs.Buttons(false, false)]
+          ) == :abort
             @dialog_ret = :abort
           else
             Kernel.InformAboutKernelChange

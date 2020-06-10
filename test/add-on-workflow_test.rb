@@ -39,14 +39,14 @@ describe Yast::AddOnAddOnWorkflowInclude do
           expect(Yast::SourceDialogs).to receive(:SetURL)
           subject.media_type_selection
         end
-  
+
         it "returns the :finish symbol" do
           expect(subject.media_type_selection).to eq(:finish)
           subject.media_type_selection
 
         end
       end
-      
+
       context "registered" do
         let(:registered?) { true }
 
@@ -55,7 +55,7 @@ describe Yast::AddOnAddOnWorkflowInclude do
           expect(Yast::SourceDialogs).to_not receive(:SetURL)
           subject.media_type_selection
         end
-  
+
         it "returns the user input" do
           allow(subject).to receive(:TypeDialogOpts).and_return(:next)
           expect(subject.media_type_selection).to eq(:next)

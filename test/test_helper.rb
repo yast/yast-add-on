@@ -1,4 +1,4 @@
-srcdir = File.expand_path("../../src", __FILE__)
+srcdir = File.expand_path("../src", __dir__)
 y2dirs = ENV.fetch("Y2DIR", "").split(":")
 ENV["Y2DIR"] = y2dirs.unshift(srcdir).join(":")
 
@@ -12,7 +12,7 @@ require "yast"
 #
 # Useful for modules from different YaST packages, to avoid build dependencies
 def stub_module(name)
-  Yast.const_set name.to_sym, Class.new { def self.fake_method; end }
+  Yast.const_set(name.to_sym, Class.new { def self.fake_method; end })
 end
 
 # Stub classes from other modules to speed up a build

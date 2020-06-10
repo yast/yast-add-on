@@ -9,8 +9,7 @@ describe Yast::AddOnAutoClient do
   describe "#import" do
     let(:params) do
       { "add_on_products" => add_on_products,
-        "add_on_others" => add_on_others
-      }
+        "add_on_others"   => add_on_others }
     end
 
     context "when 'add_on_products' param is NOT given" do
@@ -48,7 +47,8 @@ describe Yast::AddOnAutoClient do
 
       it "imports all add-on products given" do
         expect(Yast::AddOnProduct).to receive(:Import).with(
-          { "add_on_products" => add_on_products + add_on_others})
+          "add_on_products" => add_on_products + add_on_others
+        )
 
         subject.import(params)
       end
@@ -118,7 +118,7 @@ describe Yast::AddOnAutoClient do
           "media_url"   => "dvd:///product",
           "name"        => "updated_repo",
           "priority"    => 20,
-          "product_dir" => "",
+          "product_dir" => ""
         },
         {
           "alias"       => "valid_add_on",
@@ -222,22 +222,43 @@ describe Yast::AddOnAutoClient do
 
   describe "#export" do
     let(:add_on_products) do
-      {"add_on_products"=> [
-        { "product_dir"=>"/Module-Desktop-Applications",
-          "product"=>"sle-module-desktop-applications",
-          "media_url"=>"dvd:/?devices=/dev/sr1" },
-        { "product_dir"=>"/Module-Basesystem",
-          "product"=>"sle-module-basesystem",
-          "media_url"=>"dvd:/?devices=/dev/sr1" }
-      ]}
+      { "add_on_products" => [
+        { "product_dir" => "/Module-Desktop-Applications",
+          "product"     => "sle-module-desktop-applications",
+          "media_url"   => "dvd:/?devices=/dev/sr1" },
+        { "product_dir" => "/Module-Basesystem",
+          "product"     => "sle-module-basesystem",
+          "media_url"   => "dvd:/?devices=/dev/sr1" }
+      ] }
     end
-    let(:add_on_others) { {"add_on_others"=>[]} }
+    let(:add_on_others) do
+      { "add_on_others" => [
+        { "product_dir" => "/Module-Desktop-Applications",
+          "product"     => "sle-module-desktop-applications",
+          "media_url"   => "dvd:/?devices=/dev/sr1" }
 
-    it "returns add-on products and other user defined add-ons" do
+      ] }
+    end
+
+    it "returns add-on products merged with other add-ons if they are non empty" do
       expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
       expect(Yast::AddOnOthers).to receive(:Export).and_return(add_on_others)
 
       expect(subject.export).to eq(add_on_products.merge(add_on_others))
+    end
+
+    it "returns just non empty type of addons" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
+      expect(Yast::AddOnOthers).to receive(:Export).and_return({})
+
+      expect(subject.export).to eq(add_on_products)
+    end
+
+    it "returns empty hash if all types are empty" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return({})
+      expect(Yast::AddOnOthers).to receive(:Export).and_return({})
+
+      expect(subject.export).to eq({})
     end
   end
 

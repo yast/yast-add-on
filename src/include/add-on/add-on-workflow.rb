@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # File:
 #      include/add-on/add-on-workflow.ycp
 #
@@ -11,7 +9,7 @@
 #
 # Authors:
 #      Jiri Srain <jsrain@suse.cz>
-#	Lukas Ocilka <locilka@suse.cz>
+#  Lukas Ocilka <locilka@suse.cz>
 #
 #
 
@@ -116,9 +114,9 @@ module Yast
       aliases = {
         # true: Skip "type" if it comes from :back and call registartion instead.
         # bsc#1160501
-        "type"  => [lambda { media_type_selection }, true ],
-        "edit"  => lambda { EditDialog() },
-        "store" => lambda { StoreSource() }
+        "type"  => [-> { media_type_selection }, true],
+        "edit"  => -> { EditDialog() },
+        "store" => -> { StoreSource() }
       }
 
       sources_before = Pkg.SourceGetCurrent(false)
@@ -127,23 +125,23 @@ module Yast
       sequence = {
         "ws_start" => "type",
         "type"     => {
-          :next   => "edit",
+          next:   "edit",
           # bnc #392083
-          :finish => "store",
-          :abort  => :abort,
-          :skip   => :skip
+          finish: "store",
+          abort:  :abort,
+          skip:   :skip
         },
         "edit"     => {
-          :next   => "store",
+          next:   "store",
           # bnc #392083
-          :finish => "store",
-          :abort  => :abort
+          finish: "store",
+          abort:  :abort
         },
         "store"    => {
-          :next   => :next,
+          next:   :next,
           # bnc #392083
-          :finish => :next,
-          :abort  => :abort
+          finish: :next,
+          abort:  :abort
         }
       }
 
@@ -166,7 +164,7 @@ module Yast
     def SetAddOnProductName(src_id)
       @new_addon_name = ""
 
-      if src_id == nil
+      if src_id.nil?
         Builtins.y2error("Cannot set name, no ID!")
         return
       end
@@ -174,7 +172,7 @@ module Yast
       @new_addon_name = SourceDialogs.GetRepoName
 
       # no name to change to
-      if @new_addon_name == nil || @new_addon_name == ""
+      if @new_addon_name.nil? || @new_addon_name == ""
         Builtins.y2milestone("No special name set")
         return
       end
@@ -236,7 +234,7 @@ module Yast
           Builtins.y2warning("Already in base dialog!")
         else
           Builtins.y2error("Error in packager, closing current dialog!")
-          while !UI.WidgetExists(:contents)
+          until UI.WidgetExists(:contents)
             Builtins.y2milestone("Calling UI::CloseDialog")
             UI.CloseDialog
           end
@@ -278,8 +276,8 @@ module Yast
       title = _("Software Repository Selection")
       # help text
       help_text = _(
-        "<p><big><b>Software Repository Selection</b></big><br>\n" +
-          "Multiple repositories were found on the selected medium.\n" +
+        "<p><big><b>Software Repository Selection</b></big><br>\n" \
+          "Multiple repositories were found on the selected medium.\n" \
           "Select the repository to use.</p>\n"
       )
 
@@ -295,19 +293,21 @@ module Yast
       Wizard.SetContents(title, contents, help_text, true, true)
       ret = nil
       selected = nil
-      while ret == nil
+      while ret.nil?
         ret = Convert.to_symbol(UI.UserInput)
-        if ret == :abort || ret == :cancel
+        case ret
+        when :abort, :cancel
           ret = :abort
           break if Popup.YesNo(_("Really abort add-on product installation?"))
+
           next
-        elsif ret == :back
+        when :back
           break
-        elsif ret == :next
+        when :next
           selected = Convert.to_integer(
             UI.QueryWidget(Id(:catalogs), :CurrentItem)
           )
-          if selected == nil
+          if selected.nil?
             ret = nil
             # popup message
             Popup.Message(_("Select a repository."))
@@ -358,6 +358,7 @@ module Yast
       all_products.each do |product|
         # Product doesn't match the new source ID
         next unless @added_repos.include?(product.source)
+
         # Product is not available (either `installed or `selected or ...)
         if product.status != :available
           log.info("Skipping product #{product.name} with status " \
@@ -384,12 +385,13 @@ module Yast
       # getting all source urls and product_dirs
       Builtins.foreach(all_products) do |p|
         one_src_id = Builtins.tointeger(Ops.get(p, "source"))
-        next if one_src_id == nil
+        next if one_src_id.nil?
         # the last source (just added)
         next if one_src_id == AddOnProduct.src_id
+
         src_general_data = Pkg.SourceGeneralData(one_src_id)
         source_url = Ops.get_string(src_general_data, "url", "")
-        if source_url != "" && source_url != nil
+        if source_url != "" && !source_url.nil?
           Ops.set(
             already_used_urls,
             source_url,
@@ -445,16 +447,15 @@ module Yast
 
         AddOnProduct.add_on_products = Builtins.add(
           AddOnProduct.add_on_products,
-          {
-            "media"       => AddOnProduct.src_id,
-            # table cell
-            "product"     => @new_addon_name != "" &&
-              @new_addon_name != nil ?
-              @new_addon_name :
-              _("No product found in the repository."),
-            "media_url"   => url,
-            "product_dir" => product_dir
-          }
+          "media"       => AddOnProduct.src_id,
+          # table cell
+          "product"     => if [nil, ""].include?(@new_addon_name)
+                             _("No product found in the repository.")
+                           else
+                             @new_addon_name
+                           end,
+          "media_url"   => url,
+          "product_dir" => product_dir
         )
 
         if Mode.config
@@ -485,16 +486,11 @@ module Yast
 
       # there is only one product on the given url
       if Builtins.size(products) == 1
-        # bugzilla #227605
-        # this product with this url has been already installed or selected for installation
-        src_general_data = Pkg.SourceGeneralData(AddOnProduct.src_id)
-        current_url = Ops.get_string(src_general_data, "url", "")
-
         Builtins.y2milestone("Only one product available - skipping dialog")
         prod = Ops.get(products, 0, {})
         if !AddOnProduct.CheckProductDependencies(
-            [Ops.get_string(prod, "name", "")]
-          )
+          [Ops.get_string(prod, "name", "")]
+        )
           Pkg.ResolvableRemove(Ops.get_string(prod, "name", ""), :product)
           # message popup
           Popup.Message(
@@ -510,9 +506,9 @@ module Yast
         Builtins.foreach(all_products) do |p|
           if Ops.get_string(p, "name", "") == Ops.get_string(prod, "name", "") &&
               Ops.get_string(p, "version", "") ==
-                Ops.get_string(prod, "version", "") &&
+                  Ops.get_string(prod, "version", "") &&
               Ops.get_integer(p, "media", -2) !=
-                Ops.get_integer(prod, "media", -3)
+                  Ops.get_integer(prod, "media", -3)
             Builtins.y2milestone(
               "Product %1 already available on media %2",
               p,
@@ -538,24 +534,23 @@ module Yast
 
         AddOnProduct.add_on_products = Builtins.add(
           AddOnProduct.add_on_products,
-          {
-            "media"            => AddOnProduct.src_id,
-            "product"          => @new_addon_name != "" &&
-              @new_addon_name != nil ?
-              @new_addon_name :
-              Ops.get_string(
-                prod,
-                "display_name",
-                Ops.get_string(
-                  prod,
-                  "short_name",
-                  Ops.get_string(prod, "name", "")
-                )
-              ),
-            "autoyast_product" => Ops.get_string(prod, "name", ""),
-            "media_url"        => url,
-            "product_dir"      => product_dir
-          }
+          "media"            => AddOnProduct.src_id,
+          "product"          => if [nil, ""].include?(@new_addon_name) != ""
+                                  Ops.get_string(
+                                    prod,
+                                    "display_name",
+                                    Ops.get_string(
+                                      prod,
+                                      "short_name",
+                                      Ops.get_string(prod, "name", "")
+                                    )
+                                  )
+                                else
+                                  @new_addon_name
+                                end,
+          "autoyast_product" => Ops.get_string(prod, "name", ""),
+          "media_url"        => url,
+          "product_dir"      => product_dir
         )
 
         if found_source == -1 && Mode.config
@@ -592,32 +587,25 @@ module Yast
       )
       # help text
       help_text = _(
-        "<p><b><big>Product Selection</big></b><br/>\n" +
-          "Multiple products were found in the repository. Select the products\n" +
+        "<p><b><big>Product Selection</big></b><br/>\n" \
+          "Multiple products were found in the repository. Select the products\n" \
           "to install.</p>\n"
       )
       Wizard.SetContents(title, contents, help_text, true, true)
-      while ret == nil
+      while ret.nil?
         ret = Convert.to_symbol(UI.UserInput)
-        if ret == :cancel || ret == :abort
-          ret = :abort
-          #	    if (Stage::initial())
-          #	    {
-          #	        if (Popup::ConfirmAbort (`painless))
-          #		    break;
-          #	    }
-          #	    else
-          #	    {
+        ret = :abort if ret == :cancel
+        if ret == :abort
           # yes-no popup
           break if Popup.YesNo(_("Really abort add-on product installation?"))
-          #	    }
+
           next
         end
         if ret == :next
           selected = Convert.convert(
             UI.QueryWidget(Id(:products), :SelectedItems),
-            :from => "any",
-            :to   => "list <string>"
+            from: "any",
+            to:   "list <string>"
           )
           # check whether the product is already available on some media - it is similar as above
           prods = Builtins.filter(products) do |p|
@@ -625,25 +613,25 @@ module Yast
           end
           all_found = true
           prod2src = {}
-          Builtins.foreach(prods) do |prod|
+          Builtins.foreach(prods) do |product|
             product_found = false
             Builtins.foreach(all_products) do |p|
               if Ops.get_string(p, "name", "") ==
-                  Ops.get_string(prod, "name", "") &&
+                  Ops.get_string(product, "name", "") &&
                   Ops.get_string(p, "version", "") ==
-                    Ops.get_string(prod, "version", "") &&
+                      Ops.get_string(product, "version", "") &&
                   Ops.get_integer(p, "media", -2) !=
-                    Ops.get_integer(prod, "media", -3)
+                      Ops.get_integer(product, "media", -3)
                 product_found = true
                 Ops.set(
                   prod2src,
-                  Ops.get_string(prod, "name", ""),
+                  Ops.get_string(product, "name", ""),
                   Ops.get_integer(p, "media", -3)
                 )
                 raise Break
               end
             end
-            all_found = all_found && product_found
+            all_found &&= product_found
           end
           if all_found
             Builtins.y2milestone("Deleting source %1", AddOnProduct.src_id)
@@ -671,21 +659,24 @@ module Yast
           product_dir = Ops.get_string(data, "product_dir", "")
 
           Builtins.foreach(selected) do |product|
-            src_id = AddOnProduct.src_id == -1 ?
-              Ops.get(prod2src, product, -1) :
+            src_id = if AddOnProduct.src_id == -1
+              Ops.get(prod2src, product, -1)
+            else
               AddOnProduct.src_id
+            end
             # bugzilla #304659
             SetAddOnProductName(AddOnProduct.src_id)
             AddOnProduct.add_on_products = Builtins.add(
               AddOnProduct.add_on_products,
-              {
-                "media"             => src_id,
-                "product"           => @new_addon_name != "" &&
-                  @new_addon_name != nil ? @new_addon_name : product,
-                "autoyast_prouduct" => product,
-                "media_url"         => url,
-                "product_dir"       => product_dir
-              }
+              "media"             => src_id,
+              "product"           => if [nil, ""].include?(@new_addon_name)
+                                       product
+                                     else
+                                       @new_addon_name
+                                     end,
+              "autoyast_prouduct" => product,
+              "media_url"         => url,
+              "product_dir"       => product_dir
             )
           end
           if AddOnProduct.src_id != -1 && Mode.config
@@ -714,33 +705,33 @@ module Yast
 
     # Check new product compliance; may abort the installation
     def CheckCompliance
-      compliant = @added_repos.all?{ |src_id| ProductProfile.CheckCompliance(src_id) }
+      compliant = @added_repos.all? { |src_id| ProductProfile.CheckCompliance(src_id) }
       compliant ? :next : :abort
     end
 
     def RunWizard
       aliases = {
-        "media"            => lambda { MediaSelect() },
-        "install_product"  => lambda { InstallProduct() },
-        "check_compliance" => lambda { CheckCompliance() }
+        "media"            => -> { MediaSelect() },
+        "install_product"  => -> { InstallProduct() },
+        "check_compliance" => -> { CheckCompliance() }
       }
 
       sequence = {
-        "ws_start"        => "media",
-        "media"           => {
-          :abort  => :abort,
-          :next   => "check_compliance",
-          :finish => "check_compliance",
-          :skip   => :skip
+        "ws_start"         => "media",
+        "media"            => {
+          abort:  :abort,
+          next:   "check_compliance",
+          finish: "check_compliance",
+          skip:   :skip
         },
         "check_compliance" => {
-          :abort => :abort,
-          :next  => "install_product"
+          abort: :abort,
+          next:  "install_product"
         },
-        "install_product" => {
-          :abort  => :abort,
-          :next   => :next,
-          :finish => :next
+        "install_product"  => {
+          abort:  :abort,
+          next:   :next,
+          finish: :next
         }
       }
       Sequencer.Run(aliases, sequence)
@@ -748,14 +739,14 @@ module Yast
 
     def RunAutorunWizard
       aliases = {
-        "catalog" => lambda { CatalogSelect() },
-        "product" => lambda { ProductSelect() }
+        "catalog" => -> { CatalogSelect() },
+        "product" => -> { ProductSelect() }
       }
 
       sequence = {
         "ws_start" => "catalog",
-        "catalog"  => { :abort => :abort, :next => "product", :finish => :next },
-        "product"  => { :abort => :abort, :next => :next, :finish => :next }
+        "catalog"  => { abort: :abort, next: "product", finish: :next },
+        "product"  => { abort: :abort, next: :next, finish: :next }
       }
       Sequencer.Run(aliases, sequence)
     end
@@ -767,9 +758,9 @@ module Yast
 
       # Help for add-on products
       help = _(
-        "<p><big><b>Add-On Product Installation</b></big><br/>\n" +
-          "Here see all add-on products that are selected for installation.\n" +
-          "To add a new product, click <b>Add</b>. To remove an already added one,\n" +
+        "<p><big><b>Add-On Product Installation</b></big><br/>\n" \
+          "Here see all add-on products that are selected for installation.\n" \
+          "To add a new product, click <b>Add</b>. To remove an already added one,\n" \
           "select it and click <b>Delete</b>.</p>"
       )
 
@@ -786,9 +777,7 @@ module Yast
           data = Pkg.SourceGeneralData(Ops.get_integer(product, "media", -1))
         else
           data = deep_copy(product)
-          if Builtins.haskey(data, "media_url")
-            Ops.set(data, "url", Ops.get_string(data, "media_url", ""))
-          end
+          Ops.set(data, "url", Ops.get_string(data, "media_url", "")) if Builtins.haskey(data, "media_url")
         end
         # placeholder for unknown path
         dir = Ops.get_locale(data, "product_dir", _("Unknown"))
@@ -880,7 +869,7 @@ module Yast
       Ops.set(AddOnProduct.add_on_products, selected, nil)
       AddOnProduct.add_on_products = Builtins.filter(
         AddOnProduct.add_on_products
-      ) { |prod| prod != nil }
+      ) { |prod| !prod.nil? }
 
       # Remove product from add-ons
       AddOnProduct.Disintegrate(media)
@@ -890,8 +879,6 @@ module Yast
 
       nil
     end
-
-
 
     # bugzilla #221377
     # the original control file is stored as /control.xml
@@ -944,7 +931,6 @@ module Yast
         )
       end
 
-
       # store the initial settings, only once
       WorkflowManager.SetBaseWorkflow(false)
 
@@ -955,26 +941,23 @@ module Yast
         ret = Convert.to_symbol(UI.UserInput) unless ret == :skip_to_add
 
         # aborting
-        if ret == :abort || ret == :cancel
+        case ret
+        when :abort, :cancel
           # User should confirm that
-          if confirm_abort == true
-            if Popup.ConfirmAbort(:incomplete)
-              ret = :abort
-              break
-            else
-              ret = nil
-            end
-            # Running system
-          else
+          break unless confirm_abort
+
+          if Popup.ConfirmAbort(:incomplete)
+            ret = :abort
             break
           end
 
+          ret = nil
           # removing add-on
-        elsif ret == :delete
+        when :delete
           selected = Convert.to_integer(
             UI.QueryWidget(Id(:summary), :CurrentItem)
           )
-          if selected == nil
+          if selected.nil?
             # message report
             Report.Message(_("Select a product to delete."))
             next
@@ -1001,7 +984,7 @@ module Yast
           )
 
           # adding new add-on
-        elsif ret == :add || ret == :skip_to_add
+        when :add, :skip_to_add
           # Show the checkbox only the first time in installation when there is no
           # other addon present, allow to quickly skip adding addons. In the
           # following runs it makes no sense as user explicitly wants to add an addon.
@@ -1059,7 +1042,7 @@ module Yast
               Pkg.SourceDelete(src_id)
 
               AddOnProduct.add_on_products.reject! do |add_on_product|
-                  add_on_product["media"] == src_id
+                add_on_product["media"] == src_id
               end
             end
 
@@ -1170,7 +1153,7 @@ module Yast
       )
 
       # no items
-      return nil if item_id == nil
+      return nil if item_id.nil?
 
       if !Builtins.regexpmatch(item_id, "product_")
         Builtins.y2error("Wrong product ID '%1'", item_id)
@@ -1184,7 +1167,7 @@ module Yast
 
     def AdjustInfoWidget
       pi = ReturnCurrentlySelectedProductInfo()
-      if pi == nil || pi == {}
+      if pi.nil? || pi == {}
         UI.ChangeWidget(Id("product_details"), :Value, "")
         return
       end
@@ -1203,22 +1186,26 @@ module Yast
         ),
         Builtins.sformat(
           _("<b>Repository URL:</b> %1<br>"),
-          Ops.greater_than(
+          if Ops.greater_than(
             Builtins.size(Ops.get_list(pi, ["info", "URLs"], [])),
             0
-          ) ?
-            Builtins.mergestring(Ops.get_list(pi, ["info", "URLs"], []), ",") :
+          )
+            Builtins.mergestring(Ops.get_list(pi, ["info", "URLs"], []), ",")
+          else
             _("Unknown repository URL")
+          end
         ),
-        Ops.greater_than(
+        if Ops.greater_than(
           Builtins.size(Ops.get_list(pi, ["info", "aliases"], [])),
           0
-        ) ?
+        )
           Builtins.sformat(
             _("<b>Repository Alias:</b> %1<br>"),
             Builtins.mergestring(Ops.get_list(pi, ["info", "aliases"], []), ",")
-          ) :
+          )
+        else
           ""
+        end
       )
 
       UI.ChangeWidget(Id("product_details"), :Value, rt_description)
@@ -1231,27 +1218,25 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           Ops.get(info.value, "IDs", []),
-          :from => "list",
-          :to   => "list <integer>"
+          from: "list",
+          to:   "list <integer>"
         )
       ) do |one_repo|
-        if one_repo == nil || one_repo == -1
+        if one_repo.nil? || one_repo == -1
           Builtins.y2warning("Wrong repo ID: %1", one_repo)
           next
         end
         source_data = Pkg.SourceGeneralData(one_repo)
-        if source_data != nil && Builtins.haskey(source_data, "base_urls")
+        if !source_data.nil? && Builtins.haskey(source_data, "base_urls")
           urls = source_data["base_urls"]
           # Add the product directory if it is present
-          if ![nil, "", "/"].include?(source_data["product_dir"])
-            urls.map! { |u| "#{u} (#{source_data["product_dir"]})" }
-          end
+          urls.map! { |u| "#{u} (#{source_data["product_dir"]})" } if ![nil, "", "/"].include?(source_data["product_dir"])
 
           Ops.set(info.value, "URLs", urls)
         else
           Builtins.y2error("No URLs for repo ID %1", one_repo)
         end
-        if source_data != nil && Builtins.haskey(source_data, "alias")
+        if !source_data.nil? && Builtins.haskey(source_data, "alias")
           Ops.set(
             info.value,
             "aliases",
@@ -1282,6 +1267,7 @@ module Yast
         next if one_product.arch != product_arch ||
           one_product.name != product_name ||
           one_product.version != product_version
+
         if one_product.source != -1
           Ops.set(
             ret,
@@ -1309,6 +1295,7 @@ module Yast
       installed_products = Builtins.filter(GetAllProductsInfo()) do |one_product|
         # Do not list the base product
         next false if one_product.category == "base"
+
         # BNC #475591: Only those `installed or `selected ones should be actually visible
         one_product.status == :installed || one_product.status == :selected
       end
@@ -1340,23 +1327,23 @@ module Yast
           one_product.name,
           repository_info
         )
-        if repository_info == nil
+        if repository_info.nil?
           Builtins.y2warning(
             "No matching repository found for product listed above"
           )
         end
         repository_info = (
-          one_product_ref = arg_ref(one_product);
-          all_products_ref = arg_ref(all_products);
-          _GetRepoInfo_result = GetRepoInfo(one_product_ref, all_products_ref);
-          one_product = one_product_ref.value;
-          all_products = all_products_ref.value;
+          one_product_ref = arg_ref(one_product)
+          all_products_ref = arg_ref(all_products)
+          _GetRepoInfo_result = GetRepoInfo(one_product_ref, all_products_ref)
+          one_product = one_product_ref.value
+          all_products = all_products_ref.value
           _GetRepoInfo_result
         )
         Ops.set(
           @product_infos,
           Builtins.tostring(counter),
-          { "product" => one_product, "info" => repository_info }
+          "product" => one_product, "info" => repository_info
         )
       end
 
@@ -1383,29 +1370,39 @@ module Yast
 
       product_infos = Convert.convert(
         GetProductInfos(),
-        :from => "map",
-        :to   => "map <string, map>"
+        from: "map",
+        to:   "map <string, map>"
       )
-      if product_infos == nil || product_infos == {}
+      if product_infos.nil? || product_infos == {}
         Builtins.y2warning("No add-on products have been found")
         return true
       end
 
       src_id = nil
 
-      Builtins.foreach(product_infos) do |index, product_desc|
+      Builtins.foreach(product_infos) do |_index, product_desc|
         src_id = Ops.get_integer(product_desc, ["info", "IDs", 0], -1)
-        if src_id == nil || src_id == -1
+        if src_id.nil? || src_id == -1
           Builtins.y2error("Cannot get source ID from %1", product_desc)
           next
         end
         repo_data = Pkg.SourceGeneralData(src_id)
         AddOnProduct.add_on_products = Builtins.add(
           AddOnProduct.add_on_products,
-          {
-            "media"            => src_id,
-            "product_dir"      => Ops.get_string(repo_data, "product_dir", "/"),
-            "product"          => Ops.get_locale(
+          "media"            => src_id,
+          "product_dir"      => Ops.get_string(repo_data, "product_dir", "/"),
+          "product"          => Ops.get_locale(
+            repo_data,
+            "name",
+            Ops.get_locale(
+              repo_data,
+              "alias",
+              _("No product found in the repository.")
+            )
+          ),
+          "autoyast_product" => Ops.get_locale(
+            product_desc["product"].name,
+            Ops.get_locale(
               repo_data,
               "name",
               Ops.get_locale(
@@ -1413,21 +1410,9 @@ module Yast
                 "alias",
                 _("No product found in the repository.")
               )
-            ),
-            "autoyast_product" => Ops.get_locale(
-              product_desc["product"].name,
-              Ops.get_locale(
-                repo_data,
-                "name",
-                Ops.get_locale(
-                  repo_data,
-                  "alias",
-                  _("No product found in the repository.")
-                )
-              )
-            ),
-            "media_url"        => Pkg.SourceURL(src_id)
-          }
+            )
+          ),
+          "media_url"        => Pkg.SourceURL(src_id)
         )
       end
 
@@ -1443,8 +1428,7 @@ module Yast
       products = product_infos.map do |index, product_desc|
         Item(Id("product_#{index}"),
           ui_product_name(product_desc["product"]),
-          product_desc["info"]["URLs"].first || _("Unknown URL")
-        )
+          product_desc["info"]["URLs"].first || _("Unknown URL"))
       end
 
       UI.ChangeWidget(Id("list_of_addons"), :Items, products)
@@ -1458,7 +1442,7 @@ module Yast
       solve_ret = Pkg.PkgSolve(false)
       Builtins.y2milestone("Calling Solve() returned: %1", solve_ret)
 
-      result = PackagesUI.RunPackageSelector({ "mode" => :summaryMode })
+      result = PackagesUI.RunPackageSelector("mode" => :summaryMode)
 
       return false if result != :accept
 
@@ -1478,27 +1462,27 @@ module Yast
     # @return [Boolean] whether something has changed its state
     def RemoveProductWithDependencies
       pi = ReturnCurrentlySelectedProductInfo()
-      if pi == nil || pi == {}
+      if pi.nil? || pi == {}
         Builtins.y2error("Cannot remove unknown product")
         return nil
       end
 
       product_name = ui_product_name(pi["product"])
       if !Popup.AnyQuestion(
-          Label.WarningMsg,
-          Builtins.sformat(
-            _(
-              "Deleting the add-on product %1 may result in removing all the packages\n" +
-                "installed from this add-on.\n" +
-                "\n" +
-                "Are sure you want to delete it?"
-            ),
-            product_name
+        Label.WarningMsg,
+        Builtins.sformat(
+          _(
+            "Deleting the add-on product %1 may result in removing all the packages\n" \
+              "installed from this add-on.\n" \
+              "\n" \
+              "Are sure you want to delete it?"
           ),
-          Label.DeleteButton,
-          Label.CancelButton,
-          :focus_no
-        )
+          product_name
+        ),
+        Label.DeleteButton,
+        Label.CancelButton,
+        :focus_no
+      )
         Builtins.y2milestone("Deleting '%1' canceled", product_name)
         return nil
       end
@@ -1510,7 +1494,6 @@ module Yast
       src_ids = Ops.get_list(pi, ["info", "IDs"], [])
 
       # Temporary definitions
-      pack_ret = false
       package_string = ""
 
       # ["pkg1 version release arch", "pkg2 version release arch", ... ]
@@ -1530,11 +1513,12 @@ module Yast
       packages_from_repo = Builtins.filter(packages_from_repo) do |one_package|
         # Package is not at the repositories to be deleted
         if !Builtins.contains(
-            src_ids,
-            one_package.source
-          )
+          src_ids,
+          one_package.source
+        )
           next false
         end
+
         # Package *is* at the repository to delete
 
         # "name version-release arch", "version" already contains a release
@@ -1542,7 +1526,7 @@ module Yast
           "%1 %2 %3",
           one_package.name,
           one_package.version,
-          one_package.arch,
+          one_package.arch
         )
         # The very same package (which is avaliable at the source) is also installed
         Builtins.contains(installed_packages, package_string)
@@ -1626,12 +1610,12 @@ module Yast
 
           # but if another version is present, select if for installation
           if Builtins.contains(
-              available_package_names,
-              one_package.name
-            )
+            available_package_names,
+            one_package.name
+          )
             Builtins.y2milestone(
               "Installing another version of %1",
-              one_package.name,
+              one_package.name
             )
             Pkg.ResolvableInstall(
               one_package.name,
@@ -1741,23 +1725,24 @@ module Yast
 
       userret = nil
 
-      while true
+      loop do
         userret = UI.UserInput
 
         # Abort
-        if userret == :abort || userret == :cancel
+        case userret
+        when :abort, :cancel
           Builtins.y2warning("Aborting...")
           ret = :abort
           break
 
           # Closing
-        elsif userret == :next || userret == :finish
+        when :next, :finish
           Builtins.y2milestone("Finishing...")
           ret = :next
           break
 
           # Addin new product
-        elsif userret == :add
+        when :add
           Builtins.y2milestone("Using new Add-On...")
 
           RunAddProductWorkflow() if RunWizard() == :next
@@ -1765,22 +1750,20 @@ module Yast
           # Something has disabled all the repositories or finished
           # libzypp, reload it
           current_repos = Pkg.SourceGetCurrent(true)
-          if current_repos == nil || Builtins.size(current_repos) == 0
-            LoadLibzyppNow()
-          end
+          LoadLibzyppNow() if current_repos.nil? || Builtins.size(current_repos) == 0
 
           CreateAddOnsOverviewDialog()
           RedrawAddOnsOverviewTable()
 
           # Removing product
-        elsif userret == :delete
+        when :delete
           Builtins.y2milestone("Removing selected product...")
 
           rpwd = RemoveProductWithDependencies()
           Builtins.y2milestone("RPWD result was: %1", rpwd)
 
           # nil == user decided not to remove the product
-          if rpwd == nil
+          if rpwd.nil?
             Builtins.y2milestone(
               "User decided not to remove the selected product"
             )
@@ -1810,11 +1793,11 @@ module Yast
           RedrawAddOnsOverviewTable()
 
           # Redrawing info widget
-        elsif userret == "list_of_addons"
+        when "list_of_addons"
           AdjustInfoWidget()
 
           # Calling packager directly
-        elsif userret == :packager
+        when :packager
           Builtins.y2milestone("Calling packager...")
           RunPackageSelector()
 
@@ -1867,10 +1850,10 @@ module Yast
       # BNC #468449
       # It may happen that the add-on control file contains some code that
       # would drop the changes made, so it's better to save the soruces now
-      if Mode.normal
-        Builtins.y2milestone("Saving all sources")
-        Pkg.SourceSaveAll
-      end
+      return unless Mode.normal
+
+      Builtins.y2milestone("Saving all sources")
+      Pkg.SourceSaveAll
     end
 
     # Display the media type selection dialog, in the offline mode it is skipped
@@ -1909,9 +1892,7 @@ module Yast
     # @return [Boolean] `true` if the addons should be offered automatically
     #
     def offer_media_addons?
-      if !AddOnProduct.add_on_products.empty? || !Stage.initial || !Y2Packager::MediumType.offline?
-        return false
-      end
+      return false if !AddOnProduct.add_on_products.empty? || !Stage.initial || !Y2Packager::MediumType.offline?
 
       # check the registration status, be careful that the registration might be
       # missing in the inst-sys (like on the openSUSE Leap media)
@@ -1928,6 +1909,7 @@ module Yast
     # @return [String] a human readable product name
     def ui_product_name(product)
       return _("Unknown product") unless product
+
       [product.display_name, product.name, _("Unknown product")].reject(&:empty?).first
     end
 
@@ -1936,7 +1918,8 @@ module Yast
     # @return [String] a human readable product name or the original ID if not found
     def product_label(product)
       selected_product = Y2Packager::Resolvable.find(
-        kind: :product, status: :selected, name: product).first
+        kind: :product, status: :selected, name: product
+      ).first
 
       # fallback to the internal product name
       selected_product&.display_name || product

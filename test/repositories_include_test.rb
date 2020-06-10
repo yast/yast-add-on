@@ -40,7 +40,7 @@ describe "Yast::AddOnWorkflowInclude" do
 
     it "refreshes all added repositories and loads the available packages" do
       # no initial repository, then 2 repositories added
-      allow(Yast::Pkg).to receive(:SourceGetCurrent).and_return([], [42,43])
+      allow(Yast::Pkg).to receive(:SourceGetCurrent).and_return([], [42, 43])
       expect(Yast::Pkg).to receive(:SourceRefreshNow).with(42)
       expect(Yast::Pkg).to receive(:SourceRefreshNow).with(43)
       expect(Yast::Pkg).to receive(:SourceLoad)
@@ -82,7 +82,8 @@ describe "Yast::AddOnWorkflowInclude" do
 
       it "selects the available products from the added repositories" do
         expect(Y2Packager::Resolvable).to receive(:find).and_return(
-          [Y2Packager::Resolvable.new(p1), Y2Packager::Resolvable.new(p2)])
+          [Y2Packager::Resolvable.new(p1), Y2Packager::Resolvable.new(p2)]
+        )
         expect(Yast::Pkg).to receive(:ResolvableInstall).with("product1", :product)
         expect(Yast::Pkg).to receive(:ResolvableInstall).with("product2", :product)
 
@@ -91,7 +92,8 @@ describe "Yast::AddOnWorkflowInclude" do
 
       it "ignores the products from other repositories" do
         expect(Y2Packager::Resolvable).to receive(:find).and_return(
-          [Y2Packager::Resolvable.new(p1.merge("source" => 1)), Y2Packager::Resolvable.new(p2.merge("source" => 2))])
+          [Y2Packager::Resolvable.new(p1.merge("source" => 1)), Y2Packager::Resolvable.new(p2.merge("source" => 2))]
+        )
         expect(Yast::Pkg).to_not receive(:ResolvableInstall)
 
         AddonIncludeTester.InstallProduct
@@ -100,7 +102,8 @@ describe "Yast::AddOnWorkflowInclude" do
       it "ignores the already selected repositories" do
         expect(Y2Packager::Resolvable).to receive(:find).and_return(
           [Y2Packager::Resolvable.new(p1.merge("status" => :selected)),
-           Y2Packager::Resolvable.new(p2.merge("status" => :selected))])
+           Y2Packager::Resolvable.new(p2.merge("status" => :selected))]
+        )
         expect(Yast::Pkg).to_not receive(:ResolvableInstall)
 
         AddonIncludeTester.InstallProduct

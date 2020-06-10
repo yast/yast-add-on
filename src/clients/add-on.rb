@@ -1,9 +1,7 @@
-# encoding: utf-8
-
-# File:	clients/add-on.ycp
-# Package:	yast2-installation
-# Summary:	Install an add-on product
-# Authors:	Jiri Srain <jsrain@suse.de>
+# File:  clients/add-on.ycp
+# Package:  yast2-installation
+# Summary:  Install an add-on product
+# Authors:  Jiri Srain <jsrain@suse.de>
 #
 module Yast
   class AddOnClient < Client
@@ -33,7 +31,7 @@ module Yast
               "interface, use '%{zypper}' instead for adding a new repository or " \
               "'%{SUSEConnect}' to register a new add-on."
           ),
-          { zypper: "zypper", SUSEConnect: "SUSEConnect" }
+          zypper: "zypper", SUSEConnect: "SUSEConnect"
         ),
         "guihandler" => fun_ref(method(:run_GUI), "symbol ()")
       )
