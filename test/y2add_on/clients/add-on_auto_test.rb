@@ -231,13 +231,32 @@ describe Yast::AddOnAutoClient do
           "media_url"=>"dvd:/?devices=/dev/sr1" }
       ]}
     end
-    let(:add_on_others) { {"add_on_others"=>[]} }
+    let(:add_on_others) { {"add_on_others"=>[
+      { "product_dir"=>"/Module-Desktop-Applications",
+          "product"=>"sle-module-desktop-applications",
+          "media_url"=>"dvd:/?devices=/dev/sr1" },
 
-    it "returns add-on products and other user defined add-ons" do
+    ]} }
+
+    it "returns add-on products merged with other add-ons if they are non empty" do
       expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
       expect(Yast::AddOnOthers).to receive(:Export).and_return(add_on_others)
 
       expect(subject.export).to eq(add_on_products.merge(add_on_others))
+    end
+
+    it "returns just non empty type of addons" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
+      expect(Yast::AddOnOthers).to receive(:Export).and_return({})
+
+      expect(subject.export).to eq(add_on_products)
+    end
+
+    it "returns empty hash if all types are empty" do
+      expect(Yast::AddOnProduct).to receive(:Export).and_return({})
+      expect(Yast::AddOnOthers).to receive(:Export).and_return({})
+
+      expect(subject.export).to eq({})
     end
   end
 

@@ -118,7 +118,12 @@ module Yast
     end
 
     def export
-      AddOnProduct.Export.merge(AddOnOthers.Export())
+      res = AddOnProduct.Export.merge(AddOnOthers.Export())
+
+      # cleaning of empty values
+      res.delete_if { |_k, v| v.empty? }
+
+      res
     end
 
     # Creates sources from add on products
