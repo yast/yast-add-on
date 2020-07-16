@@ -95,12 +95,12 @@ module Yast
       return @registered_repositories_urls if @registered_repositories_urls
 
       begin
-        require "suse/connect"
+        require "registration/registration"
       rescue LoadError
-        []
+        return []
       end
-      status = SUSE::Connect::YaST.status({})
-      repositories = status.activated_products.map(&:repositories).flatten
+      activated_products = Registration::Registration.new.activated_products
+      repositories = activated_products.map(&:repositories).flatten
       @registered_repositories_urls = repositories.map { |r| normalize_url(r["url"]) }
     end
 
