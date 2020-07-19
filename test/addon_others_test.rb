@@ -44,7 +44,7 @@ describe Yast::AddOnOthers do
 
   let(:repo_hash) do
     { "alias"       => "user defined",
-      "url"         => "http://xxx.url",
+      "url"         => "http://xxx.url?foo=bar",
       "name"        => "user_defined",
       "priority"    => 19,
       "product_dir" => "/" }
@@ -57,6 +57,8 @@ describe Yast::AddOnOthers do
       .and_return(installed_products)
     allow(Yast::Pkg).to receive(:SourceGetCurrent).with(true)
       .and_return([0, 1, 2, 3, 4])
+    allow(subject).to receive(:require).with("registration/registration")
+      .and_raise(LoadError)
   end
 
   describe "#Read" do
@@ -72,7 +74,6 @@ describe Yast::AddOnOthers do
   end
 
   describe "#Export" do
-
     context "installed products and add-ons are available" do
       let(:ret) do
         { "media_url"   => repo_hash["url"],
@@ -82,11 +83,41 @@ describe Yast::AddOnOthers do
           "product_dir" => repo_hash["product_dir"] }
       end
 
-      it "returns an array of user defined repos in AY format" do
+      before do
         allow(Yast::Pkg).to receive(:SourceGeneralData).with(4)
           .and_return(repo_hash)
+      end
+
+      it "returns an array of user defined repos in AY format" do
         Yast::AddOnOthers.Read()
         expect(Yast::AddOnOthers.Export).to eq("add_on_others" => [ret])
+      end
+
+      context "when an add-on is registered" do
+        let(:registration_module) do
+          double("Registration::Registration", new: registration)
+        end
+
+        let(:registration) do
+          instance_double("Registration::Registration", activated_products: [product])
+        end
+
+        let(:product) do
+          double("SUSE::Connect::Remote::Product", repositories: [scc_repo])
+        end
+
+        let(:scc_repo) do
+          { "url" => "http://xxx.url" }
+        end
+
+        before do
+          allow(subject).to receive(:require).with("registration/registration")
+          stub_const("Registration::Registration", registration_module)
+        end
+
+        it "does not export such an addon" do
+          expect(Yast::AddOnOthers.Export).to eq("add_on_others" => [])
+        end
       end
     end
   end

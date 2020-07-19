@@ -58,18 +58,65 @@ module Yast
     #        </add_on_others>
     #      </add-on>
     def Export
-      others = @add_on_others.map do |p|
-        { "media_url"   => p["url"],
-          "alias"       => p["alias"],
-          "priority"    => p["priority"],
-          "name"        => p["name"],
-          "product_dir" => p["product_dir"] }
+      others = @add_on_others.each_with_object([]) do |addon, all|
+        next if registered_addon?(addon)
+
+        all << {
+          "media_url"   => addon["url"],
+          "alias"       => addon["alias"],
+          "priority"    => addon["priority"],
+          "name"        => addon["name"],
+          "product_dir" => addon["product_dir"]
+        }
       end
       { "add_on_others" => others }
     end
 
     publish function: :Export, type: "map ()"
     publish function: :Read, type: "map()"
+
+  private
+
+    # Determine whether an addon corresponds to a registered product
+    #
+    # @param addon [Hash] Addon data
+    # @return [Boolean]
+    def registered_addon?(addon)
+      return false unless addon["url"]
+
+      url = normalize_url(addon["url"])
+      registered_repositories_urls.include?(url)
+    end
+
+    # Returns the URLs corresponding to registered products repositories
+    #
+    # @return [Array<URI>]
+    def registered_repositories_urls
+      return @registered_repositories_urls if @registered_repositories_urls
+
+      begin
+        require "registration/registration"
+      rescue LoadError
+        return []
+      end
+      activated_products = Registration::Registration.new.activated_products
+      repositories = activated_products.map(&:repositories).flatten
+      @registered_repositories_urls = repositories.map { |r| normalize_url(r["url"]) }
+    end
+
+    # Normalizes the URL to make the comparison easier
+    #
+    # It removes the query, the fragment and the trailing '/' character is found.
+    #
+    # @param url [URI,String] URL to normalize
+    # @return [URI]
+    def normalize_url(url)
+      uri = URI(url)
+      uri.fragment = nil
+      uri.query = nil
+      uri.path = uri.path.delete_suffix("/")
+      uri
+    end
   end
 
   AddOnOthers = AddOnOthersClass.new
