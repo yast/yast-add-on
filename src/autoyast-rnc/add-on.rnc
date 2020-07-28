@@ -78,7 +78,7 @@ priority = element priority { INTEGER }
 #
 add_on_products =
   element add_on_products {
-     attribute config:type { text }?,
+     LIST,
      listentry*
   }
 #
@@ -91,6 +91,6 @@ add_on_products =
 #
 add_on_others =
   element add_on_others {
-     attribute config:type { text }?,
+     LIST,
      listentry*
   }
