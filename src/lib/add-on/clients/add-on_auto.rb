@@ -326,7 +326,7 @@ module Yast
     #   * name of given repo
     #
     # @param [Hash] addon
-    # @param [Array] repo
+    # @param [Hash] repo
     #
     # @return [String] preferred name for add-on/repo
     def preferred_name_for(add_on, repo)
