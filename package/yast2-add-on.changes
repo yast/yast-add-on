@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep  3 07:11:47 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Fixed regression in the add-on repository names in AutoYaST
+  installation (bsc#1175374, related to bsc#1172477)
+- 4.2.16
+
+-------------------------------------------------------------------
 Tue Jan 28 09:30:52 CET 2020 - schubi@suse.de
 
 - Fix in installation workflow: Can go back from

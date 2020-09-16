@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        4.2.15
+Version:        4.2.16
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
@@ -41,6 +41,8 @@ Requires:       yast2-country
 Requires:       yast2-installation
 # Packager ProductLicense#HandleLicenseDialogRet allowing "refuse" action
 Requires:       yast2-packager >= 4.2.16
+# "raw_name" in Pkg.SourceEditGet/Set()
+Requires:       yast2-pkg-bindings >= 4.2.8
 Requires:       yast2-ruby-bindings >= 1.0.0
 
 Obsoletes:      yast2-add-on-devel-doc

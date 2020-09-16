@@ -309,10 +309,10 @@ module Yast
 
       return if repo.nil?
 
-      repo["name"] = preferred_name_for(add_on, repo)
+      repo["raw_name"] = preferred_name_for(add_on, repo)
       repo["priority"] = add_on["priority"] if add_on.key?("priority")
 
-      log.info("Preferred name: #{repo["name"]}")
+      log.info("Preferred name: #{repo["raw_name"]}")
 
       Pkg.SourceEditSet(sources)
     end
@@ -326,7 +326,7 @@ module Yast
     #   * name of given repo
     #
     # @param [Hash] addon
-    # @param [Array] repo
+    # @param [Hash] repo
     #
     # @return [String] preferred name for add-on/repo
     def preferred_name_for(add_on, repo)
@@ -344,7 +344,7 @@ module Yast
       found_repo = repos_at_url.find { |r| r[1] == product_dir }
       return found_repo[0] if found_repo
 
-      repo["name"]
+      repo["raw_name"]
     end
 
     # Installs given product
