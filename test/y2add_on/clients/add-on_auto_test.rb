@@ -306,7 +306,8 @@ describe Yast::AddOnAutoClient do
             "autorefresh"  => true,
             "enabled"      => true,
             "keeppackaged" => false,
-            "name"         => "Updated repo",
+            "name"         => "repo_to_be_updated",
+            "raw_name"     => "Updated repo",
             "priority"     => 20,
             "service"      => ""
           },
