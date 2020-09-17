@@ -9,6 +9,9 @@ class AddOnAddOnWorkflowIncludeTest
   include Yast::AddOnAddOnWorkflowInclude
 end
 
+Yast.import "AddOnProduct"
+Yast.import "SourceDialogs"
+
 describe Yast::AddOnAddOnWorkflowInclude do
   subject { AddOnAddOnWorkflowIncludeTest.new }
 
