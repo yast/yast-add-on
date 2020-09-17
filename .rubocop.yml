@@ -95,3 +95,10 @@ Style/Documentation:
     - 'src/include/add-on/misc.rb'
     - 'src/lib/add-on/clients/add-on_auto.rb'
     - 'src/modules/AddOnOthers.rb'
+
+Style/ClassVars:
+  Exclude:
+    # we really want to have a single global flag there
+    # (even for derived classes)
+    # https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/ClassVars
+    - 'src/include/add-on/add-on-workflow.rb'
