@@ -149,6 +149,11 @@ describe "Yast::AddOnWorkflowInclude" do
       allow(Yast::UI).to receive(:UserInput).and_return(:next)
     end
 
+    after do
+      # reset the changed flag back (for the other tests)
+      Yast::AddOnAddOnWorkflowInclude.class_variable_set(:@@media_addons_selected, false)
+    end
+
     context "a DUD add-on present, using Full medium" do
       before do
         allow(Yast::AddOnProduct).to receive(:add_on_products).and_return([
