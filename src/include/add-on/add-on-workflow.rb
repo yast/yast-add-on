@@ -22,6 +22,9 @@ module Yast
   module AddOnAddOnWorkflowInclude
     include Yast::Logger
 
+    # remember that the Full medium add-ons have been selected by user
+    @@media_addons_selected = false
+
     def initialize_add_on_add_on_workflow(include_target)
       Yast.import "UI"
       Yast.import "Pkg"
@@ -929,7 +932,7 @@ module Yast
       # FATE #301928 - Saving one click
       # Bugzilla #893103 be consistent, so always when there is no add-on skip
       # Bugzilla #1102705 Do not redraw when skipping
-      if no_addons
+      if no_addons || (offline_medium? && !media_addons_selected?)
         Builtins.y2milestone("Skipping to media_select")
         ret = :skip_to_add
       else
@@ -1051,6 +1054,9 @@ module Yast
             # Release all sources after adding a new one
             # because of CD/DVD + url cd://
             Pkg.SourceReleaseAll
+
+            # do not ask again for Full medium addons
+            media_addons_selected if offline_medium?
           elsif ret2 == :cancel
             log.info("Aborted, removing add-on repositories: #{@added_repos.inspect}")
 
@@ -1909,7 +1915,8 @@ module Yast
     # @return [Boolean] `true` if the addons should be offered automatically
     #
     def offer_media_addons?
-      if !AddOnProduct.add_on_products.empty? || !Stage.initial || !Y2Packager::MediumType.offline?
+      # media addons already selected or not Full medium
+      if media_addons_selected? || !offline_medium?
         return false
       end
 
@@ -1940,6 +1947,24 @@ module Yast
 
       # fallback to the internal product name
       selected_product&.display_name || product
+    end
+
+    # Have been the Full media addons selected?
+    # @return [Boolean] true if the add-on selection dialog has been displayed
+    def media_addons_selected?
+      @@media_addons_selected
+    end
+
+    # Mark the media addons as selected
+    # @param value [Boolean] the selection status
+    def media_addons_selected(value = true)
+      @@media_addons_selected = value
+    end
+
+    # Running installation using the offline (Full) medium?
+    # @return [Boolean] true if offline installation is running
+    def offline_medium?
+      Stage.initial && Y2Packager::MediumType.offline?
     end
   end
 end

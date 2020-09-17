@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep 17 07:49:04 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Do not skip the Full medium add-on selection when a driver update
+  disk (DUD) is used (bsc#1174562)
+- 4.2.17
+
+-------------------------------------------------------------------
 Thu Sep  3 07:11:47 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Fixed regression in the add-on repository names in AutoYaST
