@@ -38,7 +38,7 @@ describe Yast::AddOnAddOnWorkflowInclude do
         # reset the changed flag back (for the other tests)
         Yast::AddOnAddOnWorkflowInclude.class_variable_set(:@@media_addons_selected, false)
       end
-  
+
       context "not registered" do
         let(:registered?) { false }
 

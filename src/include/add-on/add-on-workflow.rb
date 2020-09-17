@@ -1899,9 +1899,7 @@ module Yast
     #
     def offer_media_addons?
       # media addons already selected or not Full medium
-      if media_addons_selected? || !offline_medium?
-        return false
-      end
+      return false if media_addons_selected? || !offline_medium?
 
       # check the registration status, be careful that the registration might be
       # missing in the inst-sys (like on the openSUSE Leap media)

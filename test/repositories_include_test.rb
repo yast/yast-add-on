@@ -159,16 +159,18 @@ describe "Yast::AddOnWorkflowInclude" do
 
     context "a DUD add-on present, using Full medium" do
       before do
-        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return([
-          {
-            "media" => 4,
-            "product" => "Driver Update 0",
-            "autoyast_product" => "Driver Update 0",
-            "media_url" => "dir:///update/000/repo?alias=DriverUpdate0",
-            "product_dir" => "",
-            "priority" => 50
-          }
-        ])
+        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(
+          [
+            {
+              "media"            => 4,
+              "product"          => "Driver Update 0",
+              "autoyast_product" => "Driver Update 0",
+              "media_url"        => "dir:///update/000/repo?alias=DriverUpdate0",
+              "product_dir"      => "",
+              "priority"         => 50
+            }
+          ]
+        )
         allow(Y2Packager::MediumType).to receive(:offline?).and_return(true)
       end
 
