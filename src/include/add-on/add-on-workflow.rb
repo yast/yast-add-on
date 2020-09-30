@@ -41,7 +41,6 @@ module Yast
       Yast.import "SourceManager"
       Yast.import "PackageSystem"
       Yast.import "ProductProfile"
-      Yast.import "SuSEFirewall"
       Yast.import "Stage"
       Yast.import "Wizard"
       Yast.import "Confirm"

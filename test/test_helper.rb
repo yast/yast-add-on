@@ -18,9 +18,6 @@ end
 # Stub classes from other modules to speed up a build
 stub_module("AutoinstGeneral")
 stub_module("AutoinstSoftware")
-# the SuSEFirewall module checks the firewall status in the constructor,
-# avoid displaying a PolicyKit popup asking for the root password...
-stub_module("SuSEFirewall")
 
 if ENV["COVERAGE"]
   require "simplecov"
