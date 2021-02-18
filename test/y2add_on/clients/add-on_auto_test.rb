@@ -345,20 +345,24 @@ describe Yast::AddOnAutoClient do
           let(:ask_on_error) { true }
 
           it "ask to make it available" do
-            expect(Yast::Popup).to receive(:ContinueCancel)
+            expect(Yast::Popup).to receive(:ContinueCancel).and_return false
+
+            # We are returning false on the ContinueCancel mock, so we decide to
+            # stop retrying and the error is finally displayed
+            allow(Yast::Report).to receive(:Error)
 
             subject.write
           end
         end
 
         context "ask_on_error=false" do
-          before do
-            allow(Yast::Popup).to receive(:ContinueCancel).and_return(false)
-          end
-
           let(:ask_on_error) { false }
 
-          it "report error" do
+          it "does not ask to make it available" do
+            expect(Yast::Popup).to_not receive(:ContinueCancel)
+          end
+
+          it "reports the error" do
             expect(Yast::Report).to receive(:Error)
 
             subject.write
