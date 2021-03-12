@@ -1911,7 +1911,7 @@ module Yast
     end
 
     # Find the human readable product name from the product
-    # @param [Y2Packager::Resolvable] the product
+    # @param product [Y2Packager::Resolvable] the product
     # @return [String] a human readable product name
     def ui_product_name(product)
       return _("Unknown product") unless product

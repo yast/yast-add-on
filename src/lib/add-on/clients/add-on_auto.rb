@@ -134,7 +134,7 @@ module Yast
     #   * system will be halted immediately as soon a required license will be rejected
     #   * a source could be omitted if there is an error adding it and no retries are performed
     #
-    # @see {create_source}
+    # @see create_source
     #
     # @return [true]
     def write
@@ -304,7 +304,7 @@ module Yast
     # At the moment to create source/repo through `Pkg.SourceCreate` is not possible to set attributes
     # directly. In consequence, the creation must be completed making use of `Pkg.SourceEditSet`
     #
-    # @see {https://github.com/yast/yast-pkg-bindings YaST Package Bindings}
+    # @see https://github.com/yast/yast-pkg-bindings YaST Package Bindings
     #
     # @param [Hash] add_on
     # @param [Integer|Nil] source_id
@@ -330,8 +330,8 @@ module Yast
     #   * name of repo that matches with given media and product path, if any
     #   * name of given repo
     #
-    # @param [Hash] addon
-    # @param [Hash] repo
+    # @param add_on [Hash] addon
+    # @param repo [Hash] repository
     #
     # @return [String] preferred name for add-on/repo
     def preferred_name_for(add_on, repo)
