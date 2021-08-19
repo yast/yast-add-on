@@ -1431,9 +1431,11 @@ module Yast
       log.info("Currently used add-ons: #{product_infos}")
 
       products = product_infos.map do |index, product_desc|
-        Item(Id("product_#{index}"),
+        Item(
+          Id("product_#{index}"),
           ui_product_name(product_desc["product"]),
-          product_desc["info"]["URLs"].first || _("Unknown URL"))
+          product_desc["info"]["URLs"].first || _("Not found in enabled repositories")
+        )
       end
 
       UI.ChangeWidget(Id("list_of_addons"), :Items, products)
