@@ -1171,49 +1171,29 @@ module Yast
     end
 
     def AdjustInfoWidget
-      pi = ReturnCurrentlySelectedProductInfo()
-      if pi.nil? || pi == {}
+      product_info = ReturnCurrentlySelectedProductInfo()
+
+      if product_info.to_h.empty?
         UI.ChangeWidget(Id("product_details"), :Value, "")
+
         return
       end
 
-      vendor = pi["product"].vendor.empty? ? _("Unknown vendor") : pi["product"].vendor
-      version = pi["product"].version.empty? ? _("Unknown version") : pi["product"].version
-      rt_description = Builtins.sformat(
-        "<p>%1\n%2\n%3\n%4</p>",
-        Builtins.sformat(
-          _("<b>Vendor:</b> %1<br>"),
-          vendor
-        ),
-        Builtins.sformat(
-          _("<b>Version:</b> %1<br>"),
-          version
-        ),
-        if Ops.greater_than(
-          Builtins.size(Ops.get_list(pi, ["info", "URLs"], [])),
-          0
-        )
-          Builtins.sformat(
-            _("<b>Repository URL:</b> %1<br>"),
-              Builtins.mergestring(Ops.get_list(pi, ["info", "URLs"], []), ",")
-          )
-        else
-          ""
-        end,
-        if Ops.greater_than(
-          Builtins.size(Ops.get_list(pi, ["info", "aliases"], [])),
-          0
-        )
-          Builtins.sformat(
-            _("<b>Repository Alias:</b> %1<br>"),
-            Builtins.mergestring(Ops.get_list(pi, ["info", "aliases"], []), ",")
-          )
-        else
-          ""
-        end
-      )
+      product = product_info["product"]
+      info    = product_info["info"] || {}
 
-      UI.ChangeWidget(Id("product_details"), :Value, rt_description)
+      vendor  = product.vendor.empty?  ? _("Unknown vendor")  : product.vendor
+      version = product.version.empty? ? _("unknown version") : product.version
+      urls    = info.fetch("URLs", []).join(",")
+      aliases = info.fetch("aliases", []).join(",")
+
+      details = []
+      details << format(_("<b>Vendor:</b> %s<br>"), vendor)
+      details << format(_("<b>Version:</b> %s<br>"), version)
+      details << format(_("<b>Repository URL:</b> %s<br>"), urls) unless urls.empty?
+      details << format(_("<b>Repository Alias:</b> %s<br>"), aliases) unless aliases.empty?
+
+      UI.ChangeWidget(Id("product_details"), :Value, "<p>#{details.join("\n")}</p>")
 
       nil
     end
