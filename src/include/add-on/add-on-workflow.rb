@@ -1189,17 +1189,17 @@ module Yast
           _("<b>Version:</b> %1<br>"),
           version
         ),
-        Builtins.sformat(
-          _("<b>Repository URL:</b> %1<br>"),
-          if Ops.greater_than(
-            Builtins.size(Ops.get_list(pi, ["info", "URLs"], [])),
-            0
+        if Ops.greater_than(
+          Builtins.size(Ops.get_list(pi, ["info", "URLs"], [])),
+          0
+        )
+          Builtins.sformat(
+            _("<b>Repository URL:</b> %1<br>"),
+              Builtins.mergestring(Ops.get_list(pi, ["info", "URLs"], []), ",")
           )
-            Builtins.mergestring(Ops.get_list(pi, ["info", "URLs"], []), ",")
-          else
-            _("Unknown repository URL")
-          end
-        ),
+        else
+          ""
+        end,
         if Ops.greater_than(
           Builtins.size(Ops.get_list(pi, ["info", "aliases"], [])),
           0
