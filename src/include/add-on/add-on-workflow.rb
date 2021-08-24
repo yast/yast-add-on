@@ -1411,10 +1411,13 @@ module Yast
       log.info("Currently used add-ons: #{product_infos}")
 
       products = product_infos.map do |index, product_desc|
+        # TRANSLATORS: Product status, the installed product was not found in any enabled repository
+        url = product_desc["info"]["URLs"].first || _("Not found in enabled repositories")
+
         Item(
           Id("product_#{index}"),
           ui_product_name(product_desc["product"]),
-          product_desc["info"]["URLs"].first || _("Not found in enabled repositories")
+          url
         )
       end
 
