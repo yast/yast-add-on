@@ -16,7 +16,7 @@ describe Yast::AddOnAutoClient do
       it "sets 'add_on_products' to empty array" do
         expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => [])
 
-        subject.import(something: nil)
+        subject.import(nil)
       end
     end
 
