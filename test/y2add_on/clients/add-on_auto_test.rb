@@ -1,26 +1,51 @@
 #!/usr/bin/env rspec
 
+# Copyright (c) [2018-2021] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com.
+
 require_relative "../../test_helper"
 require "add-on/clients/add-on_auto"
 
 Yast.import "Packages"
 
 describe Yast::AddOnAutoClient do
+  subject(:client) { described_class.new }
+
   describe "#import" do
     let(:params) do
       { "add_on_products" => add_on_products,
         "add_on_others"   => add_on_others }
     end
 
-    context "when 'add_on_products' param is NOT given" do
-      it "sets 'add_on_products' to empty array" do
-        expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => [])
+    context "when no data is given" do
+      it "does not try to import add-on products" do
+        expect(Yast::AddOnProduct).to_not receive(:Import)
 
-        subject.import(something: nil)
+        client.import(nil)
+      end
+
+      it "returns true" do
+        expect(client.import(nil)).to eq(true)
       end
     end
 
-    context "when completly valid 'add_on_products' param is given" do
+    context "when given data only contains valid add-ons" do
       let(:add_on_products) do
         [
           {
@@ -50,11 +75,11 @@ describe Yast::AddOnAutoClient do
           "add_on_products" => add_on_products + add_on_others
         )
 
-        subject.import(params)
+        client.import(params)
       end
     end
 
-    context "when there are missed media_url values in given 'add_on_products'" do
+    context "when given data contains a not valid add-on" do
       let(:add_on_products) do
         [
           {
@@ -91,7 +116,7 @@ describe Yast::AddOnAutoClient do
       it "asks to user about reject them" do
         expect(Yast::Popup).to receive(:ContinueCancel).with(missed_media_url_error)
 
-        subject.import(params)
+        client.import(params)
       end
 
       it "rejects them if user decides to continue" do
@@ -99,7 +124,7 @@ describe Yast::AddOnAutoClient do
 
         expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => valid_add_on_products)
 
-        subject.import(params)
+        client.import(params)
       end
 
       it "returns false (does nothing) if user decides to abort" do
@@ -159,7 +184,7 @@ describe Yast::AddOnAutoClient do
     it "returns an unordered list sumarizing current add_on_product" do
       allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
 
-      expect(subject.summary).to eq(expected_output)
+      expect(client.summary).to eq(expected_output)
     end
   end
 
@@ -170,7 +195,7 @@ describe Yast::AddOnAutoClient do
       end
 
       it "returns true" do
-        expect(subject.modified?).to be_truthy
+        expect(client.modified?).to be_truthy
       end
     end
 
@@ -180,7 +205,7 @@ describe Yast::AddOnAutoClient do
       end
 
       it "returns true" do
-        expect(subject.modified?).to be_falsey
+        expect(client.modified?).to be_falsey
       end
     end
   end
@@ -189,7 +214,7 @@ describe Yast::AddOnAutoClient do
     it "sets configuration as changed" do
       allow(Yast::AddOnProduct).to receive(:modified=).with(true)
 
-      subject.modified
+      client.modified
     end
   end
 
@@ -197,7 +222,7 @@ describe Yast::AddOnAutoClient do
     it "resets configuration" do
       allow(Yast::AddOnProduct).to receive(:add_on_products=).with([])
 
-      subject.reset
+      client.reset
     end
   end
 
@@ -208,15 +233,15 @@ describe Yast::AddOnAutoClient do
     end
 
     it "runs add-on main dialog" do
-      expect(subject).to receive(:RunAddOnMainDialog)
+      expect(client).to receive(:RunAddOnMainDialog)
 
-      subject.change
+      client.change
     end
 
     it "returns chosen action" do
-      allow(subject).to receive(:RunAddOnMainDialog).and_return(:next)
+      allow(client).to receive(:RunAddOnMainDialog).and_return(:next)
 
-      expect(subject.change).to be(:next)
+      expect(client.change).to be(:next)
     end
   end
 
@@ -244,21 +269,21 @@ describe Yast::AddOnAutoClient do
       expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
       expect(Yast::AddOnOthers).to receive(:Export).and_return(add_on_others)
 
-      expect(subject.export).to eq(add_on_products.merge(add_on_others))
+      expect(client.export).to eq(add_on_products.merge(add_on_others))
     end
 
     it "returns just non empty type of addons" do
       expect(Yast::AddOnProduct).to receive(:Export).and_return(add_on_products)
       expect(Yast::AddOnOthers).to receive(:Export).and_return({})
 
-      expect(subject.export).to eq(add_on_products)
+      expect(client.export).to eq(add_on_products)
     end
 
     it "returns empty hash if all types are empty" do
       expect(Yast::AddOnProduct).to receive(:Export).and_return({})
       expect(Yast::AddOnOthers).to receive(:Export).and_return({})
 
-      expect(subject.export).to eq({})
+      expect(client.export).to eq({})
     end
   end
 
@@ -351,7 +376,7 @@ describe Yast::AddOnAutoClient do
             # stop retrying and the error is finally displayed
             allow(Yast::Report).to receive(:Error)
 
-            subject.write
+            client.write
           end
         end
 
@@ -365,7 +390,7 @@ describe Yast::AddOnAutoClient do
           it "reports the error" do
             expect(Yast::Report).to receive(:Error)
 
-            subject.write
+            client.write
           end
         end
       end
@@ -373,13 +398,13 @@ describe Yast::AddOnAutoClient do
       it "stores repos according to information given" do
         expect(Yast::Pkg).to receive(:SourceEditSet).with(repos_to_store)
 
-        subject.write
+        client.write
       end
 
       it "releases the media accessors" do
         expect(Yast::Pkg).to receive(:SourceReleaseAll)
 
-        subject.write
+        client.write
       end
     end
   end
@@ -391,7 +416,7 @@ describe Yast::AddOnAutoClient do
       end
 
       it "returns false" do
-        expect(subject.read).to be_falsey
+        expect(client.read).to be_falsey
       end
     end
 
@@ -402,9 +427,9 @@ describe Yast::AddOnAutoClient do
       end
 
       it "reads add-ons configuration from the current system" do
-        expect(subject).to receive(:ReadFromSystem)
+        expect(client).to receive(:ReadFromSystem)
 
-        subject.read
+        client.read
       end
     end
   end
