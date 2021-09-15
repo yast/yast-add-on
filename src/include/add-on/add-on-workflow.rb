@@ -15,6 +15,7 @@
 
 require "y2packager/medium_type"
 require "y2packager/resolvable"
+require "ui/ui_extension_checker"
 
 module Yast
   module AddOnAddOnWorkflowInclude
@@ -1788,11 +1789,15 @@ module Yast
 
           # Calling packager directly
         when :packager
-          Builtins.y2milestone("Calling packager...")
-          RunPackageSelector()
+          ui_extension_checker = UIExtensionChecker.new("pkg")
 
-          CreateAddOnsOverviewDialog()
-          RedrawAddOnsOverviewTable()
+          if ui_extension_checker.ok?
+            Builtins.y2milestone("Calling packager...")
+            RunPackageSelector()
+
+            CreateAddOnsOverviewDialog()
+            RedrawAddOnsOverviewTable()
+          end
 
           # Everything else
         else
