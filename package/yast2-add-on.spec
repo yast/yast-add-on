@@ -30,14 +30,14 @@ BuildRequires:  rubygem(%{rb_default_ruby_abi}:yast-rake)
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 BuildRequires:  update-desktop-files
 # UIExtensionChecker
-BuildRequires:  yast2 >= 4.4.18
+BuildRequires:  yast2 >= 4.4.19
 BuildRequires:  yast2-devtools >= 3.1.10
 # Y2packager::Resolvables
 BuildRequires:  yast2-packager >= 4.2.11
 
 Requires:       autoyast2-installation
 # UIExtensionChecker
-Requires:       yast2 >= 4.4.18
+Requires:       yast2 >= 4.4.19
 Requires:       yast2-country
 Requires:       yast2-installation
 # Packager ProductLicense#HandleLicenseDialogRet allowing "refuse" action
