@@ -24,6 +24,8 @@ module Yast
     end
 
     def import(data)
+      return true if data.nil?
+
       add_on_products = data.fetch("add_on_products", [])
 
       valid_add_on_products = add_on_products.reject.with_index(1) do |add_on, index|
