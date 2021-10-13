@@ -25,6 +25,8 @@ module Yast
     end
 
     def import(data)
+      return true if data.nil?
+
       add_ons = data.fetch("add_on_products", [])
       # Add-on products have the same format as add-ons which have been
       # added manually by the user. So we can take the same workflow here.
