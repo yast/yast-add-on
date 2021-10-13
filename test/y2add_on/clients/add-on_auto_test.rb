@@ -11,6 +11,18 @@ describe Yast::AddOnAutoClient do
       { "add_on_products" => add_on_products }
     end
 
+    context "when no data is given" do
+      it "does not try to import add-on products" do
+        expect(Yast::AddOnProduct).to_not receive(:Import)
+
+        subject.import(nil)
+      end
+
+      it "returns true" do
+        expect(subject.import(nil)).to eq(true)
+      end
+    end
+
     context "when 'add_on_products' param is NOT given" do
       it "sets 'add_on_products' to empty array" do
         expect(Yast::AddOnProduct).to receive(:Import).with("add_on_products" => [])
