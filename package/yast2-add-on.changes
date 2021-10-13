@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Oct 13 12:09:01 UTC 2021 - David Diaz <dgonzalez@suse.com>
+
+- Auto client does not crash when trying to import from an
+  empty add-on section (bsc#1189154).
+- 4.2.18
+
+-------------------------------------------------------------------
 Thu Sep 17 07:49:04 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Do not skip the Full medium add-on selection when a driver update
