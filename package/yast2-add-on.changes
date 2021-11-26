@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Nov 26 13:14:28 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Properly set the custom repository name (#1191491)
+- 4.4.4
+
+-------------------------------------------------------------------
 Wed Sep 15 13:56:13 UTC 2021 - Stefan Hundhammer <shundhammer@suse.com>
 
 - When the user clicks on "Run Software Manager", check for the
