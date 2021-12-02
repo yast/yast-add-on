@@ -41,7 +41,6 @@ module Yast
       Yast.import "SourceDialogs"
       Yast.import "SourceManager"
       Yast.import "PackageSystem"
-      Yast.import "ProductProfile"
       Yast.import "Stage"
       Yast.import "Wizard"
       Yast.import "Confirm"
@@ -706,30 +705,19 @@ module Yast
       ret
     end
 
-    # Check new product compliance; may abort the installation
-    def CheckCompliance
-      compliant = @added_repos.all? { |src_id| ProductProfile.CheckCompliance(src_id) }
-      compliant ? :next : :abort
-    end
-
     def RunWizard
       aliases = {
         "media"            => -> { MediaSelect() },
-        "install_product"  => -> { InstallProduct() },
-        "check_compliance" => -> { CheckCompliance() }
+        "install_product"  => -> { InstallProduct() }
       }
 
       sequence = {
         "ws_start"         => "media",
         "media"            => {
           abort:  :abort,
-          next:   "check_compliance",
-          finish: "check_compliance",
+          next:   "install_product",
+          finish: "install_product",
           skip:   :skip
-        },
-        "check_compliance" => {
-          abort: :abort,
-          next:  "install_product"
         },
         "install_product"  => {
           abort:  :abort,
