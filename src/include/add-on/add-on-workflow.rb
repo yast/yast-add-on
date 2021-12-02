@@ -707,19 +707,19 @@ module Yast
 
     def RunWizard
       aliases = {
-        "media"            => -> { MediaSelect() },
-        "install_product"  => -> { InstallProduct() }
+        "media"           => -> { MediaSelect() },
+        "install_product" => -> { InstallProduct() }
       }
 
       sequence = {
-        "ws_start"         => "media",
-        "media"            => {
+        "ws_start"        => "media",
+        "media"           => {
           abort:  :abort,
           next:   "install_product",
           finish: "install_product",
           skip:   :skip
         },
-        "install_product"  => {
+        "install_product" => {
           abort:  :abort,
           next:   :next,
           finish: :next
