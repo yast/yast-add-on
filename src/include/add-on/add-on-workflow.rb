@@ -1824,8 +1824,24 @@ module Yast
       end
 
       if !@added_repos.empty?
+        # rename the repository to the product name if user left the name field empty
+        if SourceDialogs.GetRepoName.empty?
+          # first set the fallback name for the added repository because the
+          # Packages.AdjustSourcePropertiesAccordingToProduct call
+          # changes only the repositories with the fallback name
+          sources = Pkg.SourceEditGet
+          sources.each do |src|
+            next unless @added_repos.include?(src["SrcId"])
+            next if Y2Packager::Resolvable.find(kind: :product, source: src["SrcId"]).empty?
+
+            log.info "Renaming repository #{src["raw_name"].inspect}"
+            src["raw_name"] = Packages.fallback_name
+          end
+          Pkg.SourceEditSet(sources)
+        end
+
         @added_repos.each do |src_id|
-          # BNC #481828: Using LABEL from content file as a repository name
+          # use product name as a repository name
           Packages.AdjustSourcePropertiesAccordingToProduct(src_id)
           # used add-ons are stored in a special list
           AddAddOnToStore(src_id)
