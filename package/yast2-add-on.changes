@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Fri Nov 26 13:14:28 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
 
-- Properly set the custom repository name (#1191491)
+- Properly set the custom repository name (bsc#1191491)
 - 4.4.4
 
 -------------------------------------------------------------------
