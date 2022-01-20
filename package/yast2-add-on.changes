@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jan 20 10:40:26 UTC 2022 - David Diaz <dgonzalez@suse.com>
+
+- Restore the repo unexpanded URL to get it properly saved in
+  the /etc/zypp/repos.d file (bsc#972046, bsc#1194851).
+- 4.2.19
+
+-------------------------------------------------------------------
 Wed Oct 13 12:09:01 UTC 2021 - David Diaz <dgonzalez@suse.com>
 
 - Auto client does not crash when trying to import from an

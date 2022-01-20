@@ -279,12 +279,14 @@ describe Yast::AddOnAutoClient do
 
     context "when there are add-ons products" do
       let(:ask_on_error) { true }
+      let(:unexpanded_url) { "RELURL://product-$releasever.url" }
+      let(:expanded_url) { "RELURL://product-15.0.url" }
       let(:add_on_products) do
         [
           {
             "alias"        => "produc_alias",
             "ask_on_error" => ask_on_error,
-            "media_url"    => "RELURL://product.url",
+            "media_url"    => unexpanded_url,
             "priority"     => 20,
             "product_dir"  => "/"
           }
@@ -315,46 +317,20 @@ describe Yast::AddOnAutoClient do
       end
 
       before do
-        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
         allow(Yast::Pkg).to receive(:SourceEditSet)
         allow(Yast::Pkg).to receive(:SourceReleaseAll)
         allow(Yast::Pkg).to receive(:SourceCreate).and_return(1)
         allow(Yast::Pkg).to receive(:SourceEditGet).and_return(repos)
         allow(Yast::Pkg).to receive(:ExpandedUrl)
-        # To test indirectly the "preferred_name_for" method
+        # For testing #preferred_name_for" indirectly
         allow(Yast::Pkg).to receive(:RepositoryScan)
           .with(anything)
           .and_return([["Updated repo", "/"]])
-      end
 
-      context "and product creation fails" do
-        before do
-          allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
-        end
+        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
 
-        context "ask_on_error=true" do
-          let(:ask_on_error) { true }
-
-          it "ask to make it available" do
-            expect(Yast::Popup).to receive(:ContinueCancel)
-
-            subject.write
-          end
-        end
-
-        context "ask_on_error=false" do
-          before do
-            allow(Yast::Popup).to receive(:ContinueCancel).and_return(false)
-          end
-
-          let(:ask_on_error) { false }
-
-          it "report error" do
-            expect(Yast::Report).to receive(:Error)
-
-            subject.write
-          end
-        end
+        # For testing regresion with $releasever (bsc#1194851)
+        allow(Yast::AddOnProduct).to receive(:SetRepoUrlAlias).and_return(expanded_url)
       end
 
       it "stores repos according to information given" do
@@ -367,6 +343,73 @@ describe Yast::AddOnAutoClient do
         expect(Yast::Pkg).to receive(:SourceReleaseAll)
 
         subject.write
+      end
+
+      # For testing regresion with $releasever (bsc#1194851)
+      it "restores the unexpanded URL" do
+        expect(Yast::Pkg).to receive(:SourceChangeUrl).with(1, unexpanded_url)
+
+        subject.write
+      end
+
+      context "and product creation fails" do
+        before do
+          allow(Yast::Report).to receive(:Error)
+          allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
+          allow(Yast::Popup).to receive(:ContinueCancel).and_return(retry_on_error, false)
+        end
+
+        let(:retry_on_error) { true }
+
+        context "ask_on_error=true" do
+          it "ask the user to make it available" do
+            expect(Yast::Popup).to receive(:ContinueCancel)
+
+            subject.write
+          end
+
+          context "and user wants to retry" do
+            let(:retry_on_error) { true }
+
+            it "tries it again" do
+              expect(Yast::Pkg).to receive(:SourceCreate).with(expanded_url, "/").twice
+
+              subject.write
+            end
+
+            it "does not reports an error while retrying" do
+              expect(Yast::Report).to receive(:Error).exactly(1).times
+
+              subject.write
+            end
+          end
+
+          context "and user decides not retrying" do
+            let(:retry_on_error) { false }
+
+            it "does not try it again" do
+              expect(Yast::Pkg).to receive(:SourceCreate).once
+
+              subject.write
+            end
+
+            it "reports an error" do
+              expect(Yast::Report).to receive(:Error)
+
+              subject.write
+            end
+          end
+        end
+
+        context "ask_on_error=false" do
+          let(:ask_on_error) { false }
+
+          it "report error" do
+            expect(Yast::Report).to receive(:Error)
+
+            subject.write
+          end
+        end
       end
     end
   end
