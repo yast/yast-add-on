@@ -318,24 +318,54 @@ describe Yast::AddOnAutoClient do
 
       context "and product creation fails" do
         before do
+          allow(Yast::Report).to receive(:Error)
           allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
+          allow(Yast::Popup).to receive(:ContinueCancel).and_return(retry_on_error, false)
         end
 
-        context "ask_on_error=true" do
-          let(:ask_on_error) { true }
+        let(:retry_on_error) { true }
 
-          it "ask to make it available" do
+        context "ask_on_error=true" do
+          it "ask the user to make it available" do
             expect(Yast::Popup).to receive(:ContinueCancel)
 
             subject.write
           end
+
+          context "and user wants to retry" do
+            let(:retry_on_error) { true }
+
+            it "tries it again" do
+              expect(Yast::Pkg).to receive(:SourceCreate).with(expanded_url, "/").twice
+
+              subject.write
+            end
+
+            it "does not reports an error while retrying" do
+              expect(Yast::Report).to receive(:Error).exactly(1).time
+
+              subject.write
+            end
+          end
+
+          context "and user decides not retrying" do
+            let(:retry_on_error) { false }
+
+            it "does not try it again" do
+              expect(Yast::Pkg).to receive(:SourceCreate).once
+
+              subject.write
+            end
+
+            it "reports an error" do
+              expect(Yast::Report).to receive(:Error)
+
+              subject.write
+            end
+          end
         end
 
         context "ask_on_error=false" do
-          before do
-            allow(Yast::Popup).to receive(:ContinueCancel).and_return(false)
-          end
-
           let(:ask_on_error) { false }
 
           it "report error" do
