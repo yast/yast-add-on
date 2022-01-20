@@ -251,12 +251,14 @@ describe Yast::AddOnAutoClient do
 
     context "when there are add-ons products" do
       let(:ask_on_error) { true }
+      let(:unexpanded_url) { "RELURL://product-$releasever.url" }
+      let(:expanded_url) { "RELURL://product-15.0.url" }
       let(:add_on_products) do
         [
           {
             "alias"        => "produc_alias",
             "ask_on_error" => ask_on_error,
-            "media_url"    => "RELURL://product.url",
+            "media_url"    => unexpanded_url,
             "priority"     => 20,
             "product_dir"  => "/"
           }
@@ -286,15 +288,32 @@ describe Yast::AddOnAutoClient do
       end
 
       before do
-        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
         allow(Yast::Pkg).to receive(:SourceEditSet)
         allow(Yast::Pkg).to receive(:SourceCreate).and_return(1)
         allow(Yast::Pkg).to receive(:SourceEditGet).and_return(repos)
         allow(Yast::Pkg).to receive(:ExpandedUrl)
-        # To test indirectly the "preferred_name_for" method
+        # For testing #preferred_name_for" indirectly
         allow(Yast::Pkg).to receive(:RepositoryScan)
           .with(anything)
           .and_return([["Updated repo", "/"]])
+
+        allow(Yast::AddOnProduct).to receive(:add_on_products).and_return(add_on_products)
+
+        # For testing regresion with $releasever (bsc#1194851)
+        allow(Yast::AddOnProduct).to receive(:SetRepoUrlAlias).and_return(expanded_url)
+      end
+
+      it "stores repos according to information given" do
+        expect(Yast::Pkg).to receive(:SourceEditSet).with(repos_to_store)
+
+        subject.write
+      end
+
+      # For testing regresion with $releasever (bsc#1194851)
+      it "restores the unexpanded URL" do
+        expect(Yast::Pkg).to receive(:SourceChangeUrl).with(1, unexpanded_url)
+
+        subject.write
       end
 
       context "and product creation fails" do
@@ -325,12 +344,6 @@ describe Yast::AddOnAutoClient do
             subject.write
           end
         end
-      end
-
-      it "stores repos according to information given" do
-        expect(Yast::Pkg).to receive(:SourceEditSet).with(repos_to_store)
-
-        subject.write
       end
     end
   end

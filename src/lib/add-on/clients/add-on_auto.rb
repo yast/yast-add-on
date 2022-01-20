@@ -211,6 +211,10 @@ module Yast
 
           return :continue
         end
+      ensure
+        # Restore the unexpanded URL to have the original URL
+        # in the saved /etc/zypp/repos.d file (bsc#972046, bsc#1194851).
+        Pkg.SourceChangeUrl(source_id, media_url)
       end
     end
 
