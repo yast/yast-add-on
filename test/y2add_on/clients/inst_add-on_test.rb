@@ -16,11 +16,11 @@ describe Yast::InstAddOnClient do
     before do
       allow(Yast::Linuxrc).to receive(:InstallInf).with("addon").and_return(addons)
       allow(subject).to receive(:NetworkSetupForAddons).and_return(:next)
-      allow(subject).to receive(:InstallProduct)
+      allow_any_instance_of(Yast::AddOnAddOnWorkflowInclude).to receive(:InstallProduct)
       allow(Yast::AddOnProduct).to receive(:skip_add_ons).and_return(skip_add_ons)
       allow(Yast::Installation).to receive(:add_on_selected).and_return(add_on_selected)
       allow(Yast::InstURL).to receive(:installInf2Url).and_return(inst_url)
-      allow(subject).to receive(:RunAddOnMainDialog).and_return(:next)
+      allow_any_instance_of(Yast::AddOnAddOnWorkflowInclude).to receive(:RunAddOnMainDialog).and_return(:next)
     end
 
     context "when add-on products selection should be skipped" do

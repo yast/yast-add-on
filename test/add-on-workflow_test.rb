@@ -4,16 +4,19 @@ require_relative "./test_helper"
 
 require_relative "../src/include/add-on/add-on-workflow.rb"
 
-# just a dummy class for including the tested methods
-class AddOnAddOnWorkflowIncludeTest
-  include Yast::AddOnAddOnWorkflowInclude
-end
-
 Yast.import "AddOnProduct"
 Yast.import "SourceDialogs"
 
 describe Yast::AddOnAddOnWorkflowInclude do
-  subject { AddOnAddOnWorkflowIncludeTest.new }
+  subject do
+    # anonymous class for testing the include
+    klass = Class.new do
+      include Yast::AddOnAddOnWorkflowInclude
+      def TypeDialogOpts(_arg1, _arg2); end
+    end
+
+    klass.new
+  end
 
   describe ".media_type_selection" do
     context "Full medium installation with no add-ons yet" do

@@ -31,10 +31,13 @@ Yast.import "Progress"
 
 module Yast
   class AddOnAutoClient < ::Installation::AutoClient
+    def initialize
+      Yast.include self, "add-on/add-on-workflow.rb"
+      super
+    end
+
     def run
       textdomain "add-on"
-
-      Yast.include self, "add-on/add-on-workflow.rb"
 
       progress_orig = Progress.set(false)
       ret = super

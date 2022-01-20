@@ -7,17 +7,15 @@ ENV["Y2DIR"] = y2dirs.unshift(srcdir).join(":")
 ENV["LC_ALL"] = "en_US.UTF-8"
 
 require "yast"
+require "yast/rspec"
 
-# Stub a module to prevent its importation
-#
-# Useful for modules from different YaST packages, to avoid build dependencies
-def stub_module(name)
-  Yast.const_set(name.to_sym, Class.new { def self.fake_method; end })
+# configure RSpec
+RSpec.configure do |config|
+  config.mock_with :rspec do |c|
+    # https://relishapp.com/rspec/rspec-mocks/v/3-0/docs/verifying-doubles/partial-doubles
+    c.verify_partial_doubles = true
+  end
 end
-
-# Stub classes from other modules to speed up a build
-stub_module("AutoinstGeneral")
-stub_module("AutoinstSoftware")
 
 if ENV["COVERAGE"]
   require "simplecov"
@@ -45,3 +43,7 @@ if ENV["COVERAGE"]
     ]
   end
 end
+
+# mock missing YaST modules
+Yast::RSpec::Helpers.define_yast_module("AutoinstSoftware", methods: [:pmInit])
+Yast::RSpec::Helpers.define_yast_module("AutoinstGeneral")
