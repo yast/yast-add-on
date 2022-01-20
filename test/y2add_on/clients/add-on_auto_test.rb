@@ -342,7 +342,7 @@ describe Yast::AddOnAutoClient do
             end
 
             it "does not reports an error while retrying" do
-              expect(Yast::Report).to receive(:Error).exactly(1).time
+              expect(Yast::Report).to receive(:Error).exactly(1).times
 
               subject.write
             end
