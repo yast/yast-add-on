@@ -95,7 +95,7 @@ module Yast
       if @update_dir != ""
         @cdpath = Ops.add(@cdpath, @update_dir)
       else
-        Pkg.TargetInit("/", false)
+        Pkg.TargetInit(Installation.destdir, false)
 
         base = Y2Packager::Resolvable.find(kind:     :product,
                                            status:   :installed,

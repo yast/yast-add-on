@@ -20,6 +20,7 @@ module Yast
       Yast.import "Mode"
       Yast.import "CommandLine"
       Yast.import "Directory"
+      Yast.import "Installation"
 
       Yast.include self, "add-on/add-on-workflow.rb"
       CommandLine.Run(
@@ -67,7 +68,7 @@ module Yast
       end
 
       # initialize target to import all trusted keys (#165849)
-      Pkg.TargetInitialize("/")
+      Pkg.TargetInitialize(Installation.destdir)
       Pkg.TargetLoad
 
       PackageCallbacks.InitPackageCallbacks
