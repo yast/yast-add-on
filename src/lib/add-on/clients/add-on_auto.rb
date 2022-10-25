@@ -19,6 +19,7 @@
 
 require "yast"
 require "installation/auto_client"
+require "uri"
 
 Yast.import "AddOnProduct"
 Yast.import "AddOnOthers"
@@ -262,7 +263,7 @@ module Yast
     def media_url_for(add_on)
       media_url = add_on.fetch("media_url", "")
 
-      if media_url.downcase.start_with?("relurl://")
+      if ["relurl", "repo"].include?(URI(media_url).scheme)
         media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.GetBaseProductURL, media_url)
 
         log.info("relurl changed to #{media_url}")
