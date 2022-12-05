@@ -206,7 +206,7 @@ module Yast
   private
 
     # Get URL for the addon
-    # @param [Hash] Addon data
+    # @param add_on [Hash] the add on data
     # @return [String] Addon URL or empty string if not set
     def addon_url(add_on)
       add_on.fetch("media_url", "").strip
