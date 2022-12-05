@@ -55,7 +55,7 @@ module Yast
       add_ons += data.fetch("add_on_others", [])
 
       valid_add_ons = add_ons.reject.with_index(1) do |add_on, index|
-        next false unless add_on.fetch("media_url", "").empty?
+        next false unless addon_url(add_on).empty?
 
         log.error("Missing <media_url> value in the #{index}. add-on definition")
 
@@ -91,7 +91,7 @@ module Yast
 
         add_on_summary = []
         # TRANSLATORS: %s is an add-on URL
-        add_on_summary << _("URL: %s") % CGI.escapeHTML(add_on["media_url"])
+        add_on_summary << _("URL: %s") % CGI.escapeHTML(addon_url(add_on))
 
         if [nil, "", "/"].none?(product_dir)
           # TRANSLATORS: %s is a product path
@@ -205,6 +205,13 @@ module Yast
 
   private
 
+    # Get URL for the addon
+    # @param [Hash] Addon data
+    # @return [String] Addon URL or empty string if not set
+    def addon_url(add_on)
+      add_on.fetch("media_url", "").strip
+    end
+
     # Create repo and install product (if given)
     #
     # @param [Hash] add_on
@@ -260,7 +267,7 @@ module Yast
     #
     # @return [String] absolute media url or empty string
     def media_url_for(add_on)
-      media_url = add_on.fetch("media_url", "")
+      media_url = addon_url(add_on)
 
       if media_url.downcase.start_with?("relurl://")
         media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.GetBaseProductURL, media_url)
@@ -368,7 +375,7 @@ module Yast
       # name in control file, bnc#433981
       return add_on_name unless add_on_name.to_s.empty?
 
-      media_url = add_on.fetch("media_url", "")
+      media_url = addon_url(add_on)
       product_dir = add_on.fetch("product_dir", "/")
       expanded_url = Pkg.ExpandedUrl(media_url)
       repos_at_url = Pkg.RepositoryScan(expanded_url) || []
