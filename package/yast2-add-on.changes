@@ -1,8 +1,8 @@
 -------------------------------------------------------------------
 Mon Dec  5 17:37:00 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
 
-- Fixed failure with CDATA URL containing white space in AutoYaST
-  profile (bsc#1205928)
+- Fixed failure with the "media_url" element in AutoYaST profile
+  containing CDATA block with spaces (bsc#1205928)
 - 4.4.8
 
 -------------------------------------------------------------------
