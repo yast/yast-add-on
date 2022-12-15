@@ -300,9 +300,11 @@ module Yast
     #
     # @return [Boolean]
     def retry_again?(product, media_url)
-      Popup.ContinueCancel(
-        # TRANSLATORS: The placeholders are for the product name and the URL.
-        format(_("Make the add-on \"%{name}\" available via \"%{url}\"."), name: product, url: media_url)
+      Popup.YesNo(
+        # TRANSLATORS: Popup with Yes/No buttons, adding the repository failed.
+        # The placeholders are for the product name and the URL.
+        format(_("Failed to add product \"%{name}\" from \n%{url}\nTry again?"),
+          name: product, url: media_url)
       )
     end
 
