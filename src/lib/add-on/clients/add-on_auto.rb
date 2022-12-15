@@ -56,7 +56,7 @@ module Yast
       add_ons += data.fetch("add_on_others", [])
 
       valid_add_ons = add_ons.reject.with_index(1) do |add_on, index|
-        next false unless add_on.fetch("media_url", "").empty?
+        next false unless stripped_media_url(add_on).empty?
 
         log.error("Missing <media_url> value in the #{index}. add-on definition")
 
@@ -92,7 +92,7 @@ module Yast
 
         add_on_summary = []
         # TRANSLATORS: %s is an add-on URL
-        add_on_summary << _("URL: %s") % CGI.escapeHTML(add_on["media_url"])
+        add_on_summary << _("URL: %s") % CGI.escapeHTML(stripped_media_url(add_on))
 
         if [nil, "", "/"].none?(product_dir)
           # TRANSLATORS: %s is a product path
@@ -165,7 +165,7 @@ module Yast
     def write
       AddOnProduct.add_on_products.each do |add_on|
         product = add_on.fetch("product", "")
-        media_url = media_url_for(add_on)
+        media_url = absolute_media_url(add_on)
         action = create_source(add_on, product, media_url)
 
         case action
@@ -205,6 +205,13 @@ module Yast
     end
 
   private
+
+    # Get URL for the addon
+    # @param add_on [Hash] the add on data
+    # @return [String] Addon URL or empty string if not set
+    def stripped_media_url(add_on)
+      add_on.fetch("media_url", "").strip
+    end
 
     # Create repo and install product (if given)
     #
@@ -260,8 +267,8 @@ module Yast
     # @param [Hash] add_on
     #
     # @return [String] absolute media url or empty string
-    def media_url_for(add_on)
-      media_url = add_on.fetch("media_url", "")
+    def absolute_media_url(add_on)
+      media_url = stripped_media_url(add_on)
 
       if ["relurl", "repo"].include?(URI(media_url).scheme)
         media_url = AddOnProduct.GetAbsoluteURL(AddOnProduct.GetBaseProductURL, media_url)
@@ -293,9 +300,11 @@ module Yast
     #
     # @return [Boolean]
     def retry_again?(product, media_url)
-      Popup.ContinueCancel(
-        # TRANSLATORS: The placeholders are for the product name and the URL.
-        format(_("Make the add-on \"%{name}\" available via \"%{url}\"."), name: product, url: media_url)
+      Popup.YesNo(
+        # TRANSLATORS: Popup with Yes/No buttons, adding the repository failed.
+        # The placeholders are for the product name and the URL.
+        format(_("Failed to add product \"%{name}\" from \n%{url}\nTry again?"),
+          name: product, url: media_url)
       )
     end
 
@@ -369,7 +378,7 @@ module Yast
       # name in control file, bnc#433981
       return add_on_name unless add_on_name.to_s.empty?
 
-      media_url = add_on.fetch("media_url", "")
+      media_url = stripped_media_url(add_on)
       product_dir = add_on.fetch("product_dir", "/")
       expanded_url = Pkg.ExpandedUrl(media_url)
       repos_at_url = Pkg.RepositoryScan(expanded_url) || []

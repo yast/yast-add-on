@@ -386,18 +386,30 @@ describe Yast::AddOnAutoClient do
         client.write
       end
 
+      context "URL contains spaces" do
+        # simulate CDATA with spaces:
+        # <media_url><![CDATA[  relurl://  ]]></media_url>
+        let(:unexpanded_url) { "  RELURL://product-$releasever.url  " }
+
+        # test regression with CDATA (bsc#1205928)
+        it "strips the spaces from URL" do
+          expect(Yast::Pkg).to receive(:ExpandedUrl).with(unexpanded_url.strip)
+          client.write
+        end
+      end
+
       context "and product creation fails" do
         before do
           allow(Yast::Report).to receive(:Error)
           allow(Yast::Pkg).to receive(:SourceCreate).and_return(-1)
-          allow(Yast::Popup).to receive(:ContinueCancel).and_return(retry_on_error, false)
+          allow(Yast::Popup).to receive(:YesNo).and_return(retry_on_error, false)
         end
 
         let(:retry_on_error) { true }
 
         context "ask_on_error=true" do
           it "ask the user to make it available" do
-            expect(Yast::Popup).to receive(:ContinueCancel)
+            expect(Yast::Popup).to receive(:YesNo)
 
             client.write
           end
@@ -439,7 +451,7 @@ describe Yast::AddOnAutoClient do
           let(:ask_on_error) { false }
 
           it "does not ask to make it available" do
-            expect(Yast::Popup).to_not receive(:ContinueCancel)
+            expect(Yast::Popup).to_not receive(:YesNo)
 
             client.write
           end
