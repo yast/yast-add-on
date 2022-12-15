@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Dec  5 17:37:00 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
+
+- Fixed failure with the "media_url" element in AutoYaST profile
+  containing CDATA block with spaces (bsc#1205928)
+- 4.4.8
+
+-------------------------------------------------------------------
 Thu Jan 20 16:40:26 UTC 2022 - David Diaz <dgonzalez@suse.com>
 
 - Restore the repo unexpanded URL to get it properly saved in
