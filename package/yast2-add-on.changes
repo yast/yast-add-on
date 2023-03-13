@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar 13 07:57:51 UTC 2023 - Ladislav Slezák <lslezak@suse.com>
+
+- Removed unnecessary executable flag from file add-on-workflow.rb
+  (bsc#1209094)
+- 4.5.4
+
+-------------------------------------------------------------------
 Thu Dec 15 12:50:41 UTC 2022 - Ladislav Slezák <lslezak@suse.com>
 
 - Fixed failure with the "media_url" element in AutoYaST profile
