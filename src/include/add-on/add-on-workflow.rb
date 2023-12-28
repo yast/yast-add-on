@@ -925,7 +925,7 @@ module Yast
 
       # added / removed
       some_addon_changed = false
-      begin
+      loop do
         # FATE #301928 - Saving one click
         ret = Convert.to_symbol(UI.UserInput) unless ret == :skip_to_add
 
@@ -1048,7 +1048,8 @@ module Yast
             ret = :next if ret2 == :skip
           end
         end
-      end until [:next, :back, :abort].include?(ret)
+        break if [:next, :back, :abort].include?(ret)
+      end
 
       Builtins.y2milestone(
         "Ret: %1, Some Add-on Added/Removed: %2",
