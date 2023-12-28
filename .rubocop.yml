@@ -15,9 +15,6 @@ Lint/UnderscorePrefixedVariableName:
 Naming/MethodName:
   Enabled: false
 
-Naming/VariableName:
-  Enabled: false
-
 # Offense count: 11
 Metrics/AbcSize:
   Max: 210

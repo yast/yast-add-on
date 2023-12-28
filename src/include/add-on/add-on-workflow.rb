@@ -55,8 +55,6 @@ module Yast
       Yast.include include_target, "add-on/misc.rb"
 
       # Used for adding sources
-      @createResult = :again
-
       @new_addon_name = ""
 
       @product_infos = {}
@@ -1310,10 +1308,10 @@ module Yast
         repository_info = (
           one_product_ref = arg_ref(one_product)
           all_products_ref = arg_ref(all_products)
-          _GetRepoInfo_result = GetRepoInfo(one_product_ref, all_products_ref)
+          result = GetRepoInfo(one_product_ref, all_products_ref)
           one_product = one_product_ref.value
           all_products = all_products_ref.value
-          _GetRepoInfo_result
+          result
         )
         Ops.set(
           @product_infos,
