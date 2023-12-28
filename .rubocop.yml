@@ -23,7 +23,7 @@ Lint/Loop:
 
 # Offense count: 11
 Metrics/AbcSize:
-  Max: 200
+  Max: 210
 
 # Offense count: 24
 # Configuration parameters: CountComments, ExcludedMethods.
@@ -66,7 +66,7 @@ Metrics/ParameterLists:
 
 # Offense count: 10
 Metrics/PerceivedComplexity:
-  Max: 41
+  Max: 50
 
 # Offense count: 10
 # Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
@@ -104,3 +104,9 @@ Style/ClassVars:
     # (even for derived classes)
     # https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/ClassVars
     - 'src/include/add-on/add-on-workflow.rb'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+# disable optional boolean parameter to avoid API breakage
+Style/OptionalBooleanParameter:
+  Enabled: false

@@ -1002,10 +1002,12 @@ module Yast
 
           if ret2 == :next
             # FIXME: can be these two iterations joined?
+            # rubocop:disable Style/CombinableLoops
             # Add-On product has been added, integrate it (change workflow, use y2update)
             @added_repos.each { |src_id| AddOnProduct.Integrate(src_id) }
             # check whether it requests registration (FATE #301312)
             @added_repos.each { |src_id| AddOnProduct.PrepareForRegistration(src_id) }
+            # rubocop:enable Style/CombinableLoops
 
             some_addon_changed = true
             # do not keep first_time, otherwise summary won't be shown during installation
