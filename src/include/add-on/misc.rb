@@ -70,10 +70,10 @@ module Yast
           # TRANSLATORS: pop-up question
           _(
             "Your system does not seem to have enough memory to use add-on products\n" \
-              "during installation. You can enable add-on products later when the\n" \
-              "system is running.\n" \
-              "\n" \
-              "Do you want to skip using add-on products?"
+            "during installation. You can enable add-on products later when the\n" \
+            "system is running.\n" \
+            "\n" \
+            "Do you want to skip using add-on products?"
           )
         )
           Builtins.y2milestone("User decided to skip Add-Ons")

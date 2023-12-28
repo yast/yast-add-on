@@ -29,8 +29,8 @@ module Yast
         "help"       => format(
           _(
             "Add On Management - This module does not support the command line " \
-              "interface, use '%{zypper}' instead for adding a new repository or " \
-              "'%{SUSEConnect}' to register a new add-on."
+            "interface, use '%{zypper}' instead for adding a new repository or " \
+            "'%{SUSEConnect}' to register a new add-on."
           ),
           zypper: "zypper", SUSEConnect: "SUSEConnect"
         ),

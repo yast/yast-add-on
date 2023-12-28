@@ -2,7 +2,7 @@
 
 require_relative "./test_helper"
 
-require_relative "../src/include/add-on/add-on-workflow.rb"
+require_relative "../src/include/add-on/add-on-workflow"
 
 Yast.import "AddOnProduct"
 Yast.import "SourceDialogs"

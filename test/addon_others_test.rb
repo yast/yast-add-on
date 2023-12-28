@@ -8,7 +8,7 @@ describe Yast::AddOnOthers do
 
   let(:available_products) do
     [Y2Packager::Resolvable.new(kind: :product,
-        name: "SLE_RT", status: :available, source: 2),
+      name: "SLE_RT", status: :available, source: 2),
      Y2Packager::Resolvable.new(kind: :product,
        name: "SLE_HPC", status: :available, source: 2),
      Y2Packager::Resolvable.new(kind: :product,
@@ -35,7 +35,7 @@ describe Yast::AddOnOthers do
 
   let(:installed_products) do
     [Y2Packager::Resolvable.new(kind: :product,
-        name: "sle-module-desktop-applications", status: :installed, source: -1),
+      name: "sle-module-desktop-applications", status: :installed, source: -1),
      Y2Packager::Resolvable.new(kind: :product,
        name: "sle-module-basesystem", status: :installed, source: -1),
      Y2Packager::Resolvable.new(kind: :product,

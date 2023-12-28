@@ -88,20 +88,17 @@ module Yast
 
       @dialog_ret = :abort if @ret == :cancel
 
-      if @ret == :accept || @ret == :ok
-        # Add-on requires packages to be installed right now
-        if Ops.get_boolean(@argmap, "skip_installation", false) != true
-          Builtins.y2milestone("Selected resolvables will be installed now")
+      if (@ret == :accept || @ret == :ok) && (Ops.get_boolean(@argmap, "skip_installation", false) != true)
+        Builtins.y2milestone("Selected resolvables will be installed now")
 
-          if WFM.CallFunction(
-            "inst_rpmcopy",
-            [GetInstArgs.Buttons(false, false)]
-          ) == :abort
-            @dialog_ret = :abort
-          else
-            Kernel.InformAboutKernelChange
-            Builtins.y2milestone("Done")
-          end
+        if WFM.CallFunction(
+          "inst_rpmcopy",
+          [GetInstArgs.Buttons(false, false)]
+        ) == :abort
+          @dialog_ret = :abort
+        else
+          Kernel.InformAboutKernelChange
+          Builtins.y2milestone("Done")
         end
       end
 
