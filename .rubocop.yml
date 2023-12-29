@@ -1,6 +1,6 @@
 # use the shared Yast defaults
 inherit_from:
-  /usr/share/YaST2/data/devtools/data/rubocop-0.71.0_yast_style.yml
+  /usr/share/YaST2/data/devtools/data/rubocop-1.24.1_yast_style.yml
 
 # this needs more testing if we can have frozen string literals
 Style/FrozenStringLiteralComment:
@@ -15,15 +15,9 @@ Lint/UnderscorePrefixedVariableName:
 Naming/MethodName:
   Enabled: false
 
-Naming/VariableName:
-  Enabled: false
-
-Lint/Loop:
-  Enabled: false
-
 # Offense count: 11
 Metrics/AbcSize:
-  Max: 200
+  Max: 210
 
 # Offense count: 24
 # Configuration parameters: CountComments, ExcludedMethods.
@@ -46,7 +40,7 @@ Metrics/CyclomaticComplexity:
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
-Metrics/LineLength:
+Layout/LineLength:
   Max: 122
 
 # Offense count: 16
@@ -66,7 +60,7 @@ Metrics/ParameterLists:
 
 # Offense count: 10
 Metrics/PerceivedComplexity:
-  Max: 41
+  Max: 50
 
 # Offense count: 10
 # Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
@@ -104,3 +98,9 @@ Style/ClassVars:
     # (even for derived classes)
     # https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/ClassVars
     - 'src/include/add-on/add-on-workflow.rb'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+# disable optional boolean parameter to avoid API breakage
+Style/OptionalBooleanParameter:
+  Enabled: false

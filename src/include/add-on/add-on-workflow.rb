@@ -55,8 +55,6 @@ module Yast
       Yast.include include_target, "add-on/misc.rb"
 
       # Used for adding sources
-      @createResult = :again
-
       @new_addon_name = ""
 
       @product_infos = {}
@@ -279,8 +277,8 @@ module Yast
       # help text
       help_text = _(
         "<p><big><b>Software Repository Selection</b></big><br>\n" \
-          "Multiple repositories were found on the selected medium.\n" \
-          "Select the repository to use.</p>\n"
+        "Multiple repositories were found on the selected medium.\n" \
+        "Select the repository to use.</p>\n"
       )
 
       contents = HBox(
@@ -317,12 +315,7 @@ module Yast
         end
       end
 
-      if ret != :next
-        Builtins.foreach(SourceManager.newSources) do |src|
-          Builtins.y2milestone("Deleting source %1", src)
-          Pkg.SourceDelete(src)
-        end
-      else
+      if ret == :next
         Builtins.foreach(SourceManager.newSources) do |src|
           if src != selected
             Builtins.y2milestone("Deleting unused source %1", src)
@@ -335,6 +328,11 @@ module Yast
 
         AddOnProduct.src_id = selected
         SourceManager.newSources = [selected]
+      else
+        Builtins.foreach(SourceManager.newSources) do |src|
+          Builtins.y2milestone("Deleting source %1", src)
+          Pkg.SourceDelete(src)
+        end
       end
 
       AddOnProduct.last_ret = ret
@@ -364,7 +362,7 @@ module Yast
         # Product is not available (either `installed or `selected or ...)
         if product.status != :available
           log.info("Skipping product #{product.name} with status " \
-            "#{product.status}")
+                   "#{product.status}")
           next
         end
 
@@ -537,7 +535,9 @@ module Yast
         AddOnProduct.add_on_products = Builtins.add(
           AddOnProduct.add_on_products,
           "media"            => AddOnProduct.src_id,
-          "product"          => if [nil, ""].include?(@new_addon_name) != ""
+          "product"          => if [nil, ""].include?(@new_addon_name) == ""
+                                  @new_addon_name
+                                else
                                   Ops.get_string(
                                     prod,
                                     "display_name",
@@ -547,8 +547,6 @@ module Yast
                                       Ops.get_string(prod, "name", "")
                                     )
                                   )
-                                else
-                                  @new_addon_name
                                 end,
           "autoyast_product" => Ops.get_string(prod, "name", ""),
           "media_url"        => url,
@@ -590,8 +588,8 @@ module Yast
       # help text
       help_text = _(
         "<p><b><big>Product Selection</big></b><br/>\n" \
-          "Multiple products were found in the repository. Select the products\n" \
-          "to install.</p>\n"
+        "Multiple products were found in the repository. Select the products\n" \
+        "to install.</p>\n"
       )
       Wizard.SetContents(title, contents, help_text, true, true)
       while ret.nil?
@@ -750,9 +748,9 @@ module Yast
       # Help for add-on products
       help = _(
         "<p><big><b>Add-On Product Installation</b></big><br/>\n" \
-          "Here see all add-on products that are selected for installation.\n" \
-          "To add a new product, click <b>Add</b>. To remove an already added one,\n" \
-          "select it and click <b>Delete</b>.</p>"
+        "Here see all add-on products that are selected for installation.\n" \
+        "To add a new product, click <b>Add</b>. To remove an already added one,\n" \
+        "select it and click <b>Delete</b>.</p>"
       )
 
       Builtins.y2milestone("Current products: %1", AddOnProduct.add_on_products)
@@ -894,14 +892,12 @@ module Yast
       # It might be dangerous to add more installation sources in installation
       # on machine with less memory
       # Do not report when some add-ons are already in use
-      if not_enough_memory && !no_addons
-        if !ContinueIfInsufficientMemory()
-          # next time, it will be skipped too
-          Installation.add_on_selected = false
-          Installation.productsources_selected = false
+      if not_enough_memory && !no_addons && !ContinueIfInsufficientMemory()
+        # next time, it will be skipped too
+        Installation.add_on_selected = false
+        Installation.productsources_selected = false
 
-          return :next
-        end
+        return :next
       end
 
       # FATE #301928 - Saving one click
@@ -927,7 +923,7 @@ module Yast
 
       # added / removed
       some_addon_changed = false
-      begin
+      loop do
         # FATE #301928 - Saving one click
         ret = Convert.to_symbol(UI.UserInput) unless ret == :skip_to_add
 
@@ -1004,10 +1000,12 @@ module Yast
 
           if ret2 == :next
             # FIXME: can be these two iterations joined?
+            # rubocop:disable Style/CombinableLoops
             # Add-On product has been added, integrate it (change workflow, use y2update)
             @added_repos.each { |src_id| AddOnProduct.Integrate(src_id) }
             # check whether it requests registration (FATE #301312)
             @added_repos.each { |src_id| AddOnProduct.PrepareForRegistration(src_id) }
+            # rubocop:enable Style/CombinableLoops
 
             some_addon_changed = true
             # do not keep first_time, otherwise summary won't be shown during installation
@@ -1048,7 +1046,8 @@ module Yast
             ret = :next if ret2 == :skip
           end
         end
-      end until [:next, :back, :abort].include?(ret)
+        break if [:next, :back, :abort].include?(ret)
+      end
 
       Builtins.y2milestone(
         "Ret: %1, Some Add-on Added/Removed: %2",
@@ -1062,9 +1061,9 @@ module Yast
 
       # First stage installation, #247892
       # installation, update or autoinstallation
-      if Stage.initial
+      if Stage.initial && some_addon_changed
         # bugzilla #221377
-        AddOnProduct.ReIntegrateFromScratch if some_addon_changed
+        AddOnProduct.ReIntegrateFromScratch
       end
 
       # bugzilla #293428
@@ -1309,10 +1308,10 @@ module Yast
         repository_info = (
           one_product_ref = arg_ref(one_product)
           all_products_ref = arg_ref(all_products)
-          _GetRepoInfo_result = GetRepoInfo(one_product_ref, all_products_ref)
+          result = GetRepoInfo(one_product_ref, all_products_ref)
           one_product = one_product_ref.value
           all_products = all_products_ref.value
-          _GetRepoInfo_result
+          result
         )
         Ops.set(
           @product_infos,
@@ -1452,9 +1451,9 @@ module Yast
         Builtins.sformat(
           _(
             "Deleting the add-on product %1 may result in removing all the packages\n" \
-              "installed from this add-on.\n" \
-              "\n" \
-              "Are sure you want to delete it?"
+            "installed from this add-on.\n" \
+            "\n" \
+            "Are sure you want to delete it?"
           ),
           product_name
         ),
@@ -1811,7 +1810,11 @@ module Yast
         log.info("Added source ID: #{source}")
       end
 
-      if !@added_repos.empty?
+      if @added_repos.empty?
+        # TODO: can this situation actually happen?
+        @added_repos << sources_after.last
+        log.warn("Fallback src_id: #{sources_after.last}")
+      else
         # rename the repository to the product name if user left the name field empty
         if SourceDialogs.GetRepoName.empty?
           # first set the fallback name for the added repository because the
@@ -1834,10 +1837,6 @@ module Yast
           # used add-ons are stored in a special list
           AddAddOnToStore(src_id)
         end
-      else
-        # TODO: can this situation actually happen?
-        @added_repos << sources_after.last
-        log.warn("Fallback src_id: #{sources_after.last}")
       end
 
       # BNC #441380
@@ -1900,7 +1899,7 @@ module Yast
         require "registration/registration"
         !Registration::Registration.is_registered?
       rescue LoadError
-        return false
+        false
       end
     end
 

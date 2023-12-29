@@ -92,18 +92,16 @@ module Yast
       @update_dir = Convert.to_string(
         SCR.Read(path(".target.string"), ["/var/lib/YaST2/vendor_update", ""])
       )
-      if @update_dir != ""
-        @cdpath = Ops.add(@cdpath, @update_dir)
-      else
+      if @update_dir == ""
         Pkg.TargetInit(Installation.destdir, false)
 
         base = Y2Packager::Resolvable.find(kind:     :product,
-                                           status:   :installed,
-                                           category: "base")
+          status:   :installed,
+          category: "base")
         if base.empty?
           # fallback
           base = Y2Packager::Resolvable.find(kind:   :product,
-                                             status: :installed)
+            status: :installed)
         end
         version = base[0] ? base[0].version_version : ""
 
@@ -137,6 +135,8 @@ module Yast
           Ops.add(Ops.add(Ops.add(@cdpath, "/suse/"), Arch.architecture), "-"),
           version
         )
+      else
+        @cdpath = Ops.add(@cdpath, @update_dir)
       end
 
       Builtins.y2milestone("Trying %1", @cdpath)
@@ -227,29 +227,27 @@ module Yast
           )
         end
         # show contents
-        if Ops.greater_than(Builtins.size(description), 0)
-          if Popup.YesNo(description)
-            # VENDOR: dialog heading
-            Wizard.SetContents(
-              @title,
-              HVCenter(Label(_("Installing driver..."))),
-              "",
-              true,
-              true
-            )
-            inst_result = run_inst(@cdpath, Ops.add(fname, ".inst"))
-            if inst_result == 0
-              @inst_count = Ops.add(@inst_count, 1)
-            else
-              # VENDOR: popup if installation of driver failed
-              Popup.Message(
-                _(
-                  "The installation failed.\nContact the address on the CD-ROM.\n"
-                )
+        if Ops.greater_than(Builtins.size(description), 0) && Popup.YesNo(description)
+          # VENDOR: dialog heading
+          Wizard.SetContents(
+            @title,
+            HVCenter(Label(_("Installing driver..."))),
+            "",
+            true,
+            true
+          )
+          inst_result = run_inst(@cdpath, Ops.add(fname, ".inst"))
+          if inst_result == 0
+            @inst_count = Ops.add(@inst_count, 1)
+          else
+            # VENDOR: popup if installation of driver failed
+            Popup.Message(
+              _(
+                "The installation failed.\nContact the address on the CD-ROM.\n"
               )
-            end
-            Wizard.SetContents(@title, Empty(), "", true, true)
+            )
           end
+          Wizard.SetContents(@title, Empty(), "", true, true)
         end
       end
 

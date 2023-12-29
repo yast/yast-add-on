@@ -92,16 +92,16 @@ module Yast
 
         add_on_summary = []
         # TRANSLATORS: %s is an add-on URL
-        add_on_summary << _("URL: %s") % CGI.escapeHTML(stripped_media_url(add_on))
+        add_on_summary << (_("URL: %s") % CGI.escapeHTML(stripped_media_url(add_on)))
 
         if [nil, "", "/"].none?(product_dir)
           # TRANSLATORS: %s is a product path
-          add_on_summary << _("Path: %s") % CGI.escapeHTML(product_dir)
+          add_on_summary << (_("Path: %s") % CGI.escapeHTML(product_dir))
         end
 
         if !(product.nil? || product.empty?)
           # TRANSLATORS: %s is the product
-          add_on_summary << _("Product: %s") % CGI.escapeHTML(product)
+          add_on_summary << (_("Product: %s") % CGI.escapeHTML(product))
         end
 
         "<li>#{add_on_summary.join(", ")}</li>"
