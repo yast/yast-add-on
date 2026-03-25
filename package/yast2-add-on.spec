@@ -17,7 +17,7 @@
 
 
 Name:           yast2-add-on
-Version:        5.0.0
+Version:        5.0.1
 Release:        0
 Summary:        YaST2 - Add-On media installation code
 License:        GPL-2.0-only
@@ -28,7 +28,6 @@ Source0:        %{name}-%{version}.tar.bz2
 
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:yast-rake)
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
-BuildRequires:  update-desktop-files
 # UIExtensionChecker
 BuildRequires:  yast2 >= 4.4.19
 BuildRequires:  yast2-devtools >= 3.1.10
